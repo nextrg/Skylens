@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "skylens",
+  "version": "${version}",
+  "name": "Skylens",
+  "description": "Adds things like Missing Enchantments helper, Pet Overlay and more!",
+  "authors": ["next_g"],
+  "contact": {},
+  "license": "All Rights Reserved",
+  "icon": "icon.png",
+  "environment": "client",
+  "custom": {},
+  "entrypoints": {
+    "client": [
+      "org.nextrg.skylens.client.SkylensClient"
+    ],
+    "modmenu": [
+      "org.nextrg.skylens.client.ModConfig"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}",
+    "yet_another_config_lib_v3": ">=${yacl_version}",
+    "modmenu": ">=${modmenu_version}"
+  }
+}
