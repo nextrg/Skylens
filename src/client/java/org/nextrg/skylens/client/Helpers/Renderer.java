@@ -69,35 +69,35 @@ public class Renderer {
         context.getMatrices().pop();
     }
     public static void drawText(DrawContext context, String text, int x, int y, int color, float scale, boolean centered, boolean shadow) {
-        x = (int)(x / scale);
-        y = (int)(y / scale);
         context.getMatrices().push();
+        context.getMatrices().translate(x, y, 0);
         context.getMatrices().scale(scale, scale, scale);
         if (!centered) {
-            context.drawText(MinecraftClient.getInstance().textRenderer, text, x, y, color, shadow);
+            context.drawText(MinecraftClient.getInstance().textRenderer, text, 0, 0, color, shadow);
         } else {
-            context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, text, x, y, color);
+            context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, text, 0, 0, color);
         }
         context.getMatrices().pop();
     }
-    public static float easeInOut(float t) {
+    public static float easeInOutQuadratic(float t) {
         if(t <= 0.5f)
             return 2.0f * t * t;
         t -= 0.5f;
         return 2.0f * t * (1.0f - t) + 0.5f;
     }
-    public static float easeInOutSine(float t) {
-        return 0.5f - 0.5f * (float) Math.cos(t * Math.PI);
+    public static float easeInOutCubic(float t) {
+        if (t < 0.5f) {
+            return 4.0f * t * t * t;
+        } else {
+            float f = -2.0f * t + 2.0f;
+            return 1.0f - (f * f * f) / 2.0f;
+        }
     }
-    public static float easeInOutExpo(float t) {
+    public static float easeInOutExponential(float t) {
         if (t == 0 || t == 1) return t;
         if (t < 0.5f)
             return (float) (0.5f * Math.pow(2, 20 * t - 10));
         return (float) (1 - 0.5f * Math.pow(2, -20 * t + 10));
-    }
-    public static float easeOutBack(float t) {
-        float c1 = 1.70158f;
-        return 1 + c1 * (t - 1) * (t - 1) * (t - 1) + c1 * (t - 1) * (t - 1);
     }
     public static int getScreenWidth(DrawContext context) {
         return context.getScaledWindowWidth();

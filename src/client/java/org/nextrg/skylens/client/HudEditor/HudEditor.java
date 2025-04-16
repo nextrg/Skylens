@@ -9,20 +9,19 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.nextrg.skylens.client.ModConfig;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import static org.nextrg.skylens.client.Helpers.Renderer.drawText;
-import static org.nextrg.skylens.client.Helpers.Renderer.easeInOut;
+import static org.nextrg.skylens.client.Helpers.Renderer.easeInOutQuadratic;
 import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
 import static org.nextrg.skylens.client.Helpers.Text.hexToHexa;
 import static org.nextrg.skylens.client.Main.PetOverlay.*;
 
-public class SkylensScreen extends Screen {
-    public SkylensScreen(Text title) {
+public class HudEditor extends Screen {
+    public HudEditor(Text title) {
         super(title);
     }
     
@@ -43,35 +42,54 @@ public class SkylensScreen extends Screen {
     
     @Override
     protected void init() {
+        var paginationY = 132;
+        var pagetwoX = 23 + textRenderer.getWidth("Page 1") + 6;
         if (currentPage == 1) {
-            Button position = new Button(2, 41, 151, 37, ModConfig.petOverlayPosition.replace("_", " "), "Placement of the overlay.", 1);
+            Button position = new Button(2, 41, 151, 37,
+                    ModConfig.petOverlayPosition.replace("_", " "),
+                    "Placement of the overlay.", 1);
             this.addDrawableChild(position);
-            Button style = new Button(2, 41 + 37 + 2, 151, 24, ModConfig.petOverlayStyle.replace("Style1", "Bar")
+            Button style = new Button(2, 41 + 37 + 2, 151, 24,
+                    ModConfig.petOverlayStyle.replace("Style1", "Bar")
                     .replace("Style2", "Circular")
-                    .replace("Style3", "Circular" + getColorCode("gray") + " (alt)"), "", 2);
+                    .replace("Style3", "Circular" + getColorCode("gray") + " (alt)"),
+                    "", 2);
             this.addDrawableChild(style);
-            Button showlevel = new Button(2, 41 + 37 + 2 + 24 + 2, 151, 24, "", "", 5);
+            Button showlevel = new Button(2, 41 + 37 + 2 + 24 + 2, 151, 24,
+                    "", "", 5);
             this.addDrawableChild(showlevel);
         }
         if (currentPage == 2) {
-            Button theme = new Button(2, 41, 151, 37, getColorCode(ModConfig.petOverlayTheme.toLowerCase()) + (ModConfig.petOverlayTheme.equals("Custom") ? "§n" : "") + ModConfig.petOverlayTheme,"Custom can be changed in mod's config.", 10);
+            Button theme = new Button(2, 41, 151, 37,
+                    getColorCode(ModConfig.petOverlayTheme.toLowerCase()) + (ModConfig.petOverlayTheme.equals("Custom") ? "§n" : "") + ModConfig.petOverlayTheme,
+                    "Custom can be changed in mod's config.", 10);
             this.addDrawableChild(theme);
-            Button petrarity = new Button(2, 41 + 37 + 2, 151, 24, "", "", 3);
+            Button petrarity = new Button(2, 41 + 37 + 2, 151, 24,
+                    "",
+                    "", 3);
             this.addDrawableChild(petrarity);
         }
         if (currentPage == 3) {
-            Button iconAlign = new Button(2, 41, 151, 37, String.valueOf(ModConfig.petOverlayIconAlign).replace("true", "Left").replace("false", "Right"), "For bar style only.", 9);
+            Button iconAlign = new Button(2, 41, 151, 37,
+                    String.valueOf(ModConfig.petOverlayIconAlign).replace("true", "Left").replace("false", "Right"),
+                    "For bar style only.", 9);
             this.addDrawableChild(iconAlign);
-            Button invertprogress = new Button(2, 41 + 37 + 2, 151, 24, String.valueOf(ModConfig.petOverlayInvert).replace("true", "Inverted").replace("false", "Default"), "", 6);
+            Button invertprogress = new Button(2, 41 + 37 + 2, 151, 24,
+                    String.valueOf(ModConfig.petOverlayInvert).replace("true", "Inverted").replace("false", "Default"),
+                    "", 6);
             this.addDrawableChild(invertprogress);
         }
-        var paginationY = 132;
-        Button pageone = new Button(2, paginationY, 19, 18, "", "", 7);
+        Button pageone = new Button(2, paginationY, 19, 18,
+                "",
+                "", 7);
         this.addDrawableChild(pageone);
-        var pagetwoX = 23 + textRenderer.getWidth("Page 1") + 6;
-        Button pagetwo = new Button(pagetwoX, paginationY, 19, 18, "", "", 8);
+        Button pagetwo = new Button(pagetwoX, paginationY, 19, 18,
+                "",
+                "", 8);
         this.addDrawableChild(pagetwo);
-        Button exit = new Button(pagetwoX + 21, paginationY, 63 + 6, 18, "Close", "", 4);
+        Button exit = new Button(pagetwoX + 21, paginationY, 63 + 6, 18,
+                "Close",
+                "", 4);
         this.addDrawableChild(exit);
     }
     
@@ -94,7 +112,7 @@ public class SkylensScreen extends Screen {
                     transit = 1f;
                 }
                 open[0] = true;
-                client.setScreen(new SkylensScreen(Text.literal("SkylensHudEditor")));
+                client.setScreen(new HudEditor(Text.literal("HudEditor")));
             }
         });
     }
@@ -115,9 +133,9 @@ public class SkylensScreen extends Screen {
             scheduler.schedule(() -> {
                 synchronized (lock) {
                     if (show) {
-                        anim = Math.min(easeInOut(progress), 1);
+                        anim = Math.min(easeInOutQuadratic(progress), 1);
                     } else {
-                        anim = Math.max(0, 1 - easeInOut(progress));
+                        anim = Math.max(0, 1 - easeInOutQuadratic(progress));
                     }
                 }
             }, i * 2L * (!show ? 3 : 2), TimeUnit.MILLISECONDS);
@@ -130,9 +148,9 @@ public class SkylensScreen extends Screen {
             scheduler.schedule(() -> {
                 synchronized (lock) {
                     if (show) {
-                        transit = Math.min(easeInOut(progress), 1);
+                        transit = Math.min(easeInOutQuadratic(progress), 1);
                     } else {
-                        transit = Math.max(0, 1 - easeInOut(progress));
+                        transit = Math.max(0, 1 - easeInOutQuadratic(progress));
                     }
                     Button.setProgress(transit);
                 }
@@ -218,7 +236,7 @@ public class SkylensScreen extends Screen {
         context.enableScissor(42, (int)(20 * transit), 144, (int)(50 * transit));
         drawText(context, "for Skylens", -90 + 42 + (int)(amount * 210), -21 + (int)(30 * transit) + 16, hexToHexa(0xFF9F9F9F, (int) (10 + transit * 245)), 1F, false, false);
         context.disableScissor();
-        drawText(context, "\uD83D\uDD27", 8 + 2, 6 + (int)(transit * 45) - 45, hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 4F, false, false);
+        drawText(context, "\uD83D\uDD27", 8 + 2, 4 + (int)(transit * 45) - 45, hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 4F, false, false);
         drawText(context, "Hud Editor", 42, -21 + (int)(30 * transit), hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 2F, false, false);
         drawText(context, "To quickly access this menu, use /skylens", windowwidth  - this.textRenderer.getWidth("To quickly access this menu, use /skylens") - 10,-21 + (int)(30 * transit), hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 1F, false, true);
     }

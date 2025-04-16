@@ -9,7 +9,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
 import org.nextrg.skylens.client.ModConfig;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,13 +16,13 @@ import java.util.concurrent.TimeUnit;
 import static org.nextrg.skylens.client.Helpers.Renderer.*;
 import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
 import static org.nextrg.skylens.client.Helpers.Text.hexToHexa;
-import static org.nextrg.skylens.client.HudEditor.SkylensScreen.*;
+import static org.nextrg.skylens.client.HudEditor.HudEditor.*;
 
 public class Button extends ClickableWidget {
     public String displayText;
-    public int btype;
+    public int btype; // button type
     public String desc;
-    public static float progress;
+    public static float progress; // variable for anim when opening/closing the screen
     public Button(int x, int y, int width, int height, String text, String description, int type) {
         super(x, y, width, height, Text.literal(text));
         btype = type;
@@ -109,7 +108,7 @@ public class Button extends ClickableWidget {
                 }
             }
             if (btype == 7 || btype == 8) {
-                SkylensScreen.setCurrentPage(targetPage);
+                HudEditor.setCurrentPage(targetPage);
             }
             if (btype == 9) {
                 ModConfig.petOverlayIconAlign = !ModConfig.petOverlayIconAlign;
@@ -149,9 +148,9 @@ public class Button extends ClickableWidget {
                 synchronized (lock) {
                     if (animatingToVisible != show) return;
                     if (animatingToVisible) {
-                        transit = Math.min(easeInOut(progress), 1f);
+                        transit = Math.min(easeInOutQuadratic(progress), 1f);
                     } else {
-                        transit = Math.max(0f, 1 - easeInOut(progress));
+                        transit = Math.max(0f, 1 - easeInOutQuadratic(progress));
                     }
                     if (step == 59) {
                         animationRunning = false;
@@ -161,7 +160,7 @@ public class Button extends ClickableWidget {
         }
     }
     
-    private float button = 0f;
+    private float button;
     private void animateClick(boolean show) {
         for (int i = 0; i < 60; i++) {
             final float progress = i / 59f;
@@ -169,9 +168,9 @@ public class Button extends ClickableWidget {
             scheduler.schedule(() -> {
                 synchronized (lock) {
                     if (animTrue) {
-                        button = Math.min(easeInOut(progress), 1f);
+                        button = Math.min(easeInOutQuadratic(progress), 1f);
                     } else {
-                        button = Math.max(0f, 1 - easeInOut(progress));
+                        button = Math.max(0f, 1 - easeInOutQuadratic(progress));
                     }
                 }
             }, i * 3L, TimeUnit.MILLISECONDS);
@@ -188,12 +187,17 @@ public class Button extends ClickableWidget {
                 final long delay = i * stepDelay;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
-                        press = 1f - easeInOut(progress);
+                        press = 1f - easeInOutQuadratic(progress);
                     }
                 }, delay, TimeUnit.MILLISECONDS);
             }
         }, 0, TimeUnit.SECONDS);
     }
+    
+    int color1 = 0xFF626262;
+    int color2 = 0xFF5e7edf;
+    int color3 = 0xFFFFFFFF;
+    int color4 = 0xFFc4cfff;
     
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -204,11 +208,7 @@ public class Button extends ClickableWidget {
         boolean isSwitch = btype == 3 || btype == 5;
         boolean isPages = btype == 7 || btype == 8;
         boolean isTheme = btype == 10;
-        var x = (int) (getX() - 150 + 150 * progress) + (int) ((btype == 4 || isPages ? 0 : 4) * transit);
-        RoundedRectShader.fill(context, x - 1, getY() - 1, this.width + 2, this.height + 2, hexToHexa(ColorHelper.lerp(isSwitch ? 0f : press, 0xFF1f1f1f, 0xFF3f3f3f), (int) (progress * 185) + (int) (transit * 60)), 0x00000000, 5, 1);
-        var center = getY() + this.height / 2 - MinecraftClient.getInstance().textRenderer.fontHeight / 2;
-        RoundedRectShader.fill(context, x + (this.width + 2) / 2 - (int) ((float) (this.width + 2) / 2 * transit) - 1, getY() - 1, (int) ((this.width + 2) * transit), this.height + 2, 0xff252525, 0x00000000, 5, 1);
-        var part = switch (btype) {
+        String part = switch (btype) {
             case 10 -> "Theme:";
             case 9 -> "Icon Alignment:";
             case 6 -> "Progress Color:";
@@ -219,10 +219,11 @@ public class Button extends ClickableWidget {
             case 1 -> "Position:";
             default -> (btype == 7) ? "<" : ">";
         };
-        var hasDesc = !(Objects.equals(desc, "")) ? 5 : 0;
-        if (isTheme) {
-            hasDesc = 7;
-        }
+        var x = (int) (getX() - 150 + 150 * progress) + (int) ((btype == 4 || isPages ? 0 : 4) * transit);
+        RoundedRectShader.fill(context, x - 1, getY() - 1, this.width + 2, this.height + 2, 0xbf252525, 0x00000000, 5, 1);
+        var center = getY() + this.height / 2 - MinecraftClient.getInstance().textRenderer.fontHeight / 2;
+        RoundedRectShader.fill(context, x + (this.width + 2) / 2 - (int) ((float) (this.width + 2) / 2 * transit) - 1, getY() - 1, (int) ((this.width + 2) * transit), this.height + 2, ColorHelper.lerp(isSwitch ? 0f : press, 0xFF353535, 0xFF454545), 0x00000000, 5, 1);
+        var hasDesc = (isTheme ? 7 : !(Objects.equals(desc, "")) ? 5 : 0);
         context.drawText(MinecraftClient.getInstance().textRenderer, part + " " + displayText, x + (btype == 4 ? 7 : 0) + (isPages ? (btype == 7 ? 7 : 8) : 10), center - hasDesc + (int) (hasDesc - hasDesc * transit), hexToHexa(0xFFFFFFFF, (int) (progress * 245 + 10)), false);
         context.drawText(MinecraftClient.getInstance().textRenderer, isTheme ? "Custom can be changed" : desc, x + 10, center + (int) (hasDesc * transit) - (isTheme ? 4 : 0), hexToHexa(0xFF999999, (int) (transit * 245 + 10)), false);
         if (isTheme) {
@@ -231,10 +232,6 @@ public class Button extends ClickableWidget {
         if (isSwitch) {
             var buttonX = x + this.width - 28;
             var buttonY = getY() + this.height / 2 - 6;
-            var color1 = 0xFF626262;
-            var color2 = 0xFF5e7edf;
-            var color3 = 0xFFFFFFFF;
-            var color4 = 0xFFc4cfff;
             RoundedRectShader.fill(context, buttonX + 1, buttonY + 1, 25 - 4, 14 - 4, hexToHexa(ColorHelper.lerp(button, color1, color2), (int) (255 * progress)), 0x00000000, 4, 1);
             RoundedRectShader.fill(context, buttonX + (int) (11 * button), buttonY, 12, 12, hexToHexa(ColorHelper.lerp(button, color3, color4), (int) (255 * progress)), 0x00000000, 5, 1);
         }

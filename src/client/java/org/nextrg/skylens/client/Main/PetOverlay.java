@@ -33,11 +33,9 @@ import static org.nextrg.skylens.client.Helpers.Renderer.*;
 
 public class PetOverlay {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    static boolean show = false;
-    static String theme = "";
-    static float xp = 1f, level = 1f;
-    static ItemStack currentPet = new ItemStack(Items.BONE);
-    static List<ItemStack> cachePet = new java.util.ArrayList<>(Collections.emptyList());
+    private static final Object lock = new Object();
+    private static final Pattern XP_PATTERN = Pattern.compile("\\((\\d+(\\.\\d*)?)%\\)");
+    private static final Pattern LEVEL_PATTERN = Pattern.compile("(?<=\\[Lvl\\s)(\\d+)(?=])");
     static Map<String, int[]> themeColors = Map.of(
             "special", new int[]{0xFFaa2121, 0xFFff3232, 0xFF771515},
             "divine", new int[]{0xFF085599, 0xFF11aadd, 0xFF053666},
@@ -47,24 +45,27 @@ public class PetOverlay {
             "rare", new int[]{0xFF3232a3, 0xFF5252f3, 0xFF111135},
             "uncommon", new int[]{0xFF158a15, 0xFF54fd54, 0xFF143a14}
     );
-    private static final Pattern XP_PATTERN = Pattern.compile("\\((\\d+(\\.\\d*)?)%\\)");
-    private static final Pattern LEVEL_PATTERN = Pattern.compile("(?<=\\[Lvl\\s)(\\d+)(?=])");
-    private static long lastupdate = System.currentTimeMillis();
-    private static boolean petmenu = false;
-    static float appearProgress = 0f;
-    static int globalY = -45;
-    static boolean currentLevelUp = false;
-    static boolean leveledever = false;
-    static float animprogress = 0f;
-    static float xpONLVL = 0;
-    private static final Object lock = new Object();
+    static List<ItemStack> petCache = new java.util.ArrayList<>(Collections.emptyList());
+    static ItemStack currentPet = new ItemStack(Items.BONE);
+    private static long lastUpdate = System.currentTimeMillis();
+    private static boolean petMenu = false;
     public static boolean isHudEditorEnabled = false;
     public static boolean forceShow = false;
+    static boolean currentLevelUp = false;
+    static boolean leveledEver = false;
+    static boolean show = false;
+    static String theme = "";
+    static float xp = 1f, level = 1f;
+    static float appearProgress = 0f;
+    static float levelAnimProgress = 0f;
+    static float xpBeforeLevel = 0;
+    static int maxLevel = 100;
+    static int globalY = -45;
     
+    // For HUD editor
     public static void forceAnim(boolean state) {
         forceShow = state;
     }
-    
     public static void setHudEditor(boolean state) {
         isHudEditorEnabled = state;
         if (!show) {
@@ -72,33 +73,53 @@ public class PetOverlay {
         }
     }
     
+    // XP animation
+    public static void animateXp(float updatedXp) {
+        if (!ModConfig.petOverlayAnimXP) {
+            xp = updatedXp;
+        } else {
+            float currentXp = xp;
+            float difference = (updatedXp - currentXp) / 60f;
+            for (int i = 0; i < 60; i++) {
+                int finalI = i;
+                scheduler.schedule(() -> {
+                    synchronized (lock) {
+                        xp = currentXp + difference * (finalI + 1);
+                    }
+                }, i * 4L, TimeUnit.MILLISECONDS);
+            }
+        }
+    }
+    
+    // Reads data about the pet from the tab list.
     public static void getPetData() {
-        if (System.currentTimeMillis() - lastupdate < 3000) {
+        if (System.currentTimeMillis() - lastUpdate < 3000) {
             return;
         }
-        lastupdate = System.currentTimeMillis();
+        lastUpdate = System.currentTimeMillis();
         Pair<List<Text>, List<String>> result = getTabData(false);
         for (var a : result.getRight()) {
             if (a.contains("%)") && a.contains("XP")) {
                 Matcher matcher = XP_PATTERN.matcher(a);
                 if (matcher.find()) {
-                    xp = Float.parseFloat(matcher.group(1)) / 100;
+                    animateXp(Float.parseFloat(matcher.group(1)) / 100);
                 }
             }
-            if (a.contains("[Lvl") && !a.contains(":")) {
+            if (a.contains("[Lvl") && !a.contains(":") && !currentLevelUp) {
                 Matcher matcher = LEVEL_PATTERN.matcher(a);
                 if (matcher.find()) {
-                    level = Float.parseFloat(matcher.group(1)) / ((a.contains("Golden Dragon")) ? 200 : 100);
+                    level = Float.parseFloat(matcher.group(1)) / maxLevel;
                 }
             }
         }
     }
     
-    public static void updatePetByCache(Text mess) {
+    // Reads cache to get pet's data.
+    public static void readCache(Text chatMessage) {
         try {
-            String text = getLiteral(mess.getSiblings().get(1).getContent().toString());
+            String text = getLiteral(chatMessage.getSiblings().get(1).getContent().toString());
             var foundPet = false;
-            for (ItemStack pet : cachePet) {
+            for (ItemStack pet : petCache) {
                 if (pet.getCustomName() != null) {
                     var petNameString = pet.getCustomName().getString();
                     var petName = petNameString.substring(petNameString.indexOf("]") + 2).replace(" ✦", "");
@@ -109,7 +130,8 @@ public class PetOverlay {
                             if (line.toString().contains("Progress to")) {
                                 var levelprog = getLiteral(line.getSiblings().getFirst().getContent().toString()).replace("Progress to Level ", "").replace(":", "");
                                 var xpprog = getLiteral(line.getSiblings().getLast().getContent().toString().replace("%", ""));
-                                level = (Float.parseFloat(levelprog) - 1) / ((lines.contains("Golden Dragon")) ? 200 : 100);
+                                maxLevel = (lines.toString().contains("Golden Dragon")) ? 200 : 100;
+                                level = (Float.parseFloat(levelprog) - 1) / maxLevel;
                                 xp = Float.parseFloat(xpprog) / 100;
                             } else if (line.toString().contains("MAX LEVEL")) {
                                 level = 1f;
@@ -118,7 +140,7 @@ public class PetOverlay {
                         }
                         currentPet = pet.copy();
                         theme = currentPet.getCustomName().getSiblings().get(pet.getCustomName().getSiblings().size() - (pet.getCustomName().toString().contains("✦") ? 2 : 1)).getStyle().getColor().toString();
-                        lastupdate = System.currentTimeMillis();
+                        lastUpdate = System.currentTimeMillis();
                     }
                 }
             }
@@ -130,34 +152,50 @@ public class PetOverlay {
         }
     }
     
+    // Updating cache when opening pet's menu
+    static int petMenuTicks = 0;
     public static void updateCache(Screen screen) {
         if (onSkyblock() && screen instanceof GenericContainerScreen genericContainerScreen) {
             if (genericContainerScreen.getTitle().getString().startsWith("Pets")) {
-                petmenu = true;
+                petMenu = true;
                 ScreenEvents.afterTick(screen).register(screen1 -> {
-                    if (!petmenu) return;
-                    List<ItemStack> newCache = new ArrayList<>();
-                    for (Slot slot : genericContainerScreen.getScreenHandler().slots) {
-                        if ((slot.id >= 10 && slot.id <= 16)
-                                || (slot.id >= 19 && slot.id <= 25)
-                                || (slot.id >= 28 && slot.id <= 34)
-                                || (slot.id >= 37 && slot.id <= 43)) {
-                            ItemStack stack = slot.getStack();
-                            if (stack.isEmpty() || stack.getCustomName() == null) continue;
-                            newCache.add(stack);
+                    if (petMenu) {
+                        List<ItemStack> newCache = new ArrayList<>();
+                        boolean dontUpdate = false;
+                        petMenuTicks++;
+                        for (Slot slot : genericContainerScreen.getScreenHandler().slots) {
+                            if ((slot.id >= 10 && slot.id <= 16)
+                                    || (slot.id >= 19 && slot.id <= 25)
+                                    || (slot.id >= 28 && slot.id <= 34)
+                                    || (slot.id >= 37 && slot.id <= 43)) {
+                                ItemStack stack = slot.getStack();
+                                if (!stack.isEmpty()) {
+                                    if (stack.getCustomName() == null || stack.getName().getString().isBlank()) {
+                                        dontUpdate = true;
+                                        break;
+                                    }
+                                    newCache.add(stack);
+                                }
+                            }
+                        }
+                        // Try until 75 ticks to update the cache
+                        if (!dontUpdate && !newCache.isEmpty()) {
+                            petCache.clear();
+                            petCache.addAll(newCache);
+                            petMenuTicks = 0;
+                            petMenu = false;
+                        }
+                        if (petMenuTicks >= 75) {
+                            petMenuTicks = 0;
+                            petMenu = false;
                         }
                     }
-                    if (!newCache.isEmpty()) {
-                        cachePet.clear();
-                        cachePet.addAll(newCache);
-                    }
-                    petmenu = false;
                 });
             }
         }
     }
     
-    public static void show(Text message) {
+    public static void show(Text chatMessage) {
         var fade = ModConfig.petOverlayAnimFade;
         show = !fade || !show;
         fade();
@@ -166,13 +204,13 @@ public class PetOverlay {
                 scheduler.schedule(() -> {
                     show = true;
                     fade();
-                    updatePetByCache(message);
+                    readCache(chatMessage);
                 }, 300L, TimeUnit.MILLISECONDS);
             } else {
-                updatePetByCache(message);
+                readCache(chatMessage);
             }
         } else {
-            updatePetByCache(message);
+            readCache(chatMessage);
         }
     }
     
@@ -183,23 +221,23 @@ public class PetOverlay {
     
     public static void init() {
         ClientReceiveMessageEvents.GAME.register((message, type) -> {
-            var messagecontent = message.toString();
+            var messageContent = message.toString();
             try {
-                if (messagecontent.contains("You summoned your")) {
+                if (messageContent.contains("You summoned your")) {
                     show(message);
                 }
-                if (messagecontent.contains("You despawned your")) {
+                if (messageContent.contains("You despawned your")) {
                     hide();
                 }
-                if (messagecontent.contains("leveled up to level") && messagecontent.contains(getLiteral(currentPet.getName().getSiblings().getLast().getContent().toString()))) {
-                    var st = Integer.parseInt(message.withoutStyle().get(message.withoutStyle().size() - 2).getString());
+                if (messageContent.contains("leveled up to level") && messageContent.contains(getLiteral(currentPet.getName().getSiblings().getLast().getContent().toString()))) {
                     var petName = currentPet.getCustomName();
-                    int maxLevel = petName != null && petName.toString().contains("Golden Dragon") ? 200 : 100;
+                    var st = Integer.parseInt(message.withoutStyle().get(message.withoutStyle().size() - 2).getString());
+                    maxLevel = petName != null && petName.toString().contains("Golden Dragon") ? 200 : 100;
                     level = Math.clamp((float)(st / maxLevel), level, 1f);
                     currentLevelUp = true;
-                    leveledever = true;
-                    animprogress = 1f;
-                    xpONLVL = xp;
+                    leveledEver = true;
+                    levelAnimProgress = 1f;
+                    xpBeforeLevel = xp;
                     pulse();
                 }
             } catch (Exception ignored) {}
@@ -219,9 +257,9 @@ public class PetOverlay {
             if ((isHud && !isHudEditorEnabled) || (!isHud && isHudEditorEnabled)) {
                 try {
                     long currentTime = System.currentTimeMillis();
-                    if (!(currentTime - lastupdate < 3000)) {
+                    if (!(currentTime - lastUpdate < 3000)) {
                         PetOverlay.getPetData();
-                        lastupdate = currentTime;
+                        lastUpdate = currentTime;
                     }
                     setShader(ShaderProgramKeys.POSITION_COLOR);
                     String ModConfigTheme = ModConfig.petOverlayTheme.toLowerCase();
@@ -250,7 +288,7 @@ public class PetOverlay {
                 final float progress = (float) i / 29f;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
-                        animprogress = Math.max(0, 1 - easeInOut(progress));
+                        levelAnimProgress = Math.max(0, 1 - easeInOutQuadratic(progress));
                     }
                 }, i * 10L, TimeUnit.MILLISECONDS);
             }
@@ -259,14 +297,14 @@ public class PetOverlay {
                     final float progress = (float) i / 29f;
                     scheduler.schedule(() -> {
                         synchronized (lock) {
-                            animprogress = Math.min(easeInOut(progress), 1);
+                            levelAnimProgress = Math.min(easeInOutQuadratic(progress), 1);
                         }
                     }, i * 10L, TimeUnit.MILLISECONDS);
                 }
                 currentLevelUp = false;
             }, 3, TimeUnit.SECONDS);
             scheduler.schedule(() -> {
-                leveledever = false;
+                leveledEver = false;
             }, 6, TimeUnit.SECONDS);
         }, 0, TimeUnit.SECONDS);
     }
@@ -277,7 +315,7 @@ public class PetOverlay {
                 final float progress = (float) i / 59f;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
-                        appearProgress = Math.min(easeInOut(progress), 1);
+                        appearProgress = Math.min(easeInOutQuadratic(progress), 1);
                     }
                 }, i * 5L, TimeUnit.MILLISECONDS);
             }
@@ -286,7 +324,7 @@ public class PetOverlay {
                 final float progress = (float) i / 59f;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
-                        appearProgress = Math.max(0, 1 - easeInOut(progress));
+                        appearProgress = Math.max(0, 1 - easeInOutQuadratic(progress));
                     }
                 }, i * 5L, TimeUnit.MILLISECONDS);
             }
@@ -301,40 +339,57 @@ public class PetOverlay {
             var h = 45 + marginY;
             globalY = -h + (int) (h * appearProgress);
         }
-        var petName = currentPet.getCustomName();
         if (globalY > -45 - marginY) {
             enableBlend();
-            // General
-            var screenw = getScreenWidth(drawContext);
-            var screenh = getScreenHeight(drawContext);
+            var matrix = drawContext.getMatrices().peek().getPositionMatrix();
+            var screenWidth = getScreenWidth(drawContext);
+            var screenHeight = getScreenHeight(drawContext);
             float amount = (float) (Util.getMeasuringTimeMs() / 1700.0) % 1;
-            // Display
+            var textColor = hexaToHex(color2);
+            
+            // Levels
             boolean showLevel = level != 1f && ModConfig.petOverlayShowLvl;
             int padding = (showLevel || level == 1f) ? 0 : 3;
-            String displayXP = currentLevelUp ? "LV UP" : (level != 1f ? String.format("%." + ((xp >= 0.1) ? 1 : 2) + "f%%", xp * 100).replace(",", ".") : "MAX");
-            int maxLevel = 100;
-            if (petName != null && petName.toString().contains("Golden Dragon")) {
-                maxLevel = 200;
-            }
             String displayLvl = "Lvl " + Math.min(maxLevel, Math.round(level * maxLevel));
+            String displayXP = "LV UP";
+            var fadeProgressAnim = appearProgress;
+            if (!currentLevelUp) {
+                if (level == 1f) {
+                    displayXP = "MAX";
+                    xp = 1f;
+                    fadeProgressAnim = 1f;
+                } else {
+                    displayXP = String.format("%." + ((xp >= 0.1) ? 1 : 2) + "f%%", xp * 100).replace(",", ".");
+                }
+            }
+            
             // Animations
-            boolean lvlAnim = ModConfig.petOverlayAnimLvlUp;
-            int animtext = (lvlAnim && leveledever) ? (int) (7 - animprogress * 7) : 0;
-            animprogress = level == 1f ? 0f : (!(lvlAnim && leveledever) ? 1f : animprogress);
-            xp = level == 1f ? 1f : (currentLevelUp ? (lvlAnim ? xpONLVL * animprogress : 0f) : xp);
-            var textColor = hexaToHex(color2);
-            var leveltextColor = lvlAnim && leveledever ? hexToHexa(color2, Math.max(10, (int) (animprogress * 255))) : textColor;
-            // Other
+            int animtext = 0;
+            if (leveledEver) {
+                animtext = (int) (7 - levelAnimProgress * 7);
+            }
+            levelAnimProgress = level == 1f ? 0f : (!leveledEver ? 1f : levelAnimProgress);
+            if (currentLevelUp) {
+                xp = xpBeforeLevel * levelAnimProgress;
+            }
+            var leveltextColor = leveledEver ? hexToHexa(color2, Math.max(10, (int) (levelAnimProgress * 255))) : textColor;
+            
+            // Styles
             boolean isBar = Objects.equals(type, "style1");
             if (ModConfig.petOverlayInvert) {var temp = color2; color2 = color1; color1 = temp;}
+            
             // Positions and Rendering
             int marginX = ModConfig.petOverlayX;
             String position = ModConfig.petOverlayPosition;
             boolean flipSide = "Inventory_Right".equals(position) || "Left".equals(position);
-            int screenWidth = switch (position) {case "Left" -> -90; case "Right" -> screenw + 90; default -> screenw / 2;};
-            int x = screenWidth + (flipSide ? marginX : -marginX) + (isBar ? (flipSide ? 94 : -144) : (flipSide ? 108 : -108));
-            int y = screenh - 11 - globalY - marginY - (isBar ? 0 : 5);
-            var matrix = drawContext.getMatrices().peek().getPositionMatrix();
+            int orientation = switch (position) {
+                case "Left" -> -90;
+                case "Right" -> screenWidth + 90;
+                default -> screenWidth / 2;
+            };
+            int flip = flipSide ? 1 : -1;
+            int x = orientation + marginX * flip + (isBar ? (flipSide ? 94 : -144) : flip * 108);
+            int y = screenHeight - 11 - globalY - marginY - (isBar ? 0 : 5);
             if (isBar) {
                 int align = !ModConfig.petOverlayIconAlign ? 29 : 0;
                 int textAlign = !ModConfig.petOverlayIconAlign ? 0 : 15;
@@ -342,31 +397,31 @@ public class PetOverlay {
                     fillRoundRect(matrix, x + 2 - amount * 6, y + 2 - amount * 6, 46 + (amount * 12), 4 + (amount * 12), 12, hexToHexa(color2, (int) (255 - amount * 255)));
                 }
                 RoundedRectShader.fill(drawContext, x, y, 50, 8, color3, 0x00000000, 4.5f, 0);
-                RoundedRectShader.fill(drawContext, x, y, Math.max(8, (int) (50 * level)), 8, color2, 0x00000000, 4.5f, 0);
-                RoundedRectShader.fill(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp)), 4, color1, 0x00000000, 2.5f, 0);
+                RoundedRectShader.fill(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, color2, 0x00000000, 4.5f, 0);
+                RoundedRectShader.fill(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, color1, 0x00000000, 2.5f, 0);
                 drawItem(drawContext, currentPet, x + 3 + align, y - 17, 0.95F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x + 17 + textAlign, y - 16 + animtext, leveltextColor, 0.8F, true, true);
                 }
-                drawText(drawContext, displayXP, x + 17 + textAlign, y - 13 + (int) (3 * animprogress) - padding, textColor, 1F, true, true);
+                drawText(drawContext, displayXP, x + 17 + textAlign, y - 13 + (int) (3 * levelAnimProgress) - padding, textColor, 1F, true, true);
             } else {
                 if (ModConfig.petOverlayAnimIdle) {
                     drawCircle(matrix, x, y + 1, 10.5F + 5F * amount, 0, 360, hexToHexa(color2, (int) (255 - amount * 255)), 0);
                 }
                 RoundedRectShader.fill(drawContext, x - 12, y - 11, 24, 24, color2, 0x00000000, 13, 0);
-                drawCircle(matrix, x, y + 1, 12.5F, 0, (int) (360 - (level * 360)), color3, 0);
+                drawCircle(matrix, x, y + 1, 12.5F, 0, (int) (360 - (level * fadeProgressAnim * 360)), color3, 0);
                 int circleStyle = Objects.equals(type, "style3") ? 2 : 1;
                 if (circleStyle == 2) {
                     RoundedRectShader.fill(drawContext, x - 10, y - 9, 20, 20, color3, 0x00000000, 11, 0);
                 }
                 RoundedRectShader.fill(drawContext, x - (10 - circleStyle + 1), y - (9 - circleStyle + 1), 22 - circleStyle * 2, 22 - circleStyle * 2, color1, 0x00000000, 11 - (circleStyle - 1), 0);
-                drawCircle(matrix, x, y + 1, 10.08F, 0, (int) (360 - (xp * 360)), color3, 0);
+                drawCircle(matrix, x, y + 1, 10.08F, 0, (int) (360 - (xp * fadeProgressAnim * 360)), color3, 0);
                 RoundedRectShader.fill(drawContext, x - 7, y - 6, 14, 14, color3, 0x00000000, 9, 0);
                 drawItem(drawContext, currentPet, x - 8, y - 7, 1F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x, y - 27 + animtext, leveltextColor, 0.75F, true, true);
                 }
-                drawText(drawContext, displayXP, x, y - 23 + (int) (2 * animprogress) - padding, textColor, 1F, true, true);
+                drawText(drawContext, displayXP, x, y - 23 + (int) (2 * levelAnimProgress) - padding, textColor, 1F, true, true);
             }
             disableBlend();
         }

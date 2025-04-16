@@ -6,6 +6,9 @@
   "description": "Adds things like Missing Enchantments helper, Pet Overlay and more!",
   "authors": ["next_g"],
   "contact": {},
+  "mixins": [
+    "skylens.mixins.json"
+  ],
   "license": "All Rights Reserved",
   "icon": "icon.png",
   "environment": "client",

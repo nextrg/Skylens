@@ -12,7 +12,6 @@ base {
 
 loom {
     splitEnvironmentSourceSets()
-
     mods {
         "skylens" {
             sourceSet sourceSets.main

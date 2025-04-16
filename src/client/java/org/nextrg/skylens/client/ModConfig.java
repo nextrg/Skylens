@@ -17,7 +17,7 @@ import net.minecraft.util.Identifier;
 import java.awt.*;
 import java.time.LocalDate;
 import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
-import static org.nextrg.skylens.client.HudEditor.SkylensScreen.openScreen;
+import static org.nextrg.skylens.client.HudEditor.HudEditor.openScreen;
 
 public class ModConfig implements ModMenuApi {
     public static ConfigClassHandler<ModConfig> HANDLER = ConfigClassHandler.createBuilder(ModConfig.class)
@@ -74,11 +74,15 @@ public class ModConfig implements ModMenuApi {
     @SerialEntry
     public static boolean petOverlayAnimIdle = true;
     @SerialEntry
-    public static boolean petOverlayAnimLvlUp = true;
+    public static boolean petOverlayAnimXP = true;
     @SerialEntry
     public static boolean petOverlayShowLvl = true;
     @SerialEntry
     public static boolean petOverlayIconAlign = true;
+    @SerialEntry
+    public static boolean slayerIntros = true;
+    @SerialEntry
+    public static String slayerIntrosBackground = "Opaque";
     
     public enum PotatoBookStyles implements NameableEnum {
         Style1,
@@ -109,6 +113,17 @@ public class ModConfig implements ModMenuApi {
         @Override
         public Text getDisplayName() {
             return Text.literal((name().equals("Custom")) ? "§nCustom" : getColorCode(name().toLowerCase()) + name());
+        }
+    }
+    
+    public enum BackgroundStyle implements NameableEnum {
+        Opaque,
+        Half_Opaque,
+        Transparent;
+        
+        @Override
+        public Text getDisplayName() {
+            return Text.literal(name().replace("_", " "));
         }
     }
     
@@ -181,6 +196,31 @@ public class ModConfig implements ModMenuApi {
                                                 () -> me_disabled,
                                                 newValue -> me_disabled = newValue)
                                         .controller(ColorControllerBuilder::create)
+                                        .build())
+                                .build())
+                        .group(OptionGroup.createBuilder()
+                                .name(Text.literal("Slayer Boss Intros"))
+                                .description(OptionDescription.of(Text.literal("Shows a cutscene-style intro for a boss.")))
+                                .collapsed(true)
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Text.literal("Enable"))
+                                        .binding(
+                                                true,
+                                                () -> slayerIntros,
+                                                newValue -> slayerIntros = newValue
+                                        )
+                                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                                .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
+                                                .coloured(true))
+                                        .build())
+                                .option(LabelOption.create(Text.literal("Appearance")))
+                                .option(Option.<BackgroundStyle>createBuilder()
+                                        .name(Text.literal("Background"))
+                                        .binding(BackgroundStyle.Opaque,
+                                                () -> BackgroundStyle.valueOf(slayerIntrosBackground),
+                                                newValue -> slayerIntrosBackground = String.valueOf(newValue))
+                                        .controller(opt -> EnumControllerBuilder.create(opt)
+                                                .enumClass(BackgroundStyle.class))
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
@@ -264,6 +304,17 @@ public class ModConfig implements ModMenuApi {
                                         .build())
                                 .option(LabelOption.create(Text.literal("Animation")))
                                 .option(Option.<Boolean>createBuilder()
+                                        .name(Text.literal("XP Change"))
+                                        .binding(
+                                                true,
+                                                () -> petOverlayAnimXP,
+                                                newValue -> petOverlayAnimXP = newValue
+                                        )
+                                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                                .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
+                                                .coloured(true))
+                                        .build())
+                                .option(Option.<Boolean>createBuilder()
                                         .name(Text.literal("Fade"))
                                         .binding(
                                                 true,
@@ -280,17 +331,6 @@ public class ModConfig implements ModMenuApi {
                                                 true,
                                                 () -> petOverlayAnimIdle,
                                                 newValue -> petOverlayAnimIdle = newValue
-                                        )
-                                        .controller(opt -> BooleanControllerBuilder.create(opt)
-                                                .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
-                                                .coloured(true))
-                                        .build())
-                                .option(Option.<Boolean>createBuilder()
-                                        .name(Text.literal("Level Up"))
-                                        .binding(
-                                                true,
-                                                () -> petOverlayAnimLvlUp,
-                                                newValue -> petOverlayAnimLvlUp = newValue
                                         )
                                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                                 .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))

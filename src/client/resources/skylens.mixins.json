@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "org.nextrg.skylens.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ClientPlayNetworkHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

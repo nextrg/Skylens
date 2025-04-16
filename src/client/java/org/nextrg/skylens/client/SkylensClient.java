@@ -2,8 +2,9 @@ package org.nextrg.skylens.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import org.nextrg.skylens.client.HudEditor.SkylensScreen;
+import org.nextrg.skylens.client.HudEditor.HudEditor;
 import org.nextrg.skylens.client.Main.*;
+
 import static org.nextrg.skylens.client.Helpers.Errors.errorMessage;
 
 public class SkylensClient implements ClientModInitializer {
@@ -12,7 +13,8 @@ public class SkylensClient implements ClientModInitializer {
         ModConfig.init();
         MissingEnchantments.init();
         PetOverlay.init();
-        SkylensScreen.initialize();
+        SlayerIntros.init();
+        HudEditor.initialize();
         errorMessage();
         ItemTooltipCallback.EVENT.register((stack,cont,type, lines) -> {
             MissingEnchantments.getMissingEnchantments(stack, lines);
