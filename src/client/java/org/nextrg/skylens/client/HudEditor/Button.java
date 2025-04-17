@@ -38,6 +38,9 @@ public class Button extends ClickableWidget {
         if (btype == 6) {
             bool = ModConfig.petOverlayInvert;
         }
+        if (btype == 11) {
+            bool = ModConfig.petOverlayHideLvlFull;
+        }
         button = (bool ? 1f : 0f);
     }
     
@@ -124,6 +127,10 @@ public class Button extends ClickableWidget {
                 ModConfig.petOverlayTheme = text;
                 displayText = getColorCode(text.toLowerCase()) + (text.equals("Custom") ? "§n" : "") + text;
             }
+            if (btype == 11) {
+                ModConfig.petOverlayHideLvlFull = !ModConfig.petOverlayHideLvlFull;
+                animateClick(ModConfig.petOverlayHideLvlFull);
+            }
         } catch (Exception ignored) {}
         if (btype == 4) {
             closeAnim(true);
@@ -205,10 +212,10 @@ public class Button extends ClickableWidget {
             animateHover(isHovered());
             hoveredLastFrame = isHovered();
         }
-        boolean isSwitch = btype == 3 || btype == 5;
         boolean isPages = btype == 7 || btype == 8;
         boolean isTheme = btype == 10;
         String part = switch (btype) {
+            case 11 -> "Hide Level If Full";
             case 10 -> "Theme:";
             case 9 -> "Icon Alignment:";
             case 6 -> "Progress Color:";
@@ -219,6 +226,7 @@ public class Button extends ClickableWidget {
             case 1 -> "Position:";
             default -> (btype == 7) ? "<" : ">";
         };
+        boolean isSwitch = !part.contains(":") && part.length() > 1;
         var x = (int) (getX() - 150 + 150 * progress) + (int) ((btype == 4 || isPages ? 0 : 4) * transit);
         RoundedRectShader.fill(context, x - 1, getY() - 1, this.width + 2, this.height + 2, 0xbf252525, 0x00000000, 5, 1);
         var center = getY() + this.height / 2 - MinecraftClient.getInstance().textRenderer.fontHeight / 2;

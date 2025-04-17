@@ -348,14 +348,15 @@ public class PetOverlay {
             var textColor = hexaToHex(color2);
             
             // Levels
-            boolean showLevel = level != 1f && ModConfig.petOverlayShowLvl;
+            boolean showLevel = ModConfig.petOverlayShowLvl;
             int padding = (showLevel || level == 1f) ? 0 : 3;
             String displayLvl = "Lvl " + Math.min(maxLevel, Math.round(level * maxLevel));
             String displayXP = "LV UP";
             var fadeProgressAnim = appearProgress;
             if (!currentLevelUp) {
                 if (level == 1f) {
-                    displayXP = "MAX";
+                    displayLvl = "LV MX";
+                    displayXP = showLevel ? "100%" : "MAX";
                     xp = 1f;
                     fadeProgressAnim = 1f;
                 } else {
@@ -371,6 +372,8 @@ public class PetOverlay {
             levelAnimProgress = level == 1f ? 0f : (!leveledEver ? 1f : levelAnimProgress);
             if (currentLevelUp) {
                 xp = xpBeforeLevel * levelAnimProgress;
+            } else if (level == 1f) {
+                levelAnimProgress = showLevel ? 1f : 0f;
             }
             var leveltextColor = leveledEver ? hexToHexa(color2, Math.max(10, (int) (levelAnimProgress * 255))) : textColor;
             
@@ -399,7 +402,7 @@ public class PetOverlay {
                 RoundedRectShader.fill(drawContext, x, y, 50, 8, color3, 0x00000000, 4.5f, 0);
                 RoundedRectShader.fill(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, color2, 0x00000000, 4.5f, 0);
                 RoundedRectShader.fill(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, color1, 0x00000000, 2.5f, 0);
-                drawItem(drawContext, currentPet, x + 3 + align, y - 17, 0.95F);
+                drawItem(drawContext, currentPet, x + 2 + align, y - 17, 0.95F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x + 17 + textAlign, y - 16 + animtext, leveltextColor, 0.8F, true, true);
                 }

@@ -55,29 +55,33 @@ public class HudEditor extends Screen {
                     .replace("Style3", "Circular" + getColorCode("gray") + " (alt)"),
                     "", 2);
             this.addDrawableChild(style);
-            Button showlevel = new Button(2, 41 + 37 + 2 + 24 + 2, 151, 24,
+            Button showLvl = new Button(2, 41 + 37 + 2 + 24 + 2, 151, 24,
                     "", "", 5);
-            this.addDrawableChild(showlevel);
+            this.addDrawableChild(showLvl);
         }
         if (currentPage == 2) {
             Button theme = new Button(2, 41, 151, 37,
                     getColorCode(ModConfig.petOverlayTheme.toLowerCase()) + (ModConfig.petOverlayTheme.equals("Custom") ? "§n" : "") + ModConfig.petOverlayTheme,
                     "Custom can be changed in mod's config.", 10);
             this.addDrawableChild(theme);
-            Button petrarity = new Button(2, 41 + 37 + 2, 151, 24,
+            Button petRarity = new Button(2, 41 + 37 + 2, 151, 24,
                     "",
                     "", 3);
-            this.addDrawableChild(petrarity);
+            this.addDrawableChild(petRarity);
         }
         if (currentPage == 3) {
             Button iconAlign = new Button(2, 41, 151, 37,
                     String.valueOf(ModConfig.petOverlayIconAlign).replace("true", "Left").replace("false", "Right"),
                     "For bar style only.", 9);
             this.addDrawableChild(iconAlign);
-            Button invertprogress = new Button(2, 41 + 37 + 2, 151, 24,
+            Button invertProgress = new Button(2, 41 + 37 + 2, 151, 24,
                     String.valueOf(ModConfig.petOverlayInvert).replace("true", "Inverted").replace("false", "Default"),
                     "", 6);
-            this.addDrawableChild(invertprogress);
+            this.addDrawableChild(invertProgress);
+            Button hideLevelIfFull = new Button(2, 41 + 37 + 2 + 24 + 2, 151, 24,
+                    "",
+                    "", 11);
+            this.addDrawableChild(hideLevelIfFull);
         }
         Button pageone = new Button(2, paginationY, 19, 18,
                 "",
@@ -161,9 +165,9 @@ public class HudEditor extends Screen {
     public boolean withinArea(double x, double y) {
         var dwidth = switch (ModConfig.petOverlayPosition) {case "Left" -> -90; case "Right" -> windowwidth + 90; default -> windowwidth / 2;};
         boolean flipSide = "Inventory_Right".equals(ModConfig.petOverlayPosition) || "Left".equals(ModConfig.petOverlayPosition);
-        var inventoryX = dwidth + (flipSide ? 90 : -90 - 122);
+        var inventoryX = dwidth + (flipSide ? 90 : -90 - (122 + 130));
         var inventoryY = windowheight - 95;
-        return x >= inventoryX && x <= inventoryX + 122 &&
+        return x >= inventoryX && x <= inventoryX + 122 + 130 &&
                 y >= inventoryY && y <= inventoryY + 95;
     }
     
@@ -188,7 +192,7 @@ public class HudEditor extends Screen {
             default -> windowwidth / 2;
         };
         var x = ((flipSide ? (a - dwidth) : (dwidth - a)) - 90 - 25);
-        ModConfig.petOverlayX = Math.clamp((int) x, 0, 65);
+        ModConfig.petOverlayX = Math.clamp((int) x, 0, 195);
         ModConfig.petOverlayY = Math.clamp((int) (windowheight - b - 15), 0, 65);
     }
     
@@ -244,11 +248,11 @@ public class HudEditor extends Screen {
     public void petOverlayArea(DrawContext context) {
         var dwidth = switch (ModConfig.petOverlayPosition) {case "Left" -> -90; case "Right" -> windowwidth + 90; default -> windowwidth / 2;};
         boolean flipSide = "Inventory_Right".equals(ModConfig.petOverlayPosition) || "Left".equals(ModConfig.petOverlayPosition);
-        var inventoryX = dwidth + (flipSide ? 90 : -90 - 123);
+        var inventoryX = dwidth + (flipSide ? 90 : -90 - (123 + 130));
         var inventoryY = windowheight - 95;
         var marginX = ModConfig.petOverlayX;
         var marginY = ModConfig.petOverlayY;
-        var x = inventoryX + (flipSide ? marginX : 65 - marginX);
+        var x = inventoryX + (flipSide ? marginX : (65 + 130) - marginX);
         var y = inventoryY + (65 - ModConfig.petOverlayY);
         var isBar = Objects.equals(ModConfig.petOverlayStyle, "Style1");
         var stuff = (isBar ? 0 : (flipSide ? 22 : 0));
@@ -257,17 +261,17 @@ public class HudEditor extends Screen {
         var barColor = hexToHexa(0xFFFFFFFF, (int)(12 * transit) + (int)(anim * 148));
         var textColor = hexToHexa(0xFFFFFFFF, 10 + (int)(12 * transit) + (int)(anim * 148));
         
-        var arg1 = marginX <= 62;
+        var arg1 = marginX <= (62 + 130);
         var arg2 = marginX >= 3;
         if (flipSide && arg2 || !flipSide && arg1) {
             var center = inventoryX + bstuff + ((x - 2 + bstuff) - (inventoryX + bstuff)) / 2;
             context.drawHorizontalLine(inventoryX + bstuff + 1, x - 2 + bstuff, y + 15, barColor);
-            var display = flipSide ? marginX : 65 - marginX;
+            var display = flipSide ? marginX : 65 + 130 - marginX;
             context.drawText(textRenderer, String.valueOf(display), center - (display <= 9 ? 2 : 5), y + 6, textColor, false);
         }
         if (flipSide && arg1 || !flipSide && arg2) {
-            var center = x + 59 - stuff + ((inventoryX + 120 - stuff) - (x + 59 - stuff)) / 2;
-            context.drawHorizontalLine(x + 59 - stuff, inventoryX + 120 - stuff + 1, y + 15, barColor);
+            var center = x + 59 - stuff + ((inventoryX + 120 + 130 - stuff) - (x + 59 - stuff)) / 2;
+            context.drawHorizontalLine(x + 59 - stuff, inventoryX + 120 + 130 - stuff + 1, y + 15, barColor);
             var display = flipSide ? 65 - marginX : marginX;
             context.drawText(textRenderer, String.valueOf(display), center - (display <= 9 ? 2 : 5), y + 6, textColor, false);
         }
@@ -283,7 +287,7 @@ public class HudEditor extends Screen {
             context.drawText(textRenderer, String.valueOf(marginY), (x + 8 + (marginY <= 9 ? 13 : 8)) - cstuff/2, center - 3, textColor, false);
         }
         
-        RoundedRectShader.fill(context, inventoryX + (!isBar && !flipSide ? 22 : 0), inventoryY - (isBar ? 0 : 15), 123 - (isBar ? 0 : 22), 95 + (isBar ? 0 : 15), hexToHexa(0xFFFFFFFF, (int)(40 * transit) + (int)(45 * anim)), 0x0000000, 4, 0);
+        RoundedRectShader.fill(context, inventoryX + (!isBar && !flipSide ? 22 : 0), inventoryY - (isBar ? 0 : 15), 123 + 130 - (isBar ? 0 : 22), 95 + (isBar ? 0 : 15), hexToHexa(0xFFFFFFFF, (int)(40 * transit) + (int)(45 * anim)), 0x0000000, 4, 0);
         if (isBar) {
             RoundedRectShader.fill(context, x, y, 58, 30, hexToHexa(0xFFFFFFFF, (int)(60 * transit) + (int)(40 * anim)), 0x0000000, 4, 0);
         } else {

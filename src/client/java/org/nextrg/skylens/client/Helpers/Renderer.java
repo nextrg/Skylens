@@ -61,11 +61,12 @@ public class Renderer {
         finishRendering();
     }
     public static void drawItem(DrawContext context, ItemStack item, int x, int y, float scale) {
-        x = (int)(x / scale);
-        y = (int)(y / scale);
         context.getMatrices().push();
+        context.getMatrices().translate(x, y, 0);
+        float offset = 8 * (scale - 1);
+        context.getMatrices().translate(-offset, -offset, 0);
         context.getMatrices().scale(scale, scale, scale);
-        context.drawItem(item, x, y);
+        context.drawItem(item, 0, 0);
         context.getMatrices().pop();
     }
     public static void drawText(DrawContext context, String text, int x, int y, int color, float scale, boolean centered, boolean shadow) {
