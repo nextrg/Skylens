@@ -31,7 +31,9 @@ public class SlayerIntros {
     public static boolean updateBossName = false;
     public static boolean bossExists = false;
     public static boolean slayerQuestActive = false;
+    private static long lastUpdate = System.currentTimeMillis();
     public static String boss;
+    public static String tier;
     
     public static void init() {
         ClientReceiveMessageEvents.GAME.register((message, type) -> {
@@ -64,10 +66,21 @@ public class SlayerIntros {
                 slayerQuestActive = true;
             }
             if (scoreboardData.size() >= 5) {
+                if (System.currentTimeMillis() - lastUpdate < 1000) {
+                    return;
+                }
+                lastUpdate = System.currentTimeMillis();
                 for (var string : scoreboardData) {
                     Matcher matcher = pattern.matcher(string);
                     if (matcher.find()) {
                         boss = string;
+                        tier = switch (boss.substring(Math.max(0, boss.length() - 2)).trim()) {
+                            case "V" -> getColorCode("darkpurple");
+                            case "IV" -> getColorCode("darkred");
+                            case "III" -> getColorCode("red");
+                            case "II" -> getColorCode("yellow");
+                            default -> getColorCode("green");
+                        };
                         updateBossName = false;
                     }
                 }
@@ -141,13 +154,6 @@ public class SlayerIntros {
             var fontWeight = MinecraftClient.getInstance().textRenderer.fontHeight;
             var x = getScreenWidth(drawContext) / 2;
             var y = (float) getScreenHeight(drawContext) / 2 - fontWeight * 2 * value;
-            String tier = switch (boss.substring(Math.max(0, boss.length() - 2)).trim()) {
-                case "V" -> getColorCode("darkpurple");
-                case "IV" -> getColorCode("darkred");
-                case "III" -> getColorCode("red");
-                case "II" -> getColorCode("yellow");
-                default -> getColorCode("green");
-            };
             drawContext.fill(0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), hexToHexa(0xFF000000, Math.clamp((int) (transparency * value), 0, transparency)));
             drawText(drawContext, tier + boss, x, (int) y, hexToHexa(0xFFFFFFFF, (int) value * 255), 4F * value, true, true);
         }
