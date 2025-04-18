@@ -60,9 +60,6 @@ public class Text {
     public static String ucs(String input) {
         return input.toUpperCase();
     }
-    private static String hexsupport(String s) {
-        return (s.length() == 1) ? "0" + s : s;
-    }
     public static int rgbToHexa(Color color) {
         return (color.getAlpha() << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
     }

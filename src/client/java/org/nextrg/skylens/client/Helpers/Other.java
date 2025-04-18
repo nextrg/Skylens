@@ -109,7 +109,7 @@ public class Other {
                     .replaceAll("([{,])([A-Za-z_][A-Za-z0-9_]*)\\:", "$1\"$2\":");
             
             String profileInfoLegacy = string.substring(string.indexOf("SkullOwner") - 1, string.indexOf("display") - 2);
-            NbtCompound profileInfoLegacyNBT = new NbtCompound();
+            NbtCompound profileInfoLegacyNBT;
             profileInfoLegacyNBT = StringNbtReader.parse("{" + profileInfoLegacy + "}").getCompound("SkullOwner");
             var properties = profileInfoLegacyNBT.getCompound("Properties").asString();
             var texture = properties.substring(properties.indexOf("Value:") + 7, properties.lastIndexOf("\"}"));

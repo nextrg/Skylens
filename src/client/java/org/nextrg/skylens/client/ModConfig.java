@@ -275,9 +275,7 @@ public class ModConfig implements ModMenuApi {
                                 .option(ButtonOption.createBuilder()
                                         .name(Text.literal("Open HUD Editor"))
                                         .text(Text.literal("→"))
-                                        .action((yaclScreen, thisOption) -> {
-                                            openScreen(MinecraftClient.getInstance().currentScreen, true);
-                                        })
+                                        .action((yaclScreen, thisOption) -> openScreen(MinecraftClient.getInstance().currentScreen, true))
                                         .build())
                                 .option(LabelOption.create(Text.literal("Themes")))
                                 .option(Option.<Color>createBuilder()

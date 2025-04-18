@@ -94,12 +94,6 @@ public class Renderer {
             return 1.0f - (f * f * f) / 2.0f;
         }
     }
-    public static float easeInOutExponential(float t) {
-        if (t == 0 || t == 1) return t;
-        if (t < 0.5f)
-            return (float) (0.5f * Math.pow(2, 20 * t - 10));
-        return (float) (1 - 0.5f * Math.pow(2, -20 * t + 10));
-    }
     public static int getScreenWidth(DrawContext context) {
         return context.getScaledWindowWidth();
     }

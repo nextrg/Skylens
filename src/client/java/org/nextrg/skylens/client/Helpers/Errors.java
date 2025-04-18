@@ -31,7 +31,7 @@ public class Errors {
     public static void renderErrorMessage(DrawContext drawContext, RenderTickCounter renderTickCounter) {
         try {
             if (ModConfig.showErrors) {
-                if (!showError) {;
+                if (!showError) {
                     if (errorY < 0) {
                         errorY += 10;
                     }
@@ -59,8 +59,6 @@ public class Errors {
     }
     
     public static void errorMessage() {
-        HudLayerRegistrationCallback.EVENT.register((wrap) -> {
-            wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "error"), Errors::renderErrorMessage);
-        });
+        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "error"), Errors::renderErrorMessage));
     }
 }

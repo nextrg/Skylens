@@ -1,6 +1,5 @@
 package org.nextrg.skylens.client.HudEditor;
 
-import com.terraformersmc.modmenu.util.mod.Mod;
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -124,12 +123,10 @@ public class HudEditor extends Screen {
     }
     
     public static void initialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("skylens").executes(context -> {
-                openScreen(null, true);
-                return 1;
-            }));
-        });
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("skylens").executes(context -> {
+            openScreen(null, true);
+            return 1;
+        })));
     }
     
     public static boolean clickCooldown = false;
@@ -227,7 +224,7 @@ public class HudEditor extends Screen {
         header(context);
         prepare(context, false);
         var currenttextpage = "Page " + currentPage;
-        drawText(context, currenttextpage, -148 + (int)(transit * 148) + 23 + textRenderer.getWidth(currenttextpage) / 2 + 2, 132 + textRenderer.fontHeight / 2 + 1 + 20, 0xFFFFFFFF, 1F, true, true);
+        drawText(context, currenttextpage, -148 + (int)(transit * 148) + 23 + textRenderer.getWidth(currenttextpage) / 2 + 2, 132 + textRenderer.fontHeight / 2 + 1, 0xFFFFFFFF, 1F, true, true);
         /* In case I'd want other settings unrelated to Pet Overlay here
         var header = "";
         if (currentPage <= 3) {
@@ -261,7 +258,8 @@ public class HudEditor extends Screen {
         var inventoryY = windowheight - 95;
         var marginX = ModConfig.petOverlayX;
         var marginY = ModConfig.petOverlayY;
-        var x = inventoryX + (flipSide ? marginX : (65 + 130) - marginX);
+        var margin = flipSide ? marginX : (65 + 130) - marginX;
+        var x = inventoryX + margin;
         var y = inventoryY + (65 - ModConfig.petOverlayY);
         var isBar = Objects.equals(ModConfig.petOverlayStyle, "Style1");
         var stuff = (isBar ? 0 : (flipSide ? 22 : 0));
@@ -275,8 +273,7 @@ public class HudEditor extends Screen {
         if (flipSide && arg2 || !flipSide && arg1) {
             var center = inventoryX + bstuff + ((x - 2 + bstuff) - (inventoryX + bstuff)) / 2;
             context.drawHorizontalLine(inventoryX + bstuff + 1, x - 2 + bstuff, y + 15, barColor);
-            var display = flipSide ? marginX : 65 + 130 - marginX;
-            context.drawText(textRenderer, String.valueOf(display), center - (display <= 9 ? 2 : 5), y + 6, textColor, false);
+            context.drawText(textRenderer, String.valueOf(margin), center - (margin <= 9 ? 2 : 5), y + 6, textColor, false);
         }
         if (flipSide && arg1 || !flipSide && arg2) {
             var center = x + 59 - stuff + ((inventoryX + 120 + 130 - stuff) - (x + 59 - stuff)) / 2;

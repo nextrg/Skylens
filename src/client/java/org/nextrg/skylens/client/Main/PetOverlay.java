@@ -10,7 +10,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.Slot;
@@ -238,9 +237,7 @@ public class PetOverlay {
             } catch (Exception ignored) {}
         });
         ScreenEvents.BEFORE_INIT.register((client, screen, in1, in2) -> updateCache(screen));
-        HudLayerRegistrationCallback.EVENT.register((wrap) -> {
-            wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "pet-overlay"), PetOverlay::uib);
-        });
+        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "pet-overlay"), PetOverlay::uib));
     }
     
     private static void uib(DrawContext drawContext, RenderTickCounter renderTickCounter) {

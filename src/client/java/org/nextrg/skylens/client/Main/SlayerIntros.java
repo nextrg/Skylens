@@ -49,9 +49,7 @@ public class SlayerIntros {
                 }
             } catch (Exception ignored) {}
         });
-        HudLayerRegistrationCallback.EVENT.register((wrap) -> {
-            wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "slayer-intros"), SlayerIntros::initializeRendering);
-        });
+        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "slayer-intros"), SlayerIntros::initializeRendering));
     }
     
     public static void getBossName() {
