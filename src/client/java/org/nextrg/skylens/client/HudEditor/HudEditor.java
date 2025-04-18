@@ -258,8 +258,7 @@ public class HudEditor extends Screen {
         var inventoryY = windowheight - 95;
         var marginX = ModConfig.petOverlayX;
         var marginY = ModConfig.petOverlayY;
-        var margin = flipSide ? marginX : (65 + 130) - marginX;
-        var x = inventoryX + margin;
+        var x = inventoryX + (flipSide ? marginX : (65 + 130) - marginX);
         var y = inventoryY + (65 - ModConfig.petOverlayY);
         var isBar = Objects.equals(ModConfig.petOverlayStyle, "Style1");
         var stuff = (isBar ? 0 : (flipSide ? 22 : 0));
@@ -273,12 +272,13 @@ public class HudEditor extends Screen {
         if (flipSide && arg2 || !flipSide && arg1) {
             var center = inventoryX + bstuff + ((x - 2 + bstuff) - (inventoryX + bstuff)) / 2;
             context.drawHorizontalLine(inventoryX + bstuff + 1, x - 2 + bstuff, y + 15, barColor);
-            context.drawText(textRenderer, String.valueOf(margin), center - (margin <= 9 ? 2 : 5), y + 6, textColor, false);
+            var display = flipSide ? marginX : 65 + 130 - marginX;
+            context.drawText(textRenderer, String.valueOf(display), center - (display <= 9 ? 2 : 5), y + 6, textColor, false);
         }
         if (flipSide && arg1 || !flipSide && arg2) {
             var center = x + 59 - stuff + ((inventoryX + 120 + 130 - stuff) - (x + 59 - stuff)) / 2;
             context.drawHorizontalLine(x + 59 - stuff, inventoryX + 120 + 130 - stuff + 1, y + 15, barColor);
-            var display = flipSide ? 65 - marginX : marginX;
+            var display = flipSide ? (65 + 130) - marginX : marginX;
             context.drawText(textRenderer, String.valueOf(display), center - (display <= 9 ? 2 : 5), y + 6, textColor, false);
         }
         if (marginY <= 62) {
