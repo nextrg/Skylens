@@ -42,56 +42,57 @@ public class HudEditor extends Screen {
     
     @Override
     protected void init() {
+        var marginTop = 20;
         var paginationY = 132;
         var pagetwoX = 23 + textRenderer.getWidth("Page 1") + 6;
         if (currentPage == 1) {
-            Button position = new Button(2, 41, 151, 37,
+            Button position = new Button(2, marginTop + 41, 151, 37,
                     ModConfig.petOverlayPosition.replace("_", " "),
                     "Placement of the overlay.", 1);
             this.addDrawableChild(position);
-            Button style = new Button(2, 41 + 37 + 2, 151, 24,
+            Button style = new Button(2, marginTop + 41 + 37 + 2, 151, 24,
                     ModConfig.petOverlayStyle.replace("Style1", "Bar")
                     .replace("Style2", "Circular")
                     .replace("Style3", "Circular" + getColorCode("gray") + " (alt)"),
                     "", 2);
             this.addDrawableChild(style);
-            Button showLvl = new Button(2, 41 + 37 + 2 + 24 + 2, 151, 24,
+            Button showLvl = new Button(2, marginTop + 41 + 37 + 2 + 24 + 2, 151, 24,
                     "", "", 5);
             this.addDrawableChild(showLvl);
         }
         if (currentPage == 2) {
-            Button theme = new Button(2, 41, 151, 37,
+            Button theme = new Button(2, marginTop + 41, 151, 37,
                     getColorCode(ModConfig.petOverlayTheme.toLowerCase()) + (ModConfig.petOverlayTheme.equals("Custom") ? "§n" : "") + ModConfig.petOverlayTheme,
                     "Custom can be changed in mod's config.", 10);
             this.addDrawableChild(theme);
-            Button petRarity = new Button(2, 41 + 37 + 2, 151, 24,
+            Button petRarity = new Button(2, marginTop + 41 + 37 + 2, 151, 24,
                     "",
                     "", 3);
             this.addDrawableChild(petRarity);
         }
         if (currentPage == 3) {
-            Button iconAlign = new Button(2, 41, 151, 37,
+            Button iconAlign = new Button(2, marginTop + 41, 151, 37,
                     String.valueOf(ModConfig.petOverlayIconAlign).replace("true", "Left").replace("false", "Right"),
                     "For bar style only.", 9);
             this.addDrawableChild(iconAlign);
-            Button invertProgress = new Button(2, 41 + 37 + 2, 151, 24,
+            Button invertProgress = new Button(2, marginTop + 41 + 37 + 2, 151, 24,
                     String.valueOf(ModConfig.petOverlayInvert).replace("true", "Inverted").replace("false", "Default"),
                     "", 6);
             this.addDrawableChild(invertProgress);
-            Button hideLevelIfFull = new Button(2, 41 + 37 + 2 + 24 + 2, 151, 24,
+            Button hideLevelIfFull = new Button(2, marginTop + 41 + 37 + 2 + 24 + 2, 151, 24,
                     "",
                     "", 11);
             this.addDrawableChild(hideLevelIfFull);
         }
-        Button pageone = new Button(2, paginationY, 19, 18,
+        Button pageone = new Button(2, marginTop + paginationY, 19, 18,
                 "",
                 "", 7);
         this.addDrawableChild(pageone);
-        Button pagetwo = new Button(pagetwoX, paginationY, 19, 18,
+        Button pagetwo = new Button(pagetwoX, marginTop + paginationY, 19, 18,
                 "",
                 "", 8);
         this.addDrawableChild(pagetwo);
-        Button exit = new Button(pagetwoX + 21, paginationY, 63 + 6, 18,
+        Button exit = new Button(pagetwoX + 21, marginTop + paginationY, 63 + 6, 18,
                 "Close",
                 "", 4);
         this.addDrawableChild(exit);
@@ -225,7 +226,12 @@ public class HudEditor extends Screen {
         header(context);
         prepare(context, false);
         var currenttextpage = "Page " + currentPage;
-        drawText(context, currenttextpage, -148 + (int)(transit * 148) + 23 + textRenderer.getWidth(currenttextpage) / 2 + 2, 132 + textRenderer.fontHeight / 2 + 1, 0xFFFFFFFF, 1F, true, true);
+        drawText(context, currenttextpage, -148 + (int)(transit * 148) + 23 + textRenderer.getWidth(currenttextpage) / 2 + 2, 132 + textRenderer.fontHeight / 2 + 1 + 20, 0xFFFFFFFF, 1F, true, true);
+        var header = "";
+        if (currentPage <= 3) {
+            header = "Pet Overlay";
+        }
+        drawText(context, header, -148 + (int)(transit * 148) + 75, 46, 0xFFFFFFFF, 1F, true, true);
     }
     
     @Override
@@ -240,7 +246,7 @@ public class HudEditor extends Screen {
         context.enableScissor(42, (int)(20 * transit), 144, (int)(50 * transit));
         drawText(context, "for Skylens", -90 + 42 + (int)(amount * 210), -21 + (int)(30 * transit) + 16, hexToHexa(0xFF9F9F9F, (int) (10 + transit * 245)), 1F, false, false);
         context.disableScissor();
-        drawText(context, "\uD83D\uDD27", 8 + 2, 4 + (int)(transit * 45) - 45, hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 4F, false, false);
+        drawText(context, "\uD83D\uDD27", 8 + 2, 4 + (int)(transit * 45) - 45, hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 3F + transit, false, false);
         drawText(context, "Hud Editor", 42, -21 + (int)(30 * transit), hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 2F, false, false);
         drawText(context, "To quickly access this menu, use /skylens", windowwidth  - this.textRenderer.getWidth("To quickly access this menu, use /skylens") - 10,-21 + (int)(30 * transit), hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 1F, false, true);
     }

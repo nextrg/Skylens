@@ -52,7 +52,15 @@ public class Button extends ClickableWidget {
     }
     
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        onClick(mouseX, mouseY, button);
+        if (button == 1) {
+            playDownSound(MinecraftClient.getInstance().getSoundManager());
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    public void onClick(double mouseX, double mouseY, int type) {
         try {
             if (btype == 1) {
                 var position = ModConfig.petOverlayPosition;
@@ -62,7 +70,11 @@ public class Button extends ClickableWidget {
                         .replace("Right", "2");
                 int option;
                 try {option = Integer.parseInt(value);} catch (NumberFormatException ignored) {option = 4;}
-                option += (option < 4 ? 1 : -3);
+                if (type == 0) {
+                    option += (option < 4 ? 1 : -3);
+                } else {
+                    option -= (option > 1 ? 1 : -3);
+                }
                 var text = String.valueOf(option)
                         .replace("3", "Inventory_Left")
                         .replace("4", "Inventory_Right")
@@ -76,7 +88,11 @@ public class Button extends ClickableWidget {
                 var value = name.substring(name.length() - 1);
                 int style = 1;
                 try {style = Integer.parseInt(value);} catch (NumberFormatException ignored) {}
-                style += (style < 3 ? 1 : -2);
+                if (type == 0) {
+                    style += (style < 3 ? 1 : -2);
+                } else {
+                    style -= (style < 1 ? 1 : -2);
+                }
                 var text = "Style" + style;
                 ModConfig.petOverlayStyle = text;
                 displayText = text.replace("Style1", "Bar")
@@ -119,10 +135,7 @@ public class Button extends ClickableWidget {
             }
             if (btype == 10) {
                 var currentTheme = ModConfig.Themes.valueOf(ModConfig.petOverlayTheme);
-                var next = currentTheme.ordinal() - 1;
-                if (next < 0) {
-                    next = ModConfig.Themes.values().length - 1;
-                }
+                var next = (currentTheme.ordinal() + (type == 0 ? -1 : 1) + ModConfig.Themes.values().length) % ModConfig.Themes.values().length;
                 var text = String.valueOf(ModConfig.Themes.values()[next]);
                 ModConfig.petOverlayTheme = text;
                 displayText = getColorCode(text.toLowerCase()) + (text.equals("Custom") ? "§n" : "") + text;
@@ -155,9 +168,9 @@ public class Button extends ClickableWidget {
                 synchronized (lock) {
                     if (animatingToVisible != show) return;
                     if (animatingToVisible) {
-                        transit = Math.min(easeInOutQuadratic(progress), 1f);
+                        transit = Math.min(easeInOutCubic(progress), 1f);
                     } else {
-                        transit = Math.max(0f, 1 - easeInOutQuadratic(progress));
+                        transit = Math.max(0f, 1 - easeInOutCubic(progress));
                     }
                     if (step == 59) {
                         animationRunning = false;
@@ -175,9 +188,9 @@ public class Button extends ClickableWidget {
             scheduler.schedule(() -> {
                 synchronized (lock) {
                     if (animTrue) {
-                        button = Math.min(easeInOutQuadratic(progress), 1f);
+                        button = Math.min(easeInOutCubic(progress), 1f);
                     } else {
-                        button = Math.max(0f, 1 - easeInOutQuadratic(progress));
+                        button = Math.max(0f, 1 - easeInOutCubic(progress));
                     }
                 }
             }, i * 3L, TimeUnit.MILLISECONDS);
@@ -194,7 +207,7 @@ public class Button extends ClickableWidget {
                 final long delay = i * stepDelay;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
-                        press = 1f - easeInOutQuadratic(progress);
+                        press = 1f - easeInOutCubic(progress);
                     }
                 }, delay, TimeUnit.MILLISECONDS);
             }
@@ -215,7 +228,7 @@ public class Button extends ClickableWidget {
         boolean isPages = btype == 7 || btype == 8;
         boolean isTheme = btype == 10;
         String part = switch (btype) {
-            case 11 -> "Hide Level If Full";
+            case 11 -> "Hide Level If Maxed";
             case 10 -> "Theme:";
             case 9 -> "Icon Alignment:";
             case 6 -> "Progress Color:";

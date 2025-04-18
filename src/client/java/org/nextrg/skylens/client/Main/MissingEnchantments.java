@@ -26,18 +26,7 @@ public class MissingEnchantments {
         getJson();
     }
     public static void getJson() {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO/refs/heads/master/constants/enchants.json").openStream(), StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            int cp;
-            while ((cp = reader.read()) != -1) {
-                sb.append((char) cp);
-            }
-            enchants = JsonParser.parseString(sb.toString()).getAsJsonObject();
-        } catch (Exception e) {
-            logErr(e, "Caught an error reading enchants JSON");
-            enchants = new JsonObject();
-        }
+        enchants = readJSONFromNeu("/refs/heads/master/constants/enchants.json");
     }
     public static void getMissingEnchantments(ItemStack stack, List<Text> lines) {
         if (enchants != null && ModConfig.missingEnchants && onSkyblock() && stack.getCustomName() != null) {

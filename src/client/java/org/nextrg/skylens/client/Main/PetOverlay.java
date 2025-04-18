@@ -10,6 +10,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.Slot;
@@ -18,6 +19,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.apache.commons.lang3.tuple.Pair;
 import org.nextrg.skylens.client.ModConfig;
+
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,8 +30,8 @@ import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static org.nextrg.skylens.client.Helpers.Errors.logErr;
 import static org.nextrg.skylens.client.Helpers.Other.*;
 import static org.nextrg.skylens.client.Helpers.Text.*;
-import static org.nextrg.skylens.client.Helpers.Tooltips.getLore;
 import static org.nextrg.skylens.client.Helpers.Renderer.*;
+import static org.nextrg.skylens.client.Helpers.Tooltips.getLore;
 
 public class PetOverlay {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -117,22 +119,22 @@ public class PetOverlay {
     // Reads cache to get pet's data.
     public static void readCache(Text chatMessage) {
         try {
-            String text = getLiteral(chatMessage.getSiblings().get(1).getContent().toString());
+            String petNameFromMessage = getLiteral(chatMessage.getSiblings().get(1).getContent().toString());
             var foundPet = false;
             for (ItemStack pet : petCache) {
                 if (pet.getCustomName() != null) {
                     var petNameString = pet.getCustomName().getString();
                     var petName = petNameString.substring(petNameString.indexOf("]") + 2).replace(" ✦", "");
-                    if (petName.equalsIgnoreCase(text)) {
+                    if (petName.equalsIgnoreCase(petNameFromMessage)) {
                         foundPet = true;
                         var lines = getLore(pet);
                         for (var line : lines) {
                             if (line.toString().contains("Progress to")) {
-                                var levelprog = getLiteral(line.getSiblings().getFirst().getContent().toString()).replace("Progress to Level ", "").replace(":", "");
-                                var xpprog = getLiteral(line.getSiblings().getLast().getContent().toString().replace("%", ""));
+                                String levelProgress = getLiteral(line.getSiblings().getFirst().getContent().toString()).replace("Progress to Level ", "").replace(":", "");
+                                String xpProgress = getLiteral(line.getSiblings().getLast().getContent().toString().replace("%", ""));
                                 maxLevel = (lines.toString().contains("Golden Dragon")) ? 200 : 100;
-                                level = (Float.parseFloat(levelprog) - 1) / maxLevel;
-                                xp = Float.parseFloat(xpprog) / 100;
+                                level = (Float.parseFloat(levelProgress) - 1) / maxLevel;
+                                xp = Float.parseFloat(xpProgress) / 100;
                             } else if (line.toString().contains("MAX LEVEL")) {
                                 level = 1f;
                                 xp = 1f;
@@ -145,7 +147,8 @@ public class PetOverlay {
                 }
             }
             if (!foundPet) {
-                currentPet = new ItemStack(Items.BONE);
+                // Fallback to read the pet's texture from NEU repo
+                currentPet = getPetTextureFromNEU(petNameFromMessage);
             }
         } catch (Exception e) {
             logErr(e, "Caught an error while reading pet cache");
@@ -161,7 +164,6 @@ public class PetOverlay {
                 ScreenEvents.afterTick(screen).register(screen1 -> {
                     if (petMenu) {
                         List<ItemStack> newCache = new ArrayList<>();
-                        boolean dontUpdate = false;
                         petMenuTicks++;
                         for (Slot slot : genericContainerScreen.getScreenHandler().slots) {
                             if ((slot.id >= 10 && slot.id <= 16)
@@ -170,23 +172,13 @@ public class PetOverlay {
                                     || (slot.id >= 37 && slot.id <= 43)) {
                                 ItemStack stack = slot.getStack();
                                 if (!stack.isEmpty()) {
-                                    if (stack.getCustomName() == null || stack.getName().getString().isBlank()) {
-                                        dontUpdate = true;
-                                        break;
-                                    }
                                     newCache.add(stack);
                                 }
                             }
                         }
-                        // Try until 75 ticks to update the cache
-                        if (!dontUpdate && !newCache.isEmpty()) {
+                        if (!newCache.isEmpty()) {
                             petCache.clear();
                             petCache.addAll(newCache);
-                            petMenuTicks = 0;
-                            petMenu = false;
-                        }
-                        if (petMenuTicks >= 75) {
-                            petMenuTicks = 0;
                             petMenu = false;
                         }
                     }
@@ -349,6 +341,9 @@ public class PetOverlay {
             
             // Levels
             boolean showLevel = ModConfig.petOverlayShowLvl;
+            if (ModConfig.petOverlayHideLvlFull && level == 1f) {
+                showLevel = false;
+            }
             int padding = (showLevel || level == 1f) ? 0 : 3;
             String displayLvl = "Lvl " + Math.min(maxLevel, Math.round(level * maxLevel));
             String displayXP = "LV UP";
@@ -381,7 +376,7 @@ public class PetOverlay {
             boolean isBar = Objects.equals(type, "style1");
             if (ModConfig.petOverlayInvert) {var temp = color2; color2 = color1; color1 = temp;}
             
-            // Positions and Rendering
+            // Position
             int marginX = ModConfig.petOverlayX;
             String position = ModConfig.petOverlayPosition;
             boolean flipSide = "Inventory_Right".equals(position) || "Left".equals(position);
@@ -393,6 +388,7 @@ public class PetOverlay {
             int flip = flipSide ? 1 : -1;
             int x = orientation + marginX * flip + (isBar ? (flipSide ? 94 : -144) : flip * 108);
             int y = screenHeight - 11 - globalY - marginY - (isBar ? 0 : 5);
+            // Rendering
             if (isBar) {
                 int align = !ModConfig.petOverlayIconAlign ? 29 : 0;
                 int textAlign = !ModConfig.petOverlayIconAlign ? 0 : 15;
