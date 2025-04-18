@@ -75,18 +75,21 @@ public class PetOverlay {
         }
     }
     
-    // XP animation
-    public static void animateXp(float updatedXp) {
+    // Animate variable changes
+    public static void animatePetData(int type, float updatedVar) {
+        boolean isXp = type == 0;
         if (!ModConfig.petOverlayAnimXP) {
-            xp = updatedXp;
+            if (isXp) xp = updatedVar;
+            else level = updatedVar;
         } else {
-            float currentXp = xp;
-            float difference = (updatedXp - currentXp) / 60f;
+            float current = isXp ? xp : level;
+            float diff = (updatedVar - current) / 60f;
             for (int i = 0; i < 60; i++) {
-                int finalI = i;
+                int step = i;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
-                        xp = currentXp + difference * (finalI + 1);
+                        if (isXp) xp = current + diff * (step + 1);
+                        else level = current + diff * (step + 1);
                     }
                 }, i * 4L, TimeUnit.MILLISECONDS);
             }
@@ -104,13 +107,13 @@ public class PetOverlay {
             if (a.contains("%)") && a.contains("XP")) {
                 Matcher matcher = XP_PATTERN.matcher(a);
                 if (matcher.find()) {
-                    animateXp(Float.parseFloat(matcher.group(1)) / 100);
+                    animatePetData(0, Float.parseFloat(matcher.group(1)) / 100);
                 }
             }
             if (a.contains("[Lvl") && !a.contains(":") && !currentLevelUp) {
                 Matcher matcher = LEVEL_PATTERN.matcher(a);
                 if (matcher.find()) {
-                    level = Float.parseFloat(matcher.group(1)) / maxLevel;
+                    animatePetData(1, Float.parseFloat(matcher.group(1)) / maxLevel);
                 }
             }
         }

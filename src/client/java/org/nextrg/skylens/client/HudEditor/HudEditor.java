@@ -1,5 +1,6 @@
 package org.nextrg.skylens.client.HudEditor;
 
+import com.terraformersmc.modmenu.util.mod.Mod;
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -42,7 +43,7 @@ public class HudEditor extends Screen {
     
     @Override
     protected void init() {
-        var marginTop = 20;
+        var marginTop = 0; // <- A thing to change in future
         var paginationY = 132;
         var pagetwoX = 23 + textRenderer.getWidth("Page 1") + 6;
         if (currentPage == 1) {
@@ -227,11 +228,13 @@ public class HudEditor extends Screen {
         prepare(context, false);
         var currenttextpage = "Page " + currentPage;
         drawText(context, currenttextpage, -148 + (int)(transit * 148) + 23 + textRenderer.getWidth(currenttextpage) / 2 + 2, 132 + textRenderer.fontHeight / 2 + 1 + 20, 0xFFFFFFFF, 1F, true, true);
+        /* In case I'd want other settings unrelated to Pet Overlay here
         var header = "";
         if (currentPage <= 3) {
             header = "Pet Overlay";
         }
         drawText(context, header, -148 + (int)(transit * 148) + 75, 46, 0xFFFFFFFF, 1F, true, true);
+        */
     }
     
     @Override

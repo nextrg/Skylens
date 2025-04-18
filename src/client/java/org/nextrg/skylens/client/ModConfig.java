@@ -306,7 +306,7 @@ public class ModConfig implements ModMenuApi {
                                         .build())
                                 .option(LabelOption.create(Text.literal("Animation")))
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.literal("XP Change"))
+                                        .name(Text.literal("XP/Level Change"))
                                         .binding(
                                                 true,
                                                 () -> petOverlayAnimXP,
