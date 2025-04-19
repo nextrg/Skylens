@@ -23,6 +23,9 @@ public class MissingEnchantments {
     public static void getJson() {
         enchants = readJSONFromNeu("/refs/heads/master/constants/enchants.json");
     }
+    private static String fixOutdatedNames(String input) {
+        return input.replaceAll("pristine", "prismatic");
+    }
     public static void getMissingEnchantments(ItemStack stack, List<Text> lines) {
         if (enchants != null && ModConfig.missingEnchants && onSkyblock() && stack.getCustomName() != null) {
             String category = getItemType(lines);
@@ -34,9 +37,7 @@ public class MissingEnchantments {
             String displayName = getLiteral(lcs(stack.getCustomName().withoutStyle().getFirst().getContent().toString()));
             if (displayName.contains("Gemstone Gauntlet")) { category = "GAUNTLET"; }
             custom_data.copyNbt().getCompound("enchantments").getKeys().forEach(en -> itemEnchants.add(lcs(en)));
-            String neuEnchantsString = enchants.get("enchants").getAsJsonObject().toString()
-                    .replaceAll("\"pristine\"", "\"prismatic\"");
-            JsonObject neuEnchants = JsonParser.parseString(neuEnchantsString).getAsJsonObject();
+            JsonObject neuEnchants = enchants.get("enchants").getAsJsonObject();
             JsonArray neuEnchantPools = enchants.get("enchant_pools").getAsJsonArray();
             if (neuEnchants.get(category) != null) {
                 for (JsonElement encElement : neuEnchants.get(category).getAsJsonArray()) {
@@ -55,7 +56,7 @@ public class MissingEnchantments {
                         if (conflictFound) break;
                     }
                     if (!conflictFound && !itemEnchants.contains(enc) && !itemEnchants.contains("one_for_all")) {
-                        var result = capitalize(enc.replaceAll("_", " "));
+                        var result = capitalize(fixOutdatedNames(enc.replaceAll("_", " ")));
                         if (!enc.contains("ultimate")) {
                             missingEnchants.add(result);
                         } else {
@@ -73,16 +74,16 @@ public class MissingEnchantments {
         }
     }
     
-    public static void displayMissingEnchantments(List<Text> lines, List<String> encs, NbtCompound nbts) {
-        var maxLinePosition = getTooltipMiddle(lines, nbts, 1);
+    public static void displayMissingEnchantments(List<Text> lines, List<String> enchants, NbtCompound nbt) {
+        var maxLinePosition = getTooltipMiddle(lines, nbt, 1);
         var symbol = Screen.hasShiftDown() ? "✦" : "✧";
         var color = rgbToHexa(Screen.hasShiftDown() ? ModConfig.me_enabled : ModConfig.me_disabled);
         if (Screen.hasShiftDown()) {
             List<Text> reversedLines = new ArrayList<>();
-            for (int i = encs.size() - 1; i >= 0; i -= 3) {
+            for (int i = enchants.size() - 1; i >= 0; i -= 3) {
                 StringBuilder sb = new StringBuilder();
                 for (int j = i; j >= Math.max(0, i - 2); j--) {
-                    sb.append(encs.get(j));
+                    sb.append(enchants.get(j));
                     if (!(j == 0)) {
                         sb.append(getColorCode("gray")).append(getFormat("reset")).append(", ");
                     }
