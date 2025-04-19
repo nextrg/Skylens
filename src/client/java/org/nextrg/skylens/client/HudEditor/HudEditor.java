@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.HudEditor;
+package org.nextrg.skylens.client.hudeditor;
 
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -14,11 +14,11 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import static org.nextrg.skylens.client.Helpers.Renderer.drawText;
-import static org.nextrg.skylens.client.Helpers.Renderer.easeInOutQuadratic;
-import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
-import static org.nextrg.skylens.client.Helpers.Text.hexToHexa;
-import static org.nextrg.skylens.client.Main.PetOverlay.*;
+import static org.nextrg.skylens.client.utils.Renderer.drawText;
+import static org.nextrg.skylens.client.utils.Renderer.easeInOutQuadratic;
+import static org.nextrg.skylens.client.utils.Text.getColorCode;
+import static org.nextrg.skylens.client.utils.Text.hexToHexa;
+import static org.nextrg.skylens.client.main.PetOverlay.*;
 
 public class HudEditor extends Screen {
     public HudEditor(Text title) {

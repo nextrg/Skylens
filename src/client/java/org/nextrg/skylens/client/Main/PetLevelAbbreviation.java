@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Main;
+package org.nextrg.skylens.client.main;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -7,14 +7,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import org.nextrg.skylens.client.ModConfig;
 import java.util.List;
-import static org.nextrg.skylens.client.Helpers.Other.onSkyblock;
-import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
+import static org.nextrg.skylens.client.utils.Other.onSkyblock;
+import static org.nextrg.skylens.client.utils.Text.getColorCode;
 
 public class PetLevelAbbreviation {
     public static void shortenPetLevel(ItemStack stack, List<Text> lines) {
         if (ModConfig.compactLevel && onSkyblock()) {
             var customdata = stack.getComponents().get(DataComponentTypes.CUSTOM_DATA);
-            if (customdata != null && customdata.copyNbt().get("petInfo") != null && stack.getItemName().toString().contains("player_head")) {
+            if (customdata != null && customdata.copyNbt().get("petInfo") != null &&
+                    stack.getItemName().toString().contains("player_head") && stack.getCustomName() != null) {
                 JsonObject petInfo = new Gson().fromJson(customdata.copyNbt().get("petInfo").asString(), JsonObject.class);
                 var display = stack.getCustomName();
                 var petRarity = getColorCode(petInfo.get("tier").getAsString().toLowerCase());

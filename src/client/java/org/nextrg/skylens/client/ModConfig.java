@@ -16,8 +16,8 @@ import net.minecraft.util.Identifier;
 
 import java.awt.*;
 import java.time.LocalDate;
-import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
-import static org.nextrg.skylens.client.HudEditor.HudEditor.openScreen;
+import static org.nextrg.skylens.client.utils.Text.getColorCode;
+import static org.nextrg.skylens.client.hudeditor.HudEditor.openScreen;
 
 public class ModConfig implements ModMenuApi {
     public static ConfigClassHandler<ModConfig> HANDLER = ConfigClassHandler.createBuilder(ModConfig.class)

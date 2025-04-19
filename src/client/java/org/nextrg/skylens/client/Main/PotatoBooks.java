@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Main;
+package org.nextrg.skylens.client.main;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
@@ -6,11 +6,11 @@ import net.minecraft.text.Text;
 import org.nextrg.skylens.client.ModConfig;
 import java.util.List;
 import java.util.stream.Stream;
-import static org.nextrg.skylens.client.Helpers.Errors.logErr;
-import static org.nextrg.skylens.client.Helpers.Other.*;
-import static org.nextrg.skylens.client.Helpers.Text.rgbToHexa;
-import static org.nextrg.skylens.client.Helpers.Tooltips.getItemType;
-import static org.nextrg.skylens.client.Helpers.Tooltips.getTooltipMiddle;
+import static org.nextrg.skylens.client.utils.Errors.logErr;
+import static org.nextrg.skylens.client.utils.Other.*;
+import static org.nextrg.skylens.client.utils.Text.rgbToHexa;
+import static org.nextrg.skylens.client.utils.Tooltips.getItemType;
+import static org.nextrg.skylens.client.utils.Tooltips.getTooltipMiddle;
 
 public class PotatoBooks {
     public static void showMissingPotatoBooks(ItemStack stack, List<Text> lines) {

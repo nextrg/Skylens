@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Main;
+package org.nextrg.skylens.client.main;
 
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
@@ -26,11 +26,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static com.mojang.blaze3d.systems.RenderSystem.*;
-import static org.nextrg.skylens.client.Helpers.Errors.logErr;
-import static org.nextrg.skylens.client.Helpers.Other.*;
-import static org.nextrg.skylens.client.Helpers.Text.*;
-import static org.nextrg.skylens.client.Helpers.Renderer.*;
-import static org.nextrg.skylens.client.Helpers.Tooltips.getLore;
+import static org.nextrg.skylens.client.utils.Errors.logErr;
+import static org.nextrg.skylens.client.utils.Other.*;
+import static org.nextrg.skylens.client.utils.Text.*;
+import static org.nextrg.skylens.client.utils.Renderer.*;
+import static org.nextrg.skylens.client.utils.Tooltips.getLore;
 
 public class PetOverlay {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -143,12 +143,16 @@ public class PetOverlay {
                             }
                         }
                         currentPet = pet.copy();
-                        theme = currentPet.getCustomName().getSiblings().get(pet.getCustomName().getSiblings().size() - (pet.getCustomName().toString().contains("✦") ? 2 : 1)).getStyle().getColor().toString();
+                        if (currentPet.getCustomName() != null) {
+                            theme = currentPet.getCustomName().getSiblings()
+                                    .get(pet.getCustomName().getSiblings().size() - (pet.getCustomName().toString().contains("✦") ? 2 : 1))
+                                    .getStyle().getColor().toString();
+                        }
                         lastUpdate = System.currentTimeMillis();
                     }
                 }
             }
-            if (!foundPet) {
+            if (foundPet) {
                 // Fallback to read the pet's texture from NEU repo
                 currentPet = getPetTextureFromNEU(petNameFromMessage);
             }

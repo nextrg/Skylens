@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.HudEditor;
+package org.nextrg.skylens.client.hudeditor;
 
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.minecraft.client.MinecraftClient;
@@ -13,10 +13,10 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import static org.nextrg.skylens.client.Helpers.Renderer.*;
-import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
-import static org.nextrg.skylens.client.Helpers.Text.hexToHexa;
-import static org.nextrg.skylens.client.HudEditor.HudEditor.*;
+import static org.nextrg.skylens.client.utils.Renderer.*;
+import static org.nextrg.skylens.client.utils.Text.getColorCode;
+import static org.nextrg.skylens.client.utils.Text.hexToHexa;
+import static org.nextrg.skylens.client.hudeditor.HudEditor.*;
 
 public class Button extends ClickableWidget {
     public String displayText;

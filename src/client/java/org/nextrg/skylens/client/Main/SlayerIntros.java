@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Main;
+package org.nextrg.skylens.client.main;
 
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
@@ -15,11 +15,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.nextrg.skylens.client.Helpers.Other.getScoreboardData;
-import static org.nextrg.skylens.client.Helpers.Other.onSkyblock;
-import static org.nextrg.skylens.client.Helpers.Renderer.*;
-import static org.nextrg.skylens.client.Helpers.Text.getColorCode;
-import static org.nextrg.skylens.client.Helpers.Text.hexToHexa;
+import static org.nextrg.skylens.client.utils.Other.getScoreboardData;
+import static org.nextrg.skylens.client.utils.Other.onSkyblock;
+import static org.nextrg.skylens.client.utils.Renderer.*;
+import static org.nextrg.skylens.client.utils.Text.getColorCode;
+import static org.nextrg.skylens.client.utils.Text.hexToHexa;
 
 public class SlayerIntros {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);

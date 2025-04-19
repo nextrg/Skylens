@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Helpers;
+package org.nextrg.skylens.client.utils;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -52,13 +52,6 @@ public class Text {
         return Arrays.stream(text.split(" "))
                 .map(word -> Character.toTitleCase(word.charAt(0)) + word.substring(1))
                 .collect(Collectors.joining(" "));
-    }
-    // Upper/lowercase (shorter)
-    public static String lcs(String input) {
-        return input.toLowerCase();
-    }
-    public static String ucs(String input) {
-        return input.toUpperCase();
     }
     public static int rgbToHexa(Color color) {
         return (color.getAlpha() << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();

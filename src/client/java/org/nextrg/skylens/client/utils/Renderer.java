@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Helpers;
+package org.nextrg.skylens.client.utils;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;

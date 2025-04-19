@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Helpers;
+package org.nextrg.skylens.client.utils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static org.nextrg.skylens.client.Helpers.Errors.logErr;
+import static org.nextrg.skylens.client.utils.Errors.logErr;
 
 public class Other {
     public static Pair<List<Text>, List<String>> getTabData(boolean getStyle) {

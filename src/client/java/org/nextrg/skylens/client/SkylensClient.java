@@ -2,10 +2,11 @@ package org.nextrg.skylens.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import org.nextrg.skylens.client.HudEditor.HudEditor;
-import org.nextrg.skylens.client.Main.*;
+import org.nextrg.skylens.client.hudeditor.HudEditor;
+import org.nextrg.skylens.client.main.*;
 
-import static org.nextrg.skylens.client.Helpers.Errors.errorMessage;
+import static org.nextrg.skylens.client.utils.Errors.errorMessage;
+import static org.nextrg.skylens.client.utils.Tooltips.tooltipMiddleCache;
 
 public class SkylensClient implements ClientModInitializer {
     @Override
@@ -16,6 +17,7 @@ public class SkylensClient implements ClientModInitializer {
         SlayerIntros.init();
         HudEditor.initialize();
         errorMessage();
+        tooltipMiddleCache();
         ItemTooltipCallback.EVENT.register((stack,cont,type, lines) -> {
             MissingEnchantments.getMissingEnchantments(stack, lines);
             PotatoBooks.showMissingPotatoBooks(stack, lines);

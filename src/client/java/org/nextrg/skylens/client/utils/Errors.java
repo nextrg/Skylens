@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.Helpers;
+package org.nextrg.skylens.client.utils;
 
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;

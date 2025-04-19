@@ -8,14 +8,12 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.Registries;
-import org.nextrg.skylens.client.Main.SlayerIntros;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static org.nextrg.skylens.client.Main.SlayerIntros.bossExists;
+import static org.nextrg.skylens.client.main.SlayerIntros.bossExists;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ClientPlayNetworkHandlerMixin extends ClientCommonNetworkHandler {
