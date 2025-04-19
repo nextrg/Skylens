@@ -14,8 +14,8 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import static org.nextrg.skylens.client.utils.Renderer.drawText;
-import static org.nextrg.skylens.client.utils.Renderer.easeInOutQuadratic;
+
+import static org.nextrg.skylens.client.utils.Renderer.*;
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
 import static org.nextrg.skylens.client.utils.Text.hexToHexa;
 import static org.nextrg.skylens.client.main.PetOverlay.*;
@@ -109,7 +109,7 @@ public class HudEditor extends Screen {
                     scheduler.schedule(() -> {
                     }, 290L, TimeUnit.MILLISECONDS);
                     shouldanim = true;
-                    transition(true);
+                    animationFade(true);
                     forceAnim(true);
                     setHudEditor(true);
                 } else {
@@ -130,34 +130,28 @@ public class HudEditor extends Screen {
     }
     
     public static boolean clickCooldown = false;
-    public static void animation(boolean show) {
+    public static void animationMargin(boolean show) {
         for (var i = 0; i < 60; i++) {
             final float progress = (float) i / 59f;
             scheduler.schedule(() -> {
                 synchronized (lock) {
-                    if (show) {
-                        anim = Math.min(easeInOutQuadratic(progress), 1);
-                    } else {
-                        anim = Math.max(0, 1 - easeInOutQuadratic(progress));
-                    }
+                    float easing = easeInOutCubic(progress);
+                    anim = show ? Math.min(easing, 1) : Math.max(0, 1 - easing);
                 }
-            }, i * 2L * (!show ? 3 : 2), TimeUnit.MILLISECONDS);
+            }, i * 5L, TimeUnit.MILLISECONDS);
         }
     }
     
-    public static void transition(boolean show) {
-        for (var i = 0; i < 60; i++) {
-            final float progress = (float) i / 59f;
+    public static void animationFade(boolean show) {
+        for (var i = 0; i < 100; i++) {
+            final float progress = (float) i / 99f;
             scheduler.schedule(() -> {
                 synchronized (lock) {
-                    if (show) {
-                        transit = Math.min(easeInOutQuadratic(progress), 1);
-                    } else {
-                        transit = Math.max(0, 1 - easeInOutQuadratic(progress));
-                    }
+                    float easing = easeInOutCubic(progress);
+                    transit = show ? Math.min(easing, 1) : Math.max(0, 1 - easing);
                     Button.setProgress(transit);
                 }
-            }, i * 6L, TimeUnit.MILLISECONDS);
+            }, i * 4L, TimeUnit.MILLISECONDS);
         }
     }
     
@@ -176,7 +170,7 @@ public class HudEditor extends Screen {
     public final boolean mouseClicked(double a, double b, int c) {
         if (withinArea(a, b) && !clickCooldown) {
             clickCooldown = true;
-            animation(true);
+            animationMargin(true);
             hovered = true;
             setMargin(a, b);
         }
@@ -209,7 +203,7 @@ public class HudEditor extends Screen {
             scheduler.schedule(() -> {
                 clickCooldown = false;
             }, 180L, TimeUnit.MILLISECONDS);
-            animation(false);
+            animationMargin(false);
             hovered = false;
         }
         return super.mouseReleased(a, b, c);
@@ -220,18 +214,11 @@ public class HudEditor extends Screen {
         super.render(context, mouseX, mouseY, delta);
         windowwidth = context.getScaledWindowWidth();
         windowheight = context.getScaledWindowHeight();
-        petOverlayArea(context);
-        header(context);
+        renderPetOverlayEditor(context);
+        renderHeader(context);
         prepare(context, false);
         var currenttextpage = "Page " + currentPage;
         drawText(context, currenttextpage, -148 + (int)(transit * 148) + 23 + textRenderer.getWidth(currenttextpage) / 2 + 2, 132 + textRenderer.fontHeight / 2 + 1, 0xFFFFFFFF, 1F, true, true);
-        /* In case I'd want other settings unrelated to Pet Overlay here
-        var header = "";
-        if (currentPage <= 3) {
-            header = "Pet Overlay";
-        }
-        drawText(context, header, -148 + (int)(transit * 148) + 75, 46, 0xFFFFFFFF, 1F, true, true);
-        */
     }
     
     @Override
@@ -239,7 +226,7 @@ public class HudEditor extends Screen {
         super.renderBackground(context, mouseX, mouseY, delta);
     }
     
-    public void header(DrawContext context) {
+    public void renderHeader(DrawContext context) {
         float amount = (float) (Util.getMeasuringTimeMs() / 2600.0) % 1;
         var color = hexToHexa(0xFF131313, (int) (215 * transit));
         RoundedRectShader.fill(context, -4, -4 - 30 + (int)(30 * transit), 158, 44, color, 0x00000000, 3, 1);
@@ -251,7 +238,7 @@ public class HudEditor extends Screen {
         drawText(context, "To quickly access this menu, use /skylens", windowwidth  - this.textRenderer.getWidth("To quickly access this menu, use /skylens") - 10,-21 + (int)(30 * transit), hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 1F, false, true);
     }
     
-    public void petOverlayArea(DrawContext context) {
+    public void renderPetOverlayEditor(DrawContext context) {
         var dwidth = switch (ModConfig.petOverlayPosition) {case "Left" -> -90; case "Right" -> windowwidth + 90; default -> windowwidth / 2;};
         boolean flipSide = "Inventory_Right".equals(ModConfig.petOverlayPosition) || "Left".equals(ModConfig.petOverlayPosition);
         var inventoryX = dwidth + (flipSide ? 90 : -90 - (123 + 130));
@@ -301,13 +288,13 @@ public class HudEditor extends Screen {
         }
     }
     
-    public static void closeAnim(boolean doAnim) {
+    public static void closeScreen(boolean doAnim) {
         if (shouldanim) {
             ModConfig.get().update();
             shouldanim = false;
             forceAnim(false);
             if (doAnim) {
-                transition(false);
+                animationFade(false);
             } else {
                 transit = 0f;
                 Button.setProgress(0f);
@@ -328,6 +315,6 @@ public class HudEditor extends Screen {
     
     @Override
     public void close() {
-        closeAnim(true);
+        closeScreen(true);
     }
 }

@@ -80,7 +80,7 @@ public class ModConfig implements ModMenuApi {
     @SerialEntry
     public static boolean petOverlayIconAlign = true;
     @SerialEntry
-    public static boolean petOverlayHideLvlFull = true;
+    public static boolean petOverlayHideLvlFull = false;
     @SerialEntry
     public static boolean slayerIntros = true;
     @SerialEntry

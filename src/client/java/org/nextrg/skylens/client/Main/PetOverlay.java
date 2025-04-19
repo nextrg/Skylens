@@ -36,7 +36,7 @@ public class PetOverlay {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final Object lock = new Object();
     private static final Pattern XP_PATTERN = Pattern.compile("\\((\\d+(\\.\\d*)?)%\\)");
-    private static final Pattern LEVEL_PATTERN = Pattern.compile("(?<=\\[Lvl\\s)(\\d+)(?=])");
+    private static final Pattern LEVEL_PETNAME_PATTERN = Pattern.compile("\\[Lvl (\\d+)]\\s+(.+)");
     static Map<String, int[]> themeColors = Map.of(
             "special", new int[]{0xFFaa2121, 0xFFff3232, 0xFF771515},
             "divine", new int[]{0xFF085599, 0xFF11aadd, 0xFF053666},
@@ -62,6 +62,7 @@ public class PetOverlay {
     static float xpBeforeLevel = 0;
     static int maxLevel = 100;
     static int globalY = -45;
+    static boolean initiallyChecked = false;
     
     // For HUD editor
     public static void forceAnim(boolean state) {
@@ -81,27 +82,36 @@ public class PetOverlay {
             if (isXp) xp = updatedVar;
             else level = updatedVar;
         } else {
+            var steps = 60;
             float current = isXp ? xp : level;
-            float diff = (updatedVar - current) / 60f;
-            for (int i = 0; i < 60; i++) {
+            float diff = (updatedVar - current) / steps;
+            for (int i = 0; i < steps; i++) {
                 int step = i;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
                         if (isXp) xp = current + diff * (step + 1);
                         else level = current + diff * (step + 1);
                     }
-                }, i * 4L, TimeUnit.MILLISECONDS);
+                }, i * 5L, TimeUnit.MILLISECONDS);
             }
         }
     }
     
     // Reads data about the pet from the tab list.
     public static void getPetData() {
-        if (System.currentTimeMillis() - lastUpdate < 3000) {
-            return;
-        }
+        if (System.currentTimeMillis() - lastUpdate < 3000) return;
         lastUpdate = System.currentTimeMillis();
-        Pair<List<Text>, List<String>> result = getTabData(false);
+        Pair<List<Text>, List<String>> result = getTabData(!initiallyChecked);
+        if (!initiallyChecked) {
+            for (var b : result.getLeft()) {
+                if (b.toString().contains("[Lvl")) {
+                    var siblings = b.getSiblings();
+                    if (!show) {
+                        theme = getRarity(siblings.get(Math.min(2, siblings.size())).getStyle().getColor().toString());
+                    }
+                }
+            }
+        }
         for (var a : result.getRight()) {
             if (a.contains("%)") && a.contains("XP")) {
                 Matcher matcher = XP_PATTERN.matcher(a);
@@ -110,24 +120,26 @@ public class PetOverlay {
                 }
             }
             if (a.contains("[Lvl") && !a.contains(":") && !currentLevelUp) {
-                Matcher matcher = LEVEL_PATTERN.matcher(a);
+                Matcher matcher = LEVEL_PETNAME_PATTERN.matcher(a.replace(" ✦", ""));
                 if (matcher.find()) {
                     animatePetData(1, Float.parseFloat(matcher.group(1)) / maxLevel);
+                    if (!show && !initiallyChecked) {
+                        show(matcher.group(2));
+                        initiallyChecked = true;
+                    }
                 }
             }
         }
     }
     
     // Reads cache to get pet's data.
-    public static void readCache(Text chatMessage) {
+    public static void readCache(String petName) {
         try {
-            String petNameFromMessage = getLiteral(chatMessage.getSiblings().get(1).getContent().toString());
             var foundPet = false;
             for (ItemStack pet : petCache) {
                 if (pet.getCustomName() != null) {
-                    var petNameString = pet.getCustomName().getString();
-                    var petName = petNameString.substring(petNameString.indexOf("]") + 2).replace(" ✦", "");
-                    if (petName.equalsIgnoreCase(petNameFromMessage)) {
+                    String cachePetName = getPetNameFromCustomName(pet.getCustomName());
+                    if (cachePetName.equalsIgnoreCase(petName)) {
                         foundPet = true;
                         var lines = getLore(pet);
                         for (var line : lines) {
@@ -143,18 +155,14 @@ public class PetOverlay {
                             }
                         }
                         currentPet = pet.copy();
-                        if (currentPet.getCustomName() != null) {
-                            theme = currentPet.getCustomName().getSiblings()
-                                    .get(pet.getCustomName().getSiblings().size() - (pet.getCustomName().toString().contains("✦") ? 2 : 1))
-                                    .getStyle().getColor().toString();
-                        }
+                        theme = getPetRarity(currentPet);
                         lastUpdate = System.currentTimeMillis();
                     }
                 }
             }
-            if (foundPet) {
+            if (!foundPet) {
                 // Fallback to read the pet's texture from NEU repo
-                currentPet = getPetTextureFromNEU(petNameFromMessage);
+                currentPet = getPetTextureFromNEU(petName);
             }
         } catch (Exception e) {
             logErr(e, "Caught an error while reading pet cache");
@@ -179,6 +187,9 @@ public class PetOverlay {
                                 ItemStack stack = slot.getStack();
                                 if (!stack.isEmpty()) {
                                     newCache.add(stack);
+                                    if (getLore(stack).toString().contains("Click to despawn!") && stack.getCustomName() != null && !show) {
+                                        scheduler.schedule(() -> show(getPetNameFromCustomName(stack.getCustomName())), 25L, TimeUnit.MILLISECONDS);
+                                    }
                                 }
                             }
                         }
@@ -193,7 +204,7 @@ public class PetOverlay {
         }
     }
     
-    public static void show(Text chatMessage) {
+    public static void show(String petName) {
         var fade = ModConfig.petOverlayAnimFade;
         show = !fade || !show;
         fade();
@@ -202,13 +213,13 @@ public class PetOverlay {
                 scheduler.schedule(() -> {
                     show = true;
                     fade();
-                    readCache(chatMessage);
+                    readCache(petName);
                 }, 300L, TimeUnit.MILLISECONDS);
             } else {
-                readCache(chatMessage);
+                readCache(petName);
             }
         } else {
-            readCache(chatMessage);
+            readCache(petName);
         }
     }
     
@@ -222,7 +233,8 @@ public class PetOverlay {
             var messageContent = message.toString();
             try {
                 if (messageContent.contains("You summoned your")) {
-                    show(message);
+                    var petName = getLiteral(message.getSiblings().get(1).getContent().toString());
+                    show(petName);
                 }
                 if (messageContent.contains("You despawned your")) {
                     hide();
@@ -260,7 +272,7 @@ public class PetOverlay {
                     setShader(ShaderProgramKeys.POSITION_COLOR);
                     String ModConfigTheme = ModConfig.petOverlayTheme.toLowerCase();
                     int[] colors = themeColors.getOrDefault(
-                            ModConfig.petOverlayPetRarity ? getRarity(theme) : ModConfigTheme,
+                            ModConfig.petOverlayPetRarity ? theme : ModConfigTheme,
                             new int[]{0xFF9A9A9A, 0xFFFFFFFF, 0xFF636363}
                     );
                     if (!ModConfig.petOverlayPetRarity && ModConfigTheme.contains("custom")) {
@@ -284,7 +296,7 @@ public class PetOverlay {
                 final float progress = (float) i / 29f;
                 scheduler.schedule(() -> {
                     synchronized (lock) {
-                        levelAnimProgress = Math.max(0, 1 - easeInOutQuadratic(progress));
+                        levelAnimProgress = Math.max(0, 1 - easeInOutCubic(progress));
                     }
                 }, i * 10L, TimeUnit.MILLISECONDS);
             }
@@ -293,7 +305,7 @@ public class PetOverlay {
                     final float progress = (float) i / 29f;
                     scheduler.schedule(() -> {
                         synchronized (lock) {
-                            levelAnimProgress = Math.min(easeInOutQuadratic(progress), 1);
+                            levelAnimProgress = Math.min(easeInOutCubic(progress), 1);
                         }
                     }, i * 10L, TimeUnit.MILLISECONDS);
                 }
@@ -359,7 +371,8 @@ public class PetOverlay {
                     xp = 1f;
                     fadeProgressAnim = 1f;
                 } else {
-                    displayXP = String.format("%." + ((xp >= 0.1) ? 1 : 2) + "f%%", xp * 100).replace(",", ".");
+                    var display = "%." + ((xp >= 0.1) ? "1f%%" : "2f%%");
+                    displayXP = String.format(display, xp * 100).replace(",", ".");
                 }
             }
             
@@ -368,7 +381,7 @@ public class PetOverlay {
             if (leveledEver) {
                 animtext = (int) (7 - levelAnimProgress * 7);
             }
-            levelAnimProgress = level == 1f ? 0f : (!leveledEver ? 1f : levelAnimProgress);
+            levelAnimProgress = (level == 1f) ? 0f : (!leveledEver ? 1f : levelAnimProgress);
             if (currentLevelUp) {
                 xp = xpBeforeLevel * levelAnimProgress;
             } else if (level == 1f) {

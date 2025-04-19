@@ -1,5 +1,6 @@
 package org.nextrg.skylens.client.utils;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
@@ -13,6 +14,7 @@ import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.scoreboard.ScoreHolder;
 import net.minecraft.scoreboard.ScoreboardDisplaySlot;
@@ -96,6 +98,22 @@ public class Other {
             logErr(e, "Caught an error getting JSON from NEU-repo");
         }
         return json;
+    }
+    public static String getPetNameFromCustomName(Text customName) {
+        var string = customName.getString();
+        return string.substring(string.indexOf("]") + 2).replace(" ✦", "");
+    }
+    public static String getPetRarity(ItemStack stack) {
+        var fallback = "common";
+        var nbt = stack.getComponents().get(DataComponentTypes.CUSTOM_DATA);
+        if (nbt != null) {
+            var petInfo = nbt.copyNbt().get("petInfo");
+            if (petInfo != null && petInfo.getType() == NbtElement.STRING_TYPE) {
+                JsonObject workingPetInfo = new Gson().fromJson(petInfo.asString(), JsonObject.class);
+                fallback = workingPetInfo.get("tier").getAsString().toLowerCase();
+            }
+        }
+        return fallback;
     }
     public static ItemStack getPetTextureFromNEU(String petName) {
         ItemStack itemStack = new ItemStack(Items.PLAYER_HEAD);

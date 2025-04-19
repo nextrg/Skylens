@@ -8,7 +8,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.nextrg.skylens.client.ModConfig;
-import org.nextrg.skylens.client.utils.Tooltips;
 
 import java.util.*;
 import java.util.List;

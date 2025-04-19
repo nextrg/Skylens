@@ -22,13 +22,13 @@ public class Button extends ClickableWidget {
     public String displayText;
     public int btype; // button type
     public String desc;
+    private boolean bool;
     public static float progress; // variable for anim when opening/closing the screen
     public Button(int x, int y, int width, int height, String text, String description, int type) {
         super(x, y, width, height, Text.literal(text));
         btype = type;
         displayText = text;
         desc = description;
-        boolean bool = false;
         if (btype == 3) {
             bool = ModConfig.petOverlayPetRarity;
         }
@@ -72,8 +72,10 @@ public class Button extends ClickableWidget {
                 try {option = Integer.parseInt(value);} catch (NumberFormatException ignored) {option = 4;}
                 if (type == 0) {
                     option += (option < 4 ? 1 : -3);
-                } else {
+                } else if (type == 1) {
                     option -= (option > 1 ? 1 : -3);
+                } else {
+                    option = 4;
                 }
                 var text = String.valueOf(option)
                         .replace("3", "Inventory_Left")
@@ -90,8 +92,10 @@ public class Button extends ClickableWidget {
                 try {style = Integer.parseInt(value);} catch (NumberFormatException ignored) {}
                 if (type == 0) {
                     style += (style < 3 ? 1 : -2);
-                } else {
+                } else if (type == 1) {
                     style -= (style < 1 ? 1 : -2);
+                } else {
+                    style = 1;
                 }
                 var text = "Style" + style;
                 ModConfig.petOverlayStyle = text;
@@ -100,15 +104,15 @@ public class Button extends ClickableWidget {
                         .replace("Style3", "Circular" + getColorCode("gray") + " (alt)");
             }
             if (btype == 3) {
-                ModConfig.petOverlayPetRarity = !ModConfig.petOverlayPetRarity;
-                animateClick(ModConfig.petOverlayPetRarity);
+                ModConfig.petOverlayPetRarity = type == 2 || !ModConfig.petOverlayPetRarity;
+                animateSwitch(ModConfig.petOverlayPetRarity);
             }
             if (btype == 5) {
-                ModConfig.petOverlayShowLvl = !ModConfig.petOverlayShowLvl;
-                animateClick(ModConfig.petOverlayShowLvl);
+                ModConfig.petOverlayShowLvl = type == 2 || !ModConfig.petOverlayShowLvl;
+                animateSwitch(ModConfig.petOverlayShowLvl);
             }
             if (btype == 6) {
-                ModConfig.petOverlayInvert = !ModConfig.petOverlayInvert;
+                ModConfig.petOverlayInvert = type != 2 && !ModConfig.petOverlayInvert;
                 displayText = String.valueOf(ModConfig.petOverlayInvert).replace("true", "Inverted").replace("false", "Default");
             }
             var targetPage = currentPage;
@@ -130,7 +134,7 @@ public class Button extends ClickableWidget {
                 HudEditor.setCurrentPage(targetPage);
             }
             if (btype == 9) {
-                ModConfig.petOverlayIconAlign = !ModConfig.petOverlayIconAlign;
+                ModConfig.petOverlayIconAlign = type != 2 && !ModConfig.petOverlayIconAlign;
                 displayText = String.valueOf(ModConfig.petOverlayIconAlign).replace("true", "Left").replace("false", "Right");
             }
             if (btype == 10) {
@@ -141,14 +145,14 @@ public class Button extends ClickableWidget {
                 displayText = getColorCode(text.toLowerCase()) + (text.equals("Custom") ? "§n" : "") + text;
             }
             if (btype == 11) {
-                ModConfig.petOverlayHideLvlFull = !ModConfig.petOverlayHideLvlFull;
-                animateClick(ModConfig.petOverlayHideLvlFull);
+                ModConfig.petOverlayHideLvlFull = type != 2 && !ModConfig.petOverlayHideLvlFull;
+                animateSwitch(ModConfig.petOverlayHideLvlFull);
             }
         } catch (Exception ignored) {}
         if (btype == 4) {
-            closeAnim(true);
+            closeScreen(true);
         }
-        animPress();
+        animateClick();
         
         super.onClick(mouseX, mouseY);
     }
@@ -181,7 +185,13 @@ public class Button extends ClickableWidget {
     }
     
     private float button;
-    private void animateClick(boolean show) {
+    private Boolean lastAnimatedValue = null;
+    private void animateSwitch(boolean show) {
+        if (lastAnimatedValue == null && bool) { lastAnimatedValue = bool; }
+        if (lastAnimatedValue == show) {
+            return;
+        }
+        lastAnimatedValue = show;
         for (int i = 0; i < 60; i++) {
             final float progress = i / 59f;
             final boolean animTrue = show;
@@ -198,7 +208,7 @@ public class Button extends ClickableWidget {
     }
     
     private float press = 0f;
-    private void animPress() {
+    private void animateClick() {
         scheduler.schedule(() -> {
             final int steps = 60;
             final long stepDelay = 6L;
@@ -241,9 +251,9 @@ public class Button extends ClickableWidget {
         };
         boolean isSwitch = !part.contains(":") && part.length() > 1;
         var x = (int) (getX() - 150 + 150 * progress) + (int) ((btype == 4 || isPages ? 0 : 4) * transit);
-        RoundedRectShader.fill(context, x - 1, getY() - 1, this.width + 2, this.height + 2, 0xbf252525, 0x00000000, 5, 1);
+        RoundedRectShader.fill(context, x - 1, getY() - 1, this.width + 2, this.height + 2, hexToHexa(0xFF252525, (int)(192 * progress)), 0x00000000, 5, 1);
         var center = getY() + this.height / 2 - MinecraftClient.getInstance().textRenderer.fontHeight / 2;
-        RoundedRectShader.fill(context, x + (this.width + 2) / 2 - (int) ((float) (this.width + 2) / 2 * transit) - 1, getY() - 1, (int) ((this.width + 2) * transit), this.height + 2, ColorHelper.lerp(isSwitch ? 0f : press, 0xFF353535, 0xFF454545), 0x00000000, 5, 1);
+        RoundedRectShader.fill(context, x + (this.width + 2) / 2 - (int) ((float) (this.width + 2) / 2 * transit) - 1, getY() - 1, (int) ((this.width + 2) * transit), this.height + 2, hexToHexa(ColorHelper.lerp(isSwitch ? 0f : press, 0xFF353535, 0xFF454545), (int)(255 * progress)), 0x00000000, 5, 1);
         var hasDesc = (isTheme ? 7 : !(Objects.equals(desc, "")) ? 5 : 0);
         context.drawText(MinecraftClient.getInstance().textRenderer, part + " " + displayText, x + (btype == 4 ? 7 : 0) + (isPages ? (btype == 7 ? 7 : 8) : 10), center - hasDesc + (int) (hasDesc - hasDesc * transit), hexToHexa(0xFFFFFFFF, (int) (progress * 245 + 10)), false);
         context.drawText(MinecraftClient.getInstance().textRenderer, isTheme ? "Custom can be changed" : desc, x + 10, center + (int) (hasDesc * transit) - (isTheme ? 4 : 0), hexToHexa(0xFF999999, (int) (transit * 245 + 10)), false);

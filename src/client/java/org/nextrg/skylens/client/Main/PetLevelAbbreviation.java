@@ -1,24 +1,20 @@
 package org.nextrg.skylens.client.main;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import org.nextrg.skylens.client.ModConfig;
 import java.util.List;
+
+import static org.nextrg.skylens.client.utils.Other.getPetRarity;
 import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
 
 public class PetLevelAbbreviation {
     public static void shortenPetLevel(ItemStack stack, List<Text> lines) {
         if (ModConfig.compactLevel && onSkyblock()) {
-            var customdata = stack.getComponents().get(DataComponentTypes.CUSTOM_DATA);
-            if (customdata != null && customdata.copyNbt().get("petInfo") != null &&
-                    stack.getItemName().toString().contains("player_head") && stack.getCustomName() != null) {
-                JsonObject petInfo = new Gson().fromJson(customdata.copyNbt().get("petInfo").asString(), JsonObject.class);
+            if (stack.getItemName().toString().contains("player_head") && stack.getCustomName() != null) {
                 var display = stack.getCustomName();
-                var petRarity = getColorCode(petInfo.get("tier").getAsString().toLowerCase());
+                var petRarity = getColorCode(getPetRarity(stack));
                 int maxLevel = display.getString().contains("Golden Dragon") ? 200 : 100;
                 lines.removeFirst();
                 lines.addFirst(Text.literal(display.getString()
