@@ -50,9 +50,10 @@ public class Tooltips {
             if (Stream.of("COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC", "DIVINE", "SPECIAL", "VERY SPECIAL", "ULTIMATE", "ADMIN").anyMatch(ucs(line.toString())::contains)) {
                 for (var string : line.getSiblings()) {
                     if (Stream.of("COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC", "DIVINE", "SPECIAL", "VERY SPECIAL", "ULTIMATE", "ADMIN").anyMatch(ucs(string.toString())::contains)) {
-                        var cate = getLiteral(lcs(string.getContent().toString()));
+                        var tooltipCategory = getLiteral(lcs(string.getContent().toString())).split(" ");
+                        String categoryKey = tooltipCategory[tooltipCategory.length - 1];
                         category = ucs(Stream.of("sword", "bow", "hoe", "shears", "shovel", "axe", "helmet", "chestplate", "leggings", "boots", "pickaxe", "drill", "fishing rod", "fishing weapon", "wand", "necklace", "cloak", "belt", "gloves", "gauntlet")
-                                .filter(cate::contains)
+                                .filter(categoryKey::equals)
                                 .findFirst()
                                 .orElse(category));
                     }

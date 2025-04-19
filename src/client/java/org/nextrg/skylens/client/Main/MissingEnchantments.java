@@ -25,26 +25,28 @@ public class MissingEnchantments {
     }
     public static void getMissingEnchantments(ItemStack stack, List<Text> lines) {
         if (enchants != null && ModConfig.missingEnchants && onSkyblock() && stack.getCustomName() != null) {
-            var category = getItemType(lines);
+            String category = getItemType(lines);
             var custom_data = stack.getComponents().get(DataComponentTypes.CUSTOM_DATA);
             if (category.equalsIgnoreCase("other") || custom_data == null) return;
-            List<String> ienc = new java.util.ArrayList<>(Collections.emptyList());
-            List<String> menc = new java.util.ArrayList<>(Collections.emptyList());
-            List<String> ult = new java.util.ArrayList<>(Collections.emptyList());
+            List<String> itemEnchants = new java.util.ArrayList<>(Collections.emptyList());
+            List<String> missingEnchants = new java.util.ArrayList<>(Collections.emptyList());
+            List<String> ultimateEnchants = new java.util.ArrayList<>(Collections.emptyList());
             String displayName = getLiteral(lcs(stack.getCustomName().withoutStyle().getFirst().getContent().toString()));
             if (displayName.contains("Gemstone Gauntlet")) { category = "GAUNTLET"; }
-            custom_data.copyNbt().getCompound("enchantments").getKeys().forEach(en -> ienc.add(lcs(en)));
-            var g = enchants.get("enchants").getAsJsonObject();
-            var d = enchants.get("enchant_pools").getAsJsonArray();
-            if (g.get(category) != null) {
-                for (JsonElement encElement : g.get(category).getAsJsonArray()) {
+            custom_data.copyNbt().getCompound("enchantments").getKeys().forEach(en -> itemEnchants.add(lcs(en)));
+            String neuEnchantsString = enchants.get("enchants").getAsJsonObject().toString()
+                    .replaceAll("\"pristine\"", "\"prismatic\"");
+            JsonObject neuEnchants = JsonParser.parseString(neuEnchantsString).getAsJsonObject();
+            JsonArray neuEnchantPools = enchants.get("enchant_pools").getAsJsonArray();
+            if (neuEnchants.get(category) != null) {
+                for (JsonElement encElement : neuEnchants.get(category).getAsJsonArray()) {
                     String enc = lcs(encElement.getAsString());
                     boolean conflictFound = false;
-                    for (JsonElement conflictgroup : d) {
-                        if (conflictgroup.toString().contains(enc)) {
-                            var array = conflictgroup.getAsJsonArray();
+                    for (JsonElement conflictGroup : neuEnchantPools) {
+                        if (conflictGroup.toString().contains(enc)) {
+                            var array = conflictGroup.getAsJsonArray();
                             for (var i = 0; i < array.size(); i++) {
-                                if (ienc.contains(array.get(i).getAsString())) {
+                                if (itemEnchants.contains(array.get(i).getAsString())) {
                                     conflictFound = true;
                                     break;
                                 }
@@ -52,27 +54,27 @@ public class MissingEnchantments {
                         }
                         if (conflictFound) break;
                     }
-                    if (!conflictFound && !ienc.contains(enc) && !ienc.contains("one_for_all")) {
+                    if (!conflictFound && !itemEnchants.contains(enc) && !itemEnchants.contains("one_for_all")) {
                         var result = capitalize(enc.replaceAll("_", " "));
                         if (!enc.contains("ultimate")) {
-                            menc.add(result);
+                            missingEnchants.add(result);
                         } else {
-                            ult.add(result);
+                            ultimateEnchants.add(result);
                         }
                     }
                 }
             }
-            if (!menc.isEmpty() && !ienc.isEmpty()) {
-                if (!ult.isEmpty()) {
-                    menc.add(getFormat("bold") + "Any Ultimate");
+            if (!missingEnchants.isEmpty() && !itemEnchants.isEmpty()) {
+                if (!ultimateEnchants.isEmpty()) {
+                    missingEnchants.add(getFormat("bold") + "Any Ultimate");
                 }
-                displayMissingEnchantments(lines, menc, custom_data.copyNbt());
+                displayMissingEnchantments(lines, missingEnchants, custom_data.copyNbt());
             }
         }
     }
     
     public static void displayMissingEnchantments(List<Text> lines, List<String> encs, NbtCompound nbts) {
-        var maxIndex = getTooltipMiddle(lines, nbts, 1);
+        var maxLinePosition = getTooltipMiddle(lines, nbts, 1);
         var symbol = Screen.hasShiftDown() ? "✦" : "✧";
         var color = rgbToHexa(Screen.hasShiftDown() ? ModConfig.me_enabled : ModConfig.me_disabled);
         if (Screen.hasShiftDown()) {
@@ -87,10 +89,10 @@ public class MissingEnchantments {
                 }
                 reversedLines.add(Text.literal("⋗ " + sb.toString().trim()).formatted(Formatting.GRAY));
             }
-            lines.addAll(maxIndex, reversedLines);
+            lines.addAll(maxLinePosition, reversedLines);
         } else {
-            lines.add(maxIndex, Text.literal("⋗ Press [SHIFT] to see").formatted(Formatting.GRAY));
+            lines.add(maxLinePosition, Text.literal("⋗ Press [SHIFT] to see").formatted(Formatting.GRAY));
         }
-        lines.add(maxIndex, Text.literal(symbol + " Missing enchantments:").withColor(color));
+        lines.add(maxLinePosition, Text.literal(symbol + " Missing enchantments:").withColor(color));
     }
 }
