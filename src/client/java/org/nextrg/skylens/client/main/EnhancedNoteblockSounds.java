@@ -51,27 +51,27 @@ public class EnhancedNoteblockSounds {
                 for (String instrument : instrumentList) {
                     if (path.contains("note_block." + instrument)) {
                         SoundEvent sound = bass;
-                        float loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockBassVolume;
+                        float loudness = ModConfig.noteblockBassVolume;
                         switch (instrument) {
                             case "harp" -> {
                                 sound = harp;
-                                loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockHarpVolume;
+                                loudness = ModConfig.noteblockHarpVolume;
                             }
                             case "basedrum" -> {
                                 sound = basedrum;
-                                loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockBasedrumVolume;
+                                loudness = ModConfig.noteblockBasedrumVolume;
                             }
                             case "hat" -> {
                                 sound = hat;
-                                loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockHatVolume;
+                                loudness = ModConfig.noteblockHatVolume;
                             }
                             case "snare" -> {
                                 sound = snare;
-                                loudness = 10F * ModConfig.noteblockGeneralVolume * ModConfig.noteblockBassVolume;
+                                loudness = 10F * ModConfig.noteblockBassVolume;
                             }
                         };
                         SoundEvent finalSound = sound;
-                        float finalLoudness = loudness;
+                        float finalLoudness = ModConfig.noteblockGeneralVolume * loudness;
                         MinecraftClient.getInstance().execute(() -> {
                             MinecraftClient.getInstance().getSoundManager().play(
                                     PositionedSoundInstance.master(
