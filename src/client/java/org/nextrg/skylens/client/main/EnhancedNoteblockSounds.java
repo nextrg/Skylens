@@ -19,7 +19,6 @@ import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 public class EnhancedNoteblockSounds {
     public static List<String> instrumentList = new ArrayList<>();
     public static final SoundEvent bass = registerSound("bass");
-    public static final SoundEvent harp = registerSound("harp");
     public static final SoundEvent snare = registerSound("snare");
     public static final SoundEvent basedrum = registerSound("basedrum");
     public static final SoundEvent hat = registerSound("hat");
@@ -64,10 +63,6 @@ public class EnhancedNoteblockSounds {
                         SoundEvent sound = bass;
                         float loudness = ModConfig.noteblockBassVolume;
                         switch (instrument) {
-                            case "harp" -> {
-                                sound = harp;
-                                loudness = ModConfig.noteblockHarpVolume;
-                            }
                             case "basedrum" -> {
                                 sound = basedrum;
                                 loudness = ModConfig.noteblockBasedrumVolume;

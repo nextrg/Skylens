@@ -107,8 +107,6 @@ public class ModConfig implements ModMenuApi {
     @SerialEntry
     public static float noteblockSnareVolume = 1.0F;
     @SerialEntry
-    public static float noteblockHarpVolume = 1.0F;
-    @SerialEntry
     public static float noteblockBassVolume = 1.0F;
     
     private static Text volumeFormattedValue(Float val) {
@@ -230,15 +228,6 @@ public class ModConfig implements ModMenuApi {
                                                 1F,
                                                 () -> noteblockGeneralVolume,
                                                 newValue -> noteblockGeneralVolume = newValue
-                                        )
-                                        .controller(ModConfig::volumeController)
-                                        .build())
-                                .option(Option.<Float>createBuilder()
-                                        .name(Text.literal("Instrument: Harp"))
-                                        .binding(
-                                                1F,
-                                                () -> noteblockHarpVolume,
-                                                newValue -> noteblockHarpVolume = newValue
                                         )
                                         .controller(ModConfig::volumeController)
                                         .build())
