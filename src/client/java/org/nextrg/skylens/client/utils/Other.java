@@ -26,6 +26,7 @@ import org.nextrg.skylens.client.ModConfig;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -87,7 +88,8 @@ public class Other {
     public static JsonObject readJSON(String path) {
         JsonObject json = new JsonObject();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(path).openStream(), StandardCharsets.UTF_8));
+            URL url = new URI(path).toURL();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             int cp;
             while ((cp = reader.read()) != -1) {

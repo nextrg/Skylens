@@ -138,9 +138,12 @@ public class Button extends ClickableWidget {
                 displayText = String.valueOf(ModConfig.petOverlayIconAlign).replace("true", "Left").replace("false", "Right");
             }
             if (btype == 10) {
-                var currentTheme = ModConfig.Themes.valueOf(ModConfig.petOverlayTheme);
-                var next = (currentTheme.ordinal() + (type == 0 ? -1 : 1) + ModConfig.Themes.values().length) % ModConfig.Themes.values().length;
-                var text = String.valueOf(ModConfig.Themes.values()[next]);
+                var text = "Special";
+                if (type != 2) {
+                    var currentTheme = ModConfig.Themes.valueOf(ModConfig.petOverlayTheme);
+                    var next = (currentTheme.ordinal() + (type == 0 ? -1 : 1) + ModConfig.Themes.values().length) % ModConfig.Themes.values().length;
+                    text = String.valueOf(ModConfig.Themes.values()[next]);
+                }
                 ModConfig.petOverlayTheme = text;
                 displayText = getColorCode(text.toLowerCase()) + (text.equals("Custom") ? "§n" : "") + text;
             }

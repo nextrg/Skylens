@@ -8,16 +8,27 @@ import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
+import org.nextrg.skylens.client.hudeditor.Button;
+import org.nextrg.skylens.client.hudeditor.HudEditor;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.concurrent.TimeUnit;
+
+import static org.nextrg.skylens.client.main.PetOverlay.forceAnim;
+import static org.nextrg.skylens.client.main.PetOverlay.setHudEditor;
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
 import static org.nextrg.skylens.client.hudeditor.HudEditor.openScreen;
+import static org.nextrg.skylens.client.utils.Text.rgbToHexa;
 
 public class ModConfig implements ModMenuApi {
     public static ConfigClassHandler<ModConfig> HANDLER = ConfigClassHandler.createBuilder(ModConfig.class)
@@ -87,6 +98,32 @@ public class ModConfig implements ModMenuApi {
     public static String slayerIntrosBackground = "Opaque";
     @SerialEntry
     public static boolean enhancedSkyblockMusic = true;
+    @SerialEntry
+    public static float noteblockGeneralVolume = 1.0F;
+    @SerialEntry
+    public static float noteblockBasedrumVolume = 1.0F;
+    @SerialEntry
+    public static float noteblockHatVolume = 1.0F;
+    @SerialEntry
+    public static float noteblockSnareVolume = 1.0F;
+    @SerialEntry
+    public static float noteblockHarpVolume = 1.0F;
+    @SerialEntry
+    public static float noteblockBassVolume = 1.0F;
+    
+    private static Text volumeFormattedValue(Float val) {
+        Color start = new Color(197, 242, 184);
+        Color end = new Color(242, 184, 184);
+        return Text.literal(Math.floor(val * 1000) / 10 + "%")
+                .withColor(ColorHelper.lerp(val, rgbToHexa(start), rgbToHexa(end)));
+    }
+    
+    private static ControllerBuilder<Float> volumeController(Option<Float> opt) {
+        return FloatSliderControllerBuilder.create(opt)
+                .range(0F, 1F)
+                .step(0.005F)
+                .formatValue(ModConfig::volumeFormattedValue);
+    }
     
     public enum PotatoBookStyles implements NameableEnum {
         Style1,
@@ -149,18 +186,6 @@ public class ModConfig implements ModMenuApi {
                                         .coloured(true))
                                 .build())
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.literal("Enhanced Noteblock Sounds"))
-                                .description(OptionDescription.of(Text.literal("Replaces the instrument sounds to sound more refined.")))
-                                .binding(
-                                        true,
-                                        () -> enhancedSkyblockMusic,
-                                        newValue -> enhancedSkyblockMusic = newValue
-                                )
-                                .controller(opt -> BooleanControllerBuilder.create(opt)
-                                        .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
-                                        .coloured(true))
-                                .build())
-                        .option(Option.<Boolean>createBuilder()
                                 .name(Text.literal("Only in Skyblock"))
                                 .binding(
                                         true,
@@ -182,6 +207,77 @@ public class ModConfig implements ModMenuApi {
                                 .controller(opt -> BooleanControllerBuilder.create(opt)
                                         .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
                                         .coloured(true))
+                                .build())
+                        .group(OptionGroup.createBuilder()
+                                .name(Text.literal("Enhanced Noteblock Sounds"))
+                                .description(OptionDescription.of(Text.literal("Replaces the instrument sounds to sound more refined.")))
+                                .collapsed(true)
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Text.literal("Enable"))
+                                        .binding(
+                                                true,
+                                                () -> enhancedSkyblockMusic,
+                                                newValue -> enhancedSkyblockMusic = newValue
+                                        )
+                                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                                .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
+                                                .coloured(true))
+                                        .build())
+                                .option(LabelOption.create(Text.literal("Channel Volumes")))
+                                .option(Option.<Float>createBuilder()
+                                        .name(Text.literal("Master"))
+                                        .binding(
+                                                1F,
+                                                () -> noteblockGeneralVolume,
+                                                newValue -> noteblockGeneralVolume = newValue
+                                        )
+                                        .controller(ModConfig::volumeController)
+                                        .build())
+                                .option(Option.<Float>createBuilder()
+                                        .name(Text.literal("Instrument: Harp"))
+                                        .binding(
+                                                1F,
+                                                () -> noteblockHarpVolume,
+                                                newValue -> noteblockHarpVolume = newValue
+                                        )
+                                        .controller(ModConfig::volumeController)
+                                        .build())
+                                .option(Option.<Float>createBuilder()
+                                        .name(Text.literal("Instrument: Bass"))
+                                        .binding(
+                                                1F,
+                                                () -> noteblockBassVolume,
+                                                newValue -> noteblockBassVolume = newValue
+                                        )
+                                        .controller(ModConfig::volumeController)
+                                        .build())
+                                .option(Option.<Float>createBuilder()
+                                        .name(Text.literal("Instrument: Kick"))
+                                        .binding(
+                                                1F,
+                                                () -> noteblockBasedrumVolume,
+                                                newValue -> noteblockBasedrumVolume = newValue
+                                        )
+                                        .controller(ModConfig::volumeController)
+                                        .build())
+                                .option(Option.<Float>createBuilder()
+                                        .name(Text.literal("Instrument: Hit-hat"))
+                                        .binding(
+                                                1F,
+                                                () -> noteblockHatVolume,
+                                                newValue -> noteblockHatVolume = newValue
+                                        )
+                                        .controller(ModConfig::volumeController)
+                                        .build())
+                                .option(Option.<Float>createBuilder()
+                                        .name(Text.literal("Instrument: Snare"))
+                                        .binding(
+                                                1F,
+                                                () -> noteblockSnareVolume,
+                                                newValue -> noteblockSnareVolume = newValue
+                                        )
+                                        .controller(ModConfig::volumeController)
+                                        .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
                                 .name(Text.literal("Missing Enchants"))
@@ -364,12 +460,22 @@ public class ModConfig implements ModMenuApi {
         return HANDLER.instance();
     }
     
+    public static void openConfig() {
+        final boolean[] open = {false};
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!open[0]) {
+                open[0] = true;
+                client.setScreen(new ModConfig().config(null));
+            }
+        });
+    }
+    
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return this::config;
     }
-    
-    public static void init() {
+
+    public void init() {
         ModConfig.HANDLER.load();
     }
 }

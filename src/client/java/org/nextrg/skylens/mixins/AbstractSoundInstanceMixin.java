@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static org.nextrg.skylens.client.utils.CustomSounds.instrumentList;
+import static org.nextrg.skylens.client.main.EnhancedNoteblockSounds.instrumentList;
 import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 
 @Mixin(AbstractSoundInstance.class)

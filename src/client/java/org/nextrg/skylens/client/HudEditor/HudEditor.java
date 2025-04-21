@@ -122,13 +122,6 @@ public class HudEditor extends Screen {
         });
     }
     
-    public static void initialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("skylens").executes(context -> {
-            openScreen(null, true);
-            return 1;
-        })));
-    }
-    
     public static boolean clickCooldown = false;
     public static void animationMargin(boolean show) {
         for (var i = 0; i < 60; i++) {
@@ -143,15 +136,15 @@ public class HudEditor extends Screen {
     }
     
     public static void animationFade(boolean show) {
-        for (var i = 0; i < 100; i++) {
-            final float progress = (float) i / 99f;
+        for (var i = 0; i < 72; i++) {
+            final float progress = (float) i / 71f;
             scheduler.schedule(() -> {
                 synchronized (lock) {
                     float easing = easeInOutCubic(progress);
                     transit = show ? Math.min(easing, 1) : Math.max(0, 1 - easing);
                     Button.setProgress(transit);
                 }
-            }, i * 4L, TimeUnit.MILLISECONDS);
+            }, i * 5L, TimeUnit.MILLISECONDS);
         }
     }
     
@@ -235,7 +228,11 @@ public class HudEditor extends Screen {
         context.disableScissor();
         drawText(context, "\uD83D\uDD27", 8 + 2, 4 + (int)(transit * 45) - 45, hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 3F + transit, false, false);
         drawText(context, "Hud Editor", 42, -21 + (int)(30 * transit), hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 2F, false, false);
-        drawText(context, "To quickly access this menu, use /skylens", windowwidth  - this.textRenderer.getWidth("To quickly access this menu, use /skylens") - 10,-21 + (int)(30 * transit), hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 1F, false, true);
+        var helperText = "To quickly access this menu, use /skylens hudedit".split("(?<=,)(?=\\s*)");
+        for (var i = 0; i < helperText.length; i++) {
+            var text = helperText[i];
+            drawText(context, text, windowwidth  - this.textRenderer.getWidth(text) - 10,-21 + (int)(30 * transit) + this.textRenderer.fontHeight * i, hexToHexa(0xFFFFFFFF, (int) (10 + transit * 245)), 1F, false, true);
+        }
     }
     
     public void renderPetOverlayEditor(DrawContext context) {

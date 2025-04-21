@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.utils;
+package org.nextrg.skylens.client.main;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
@@ -13,11 +13,10 @@ import net.minecraft.util.Identifier;
 import org.nextrg.skylens.client.ModConfig;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 
-public class CustomSounds {
+public class EnhancedNoteblockSounds {
     public static List<String> instrumentList = new ArrayList<>();
     public static final SoundEvent bass = registerSound("bass");
     public static final SoundEvent harp = registerSound("harp");
@@ -38,7 +37,7 @@ public class CustomSounds {
     public static void initialize() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (MinecraftClient.getInstance() != null && MinecraftClient.getInstance().getSoundManager() != null && !initialized) {
-                MinecraftClient.getInstance().getSoundManager().registerListener(CustomSounds::onSound);
+                MinecraftClient.getInstance().getSoundManager().registerListener(EnhancedNoteblockSounds::onSound);
                 initialized = true;
             }
         });
@@ -51,25 +50,34 @@ public class CustomSounds {
                 var path = id.getPath();
                 for (String instrument : instrumentList) {
                     if (path.contains("note_block." + instrument)) {
-                        float loudness;
-                        SoundEvent sound = switch (instrument) {
-                            case "harp" -> harp;
-                            case "basedrum" -> basedrum;
-                            case "hat" -> hat;
-                            case "snare" -> snare;
-                            default -> bass;
+                        SoundEvent sound = bass;
+                        float loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockBassVolume;
+                        switch (instrument) {
+                            case "harp" -> {
+                                sound = harp;
+                                loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockHarpVolume;
+                            }
+                            case "basedrum" -> {
+                                sound = basedrum;
+                                loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockBasedrumVolume;
+                            }
+                            case "hat" -> {
+                                sound = hat;
+                                loudness = ModConfig.noteblockGeneralVolume * ModConfig.noteblockHatVolume;
+                            }
+                            case "snare" -> {
+                                sound = snare;
+                                loudness = 10F * ModConfig.noteblockGeneralVolume * ModConfig.noteblockBassVolume;
+                            }
                         };
-                        if (instrument.equals("snare")) {
-                            loudness = 10f; // The sound itself is quiet
-                        } else {
-                            loudness = 1f;
-                        }
+                        SoundEvent finalSound = sound;
+                        float finalLoudness = loudness;
                         MinecraftClient.getInstance().execute(() -> {
                             MinecraftClient.getInstance().getSoundManager().play(
                                     PositionedSoundInstance.master(
-                                            sound,
+                                            finalSound,
                                             soundInstance.getPitch(),
-                                            soundInstance.getVolume() * 100 * loudness *
+                                            soundInstance.getVolume() * 100 * finalLoudness *
                                                     MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.RECORDS)
                                     )
                             );
