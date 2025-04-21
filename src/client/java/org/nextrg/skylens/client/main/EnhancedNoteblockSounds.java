@@ -43,6 +43,17 @@ public class EnhancedNoteblockSounds {
         });
     }
     
+    public static void playSound(SoundEvent sound, SoundInstance instance, float loudness) {
+        MinecraftClient.getInstance().getSoundManager().play(
+                PositionedSoundInstance.master(
+                        sound,
+                        instance.getPitch(),
+                        instance.getVolume() * 100 * loudness *
+                                MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.RECORDS)
+                )
+        );
+    }
+    
     private static void onSound(SoundInstance soundInstance, WeightedSoundSet weightedSoundSet, float v) {
         if (onSkyblock() && ModConfig.enhancedSkyblockMusic) {
             Identifier id = soundInstance.getId();
@@ -70,18 +81,7 @@ public class EnhancedNoteblockSounds {
                                 loudness = 10F * ModConfig.noteblockBassVolume;
                             }
                         };
-                        SoundEvent finalSound = sound;
-                        float finalLoudness = ModConfig.noteblockGeneralVolume * loudness;
-                        MinecraftClient.getInstance().execute(() -> {
-                            MinecraftClient.getInstance().getSoundManager().play(
-                                    PositionedSoundInstance.master(
-                                            finalSound,
-                                            soundInstance.getPitch(),
-                                            soundInstance.getVolume() * 100 * finalLoudness *
-                                                    MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.RECORDS)
-                                    )
-                            );
-                        });
+                        playSound(sound, soundInstance, ModConfig.noteblockGeneralVolume * loudness);
                         break;
                     }
                 }
