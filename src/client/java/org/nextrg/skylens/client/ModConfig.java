@@ -85,6 +85,8 @@ public class ModConfig implements ModMenuApi {
     public static boolean slayerIntros = true;
     @SerialEntry
     public static String slayerIntrosBackground = "Opaque";
+    @SerialEntry
+    public static boolean enhancedSkyblockMusic = true;
     
     public enum PotatoBookStyles implements NameableEnum {
         Style1,
@@ -141,6 +143,18 @@ public class ModConfig implements ModMenuApi {
                                         true,
                                         () -> compactLevel,
                                         newValue -> compactLevel = newValue
+                                )
+                                .controller(opt -> BooleanControllerBuilder.create(opt)
+                                        .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
+                                        .coloured(true))
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Enhanced Noteblock Sounds"))
+                                .description(OptionDescription.of(Text.literal("Replaces the instrument sounds to sound more refined.")))
+                                .binding(
+                                        true,
+                                        () -> enhancedSkyblockMusic,
+                                        newValue -> enhancedSkyblockMusic = newValue
                                 )
                                 .controller(opt -> BooleanControllerBuilder.create(opt)
                                         .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))

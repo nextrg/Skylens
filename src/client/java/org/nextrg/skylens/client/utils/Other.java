@@ -111,6 +111,8 @@ public class Other {
             if (petInfo != null && petInfo.getType() == NbtElement.STRING_TYPE) {
                 JsonObject workingPetInfo = new Gson().fromJson(petInfo.asString(), JsonObject.class);
                 fallback = workingPetInfo.get("tier").getAsString().toLowerCase();
+            } else {
+                fallback = "X"; // <- Not a pet
             }
         }
         return fallback;

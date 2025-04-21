@@ -12,7 +12,7 @@ import static org.nextrg.skylens.client.utils.Text.getColorCode;
 public class PetLevelAbbreviation {
     public static void shortenPetLevel(ItemStack stack, List<Text> lines) {
         if (ModConfig.compactLevel && onSkyblock()) {
-            if (stack.getItemName().toString().contains("player_head") && stack.getCustomName() != null) {
+            if (stack.getItemName().toString().contains("player_head") && stack.getCustomName() != null && !getPetRarity(stack).equals("X")) {
                 var display = stack.getCustomName();
                 var petRarity = getColorCode(getPetRarity(stack));
                 int maxLevel = display.getString().contains("Golden Dragon") ? 200 : 100;

@@ -4,6 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import org.nextrg.skylens.client.hudeditor.HudEditor;
 import org.nextrg.skylens.client.main.*;
+import org.nextrg.skylens.client.utils.CustomSounds;
 
 import static org.nextrg.skylens.client.utils.Errors.errorMessage;
 import static org.nextrg.skylens.client.utils.Tooltips.tooltipMiddleCache;
@@ -16,6 +17,7 @@ public class SkylensClient implements ClientModInitializer {
         PetOverlay.init();
         SlayerIntros.init();
         HudEditor.initialize();
+        CustomSounds.initialize();
         errorMessage();
         tooltipMiddleCache();
         ItemTooltipCallback.EVENT.register((stack,cont,type, lines) -> {

@@ -1,0 +1,27 @@
+{
+  "bass": {
+    "sounds": [
+      "skylens:bass"
+    ]
+  },
+  "harp": {
+    "sounds": [
+      "skylens:harp"
+    ]
+  },
+  "snare": {
+    "sounds": [
+      "skylens:snare"
+    ]
+  },
+  "basedrum": {
+    "sounds": [
+      "skylens:basedrum"
+    ]
+  },
+  "hat": {
+    "sounds": [
+      "skylens:hat"
+    ]
+  }
+}
