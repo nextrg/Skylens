@@ -9,7 +9,7 @@ import static org.nextrg.skylens.client.utils.Other.getPetRarity;
 import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
 
-public class PetLevelAbbreviation {
+public class CompactLevelDisplay {
     public static void shortenPetLevel(ItemStack stack, List<Text> lines) {
         if (ModConfig.compactLevel && onSkyblock()) {
             if (stack.getItemName().toString().contains("player_head") && stack.getCustomName() != null && !getPetRarity(stack).equals("X")) {

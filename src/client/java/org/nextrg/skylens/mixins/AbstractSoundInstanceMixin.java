@@ -20,16 +20,11 @@ public class AbstractSoundInstanceMixin {
             SoundInstance sound = (SoundInstance) (Object) this;
             var path = sound.getId().getPath();
             for (String instrument : instrumentList) {
-                if (path.contains(getNoteBlock(instrument))) {
-                    cir.setReturnValue(ModConfig.enhancedSkyblockMusic && onSkyblock() ? cir.getReturnValue() * 0.01f : cir.getReturnValue());
+                if (path.contains("note_block." + instrument)) {
+                    cir.setReturnValue(ModConfig.enhancedNoteblockSounds && onSkyblock() ? cir.getReturnValue() * 0.01f : cir.getReturnValue());
                     break;
                 }
             }
         } catch (Exception ignored) {}
-    }
-    
-    @Unique
-    private String getNoteBlock(String instrument) {
-        return "note_block." + instrument;
     }
 }

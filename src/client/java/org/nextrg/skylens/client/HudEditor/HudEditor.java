@@ -1,8 +1,6 @@
 package org.nextrg.skylens.client.hudeditor;
 
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -195,7 +193,7 @@ public class HudEditor extends Screen {
         if (hovered) {
             scheduler.schedule(() -> {
                 clickCooldown = false;
-            }, 180L, TimeUnit.MILLISECONDS);
+            }, 230L, TimeUnit.MILLISECONDS);
             animationMargin(false);
             hovered = false;
         }

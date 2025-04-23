@@ -15,13 +15,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.nextrg.skylens.client.utils.Other.getScoreboardData;
-import static org.nextrg.skylens.client.utils.Other.onSkyblock;
+import static org.nextrg.skylens.client.utils.Other.*;
 import static org.nextrg.skylens.client.utils.Renderer.*;
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
 import static org.nextrg.skylens.client.utils.Text.hexToHexa;
 
-public class SlayerIntros {
+public class SlayerBossIntros {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final Object lock = new Object();
     private static final Pattern pattern = Pattern.compile("\\b\\w+\\s+\\w+\\s+(I|II|III|IV|V)\\b");
@@ -49,7 +48,7 @@ public class SlayerIntros {
                 }
             } catch (Exception ignored) {}
         });
-        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "slayer-intros"), SlayerIntros::initializeRendering));
+        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "slayer-intros"), SlayerBossIntros::initializeRendering));
     }
     
     public static void getBossName() {

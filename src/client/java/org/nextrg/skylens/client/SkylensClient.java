@@ -16,16 +16,16 @@ public class SkylensClient implements ClientModInitializer {
     public void onInitializeClient() {
         ModConfig modConfig = new ModConfig();
         modConfig.init();
-        MissingEnchantments.init();
+        MissingEnchants.init();
         PetOverlay.init();
-        SlayerIntros.init();
+        SlayerBossIntros.init();
         EnhancedNoteblockSounds.initialize();
         errorMessage();
         tooltipMiddleCache();
         ItemTooltipCallback.EVENT.register((stack,cont,type, lines) -> {
-            MissingEnchantments.getMissingEnchantments(stack, lines);
+            MissingEnchants.getMissingEnchantments(stack, lines);
             PotatoBooks.showMissingPotatoBooks(stack, lines);
-            PetLevelAbbreviation.shortenPetLevel(stack, lines);
+            CompactLevelDisplay.shortenPetLevel(stack, lines);
         });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("skylens")

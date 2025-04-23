@@ -15,12 +15,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.nextrg.skylens.client.utils.Files.readJSONFromNeu;
 import static org.nextrg.skylens.client.utils.Other.*;
 import static org.nextrg.skylens.client.utils.Text.*;
 import static org.nextrg.skylens.client.utils.Tooltips.getItemType;
 import static org.nextrg.skylens.client.utils.Tooltips.getTooltipMiddle;
 
-public class MissingEnchantments {
+public class MissingEnchants {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final Map<String, List<String>> enchantCache = new HashMap<>();
     static JsonObject enchants = null;
@@ -63,10 +64,10 @@ public class MissingEnchantments {
                     String enc = encElement.getAsString().toLowerCase();
                     boolean conflictFound = false;
                     for (JsonElement conflictGroup : neuEnchantPools) {
-                        if (conflictGroup.toString().contains(enc)) {
+                        if (conflictGroup.toString().toLowerCase().contains(enc.toLowerCase())) {
                             var array = conflictGroup.getAsJsonArray();
                             for (var i = 0; i < array.size(); i++) {
-                                if (itemEnchants.contains(array.get(i).getAsString())) {
+                                if (itemEnchants.contains(array.get(i).getAsString().toLowerCase())) {
                                     conflictFound = true;
                                     break;
                                 }
@@ -74,7 +75,7 @@ public class MissingEnchantments {
                         }
                         if (conflictFound) break;
                     }
-                    if (!conflictFound && !itemEnchants.contains(enc) && !itemEnchants.contains("one_for_all")) {
+                    if (!conflictFound && !itemEnchants.contains(enc.toLowerCase()) && !itemEnchants.contains("one_for_all")) {
                         var result = capitalize(fixOutdatedNames(enc.replaceAll("_", " ")));
                         if (!enc.contains("ultimate")) {
                             missingEnchants.add(result);
@@ -97,7 +98,7 @@ public class MissingEnchantments {
     public static void displayMissingEnchantments(List<Text> lines, List<String> enchants, NbtCompound nbt) {
         var maxLinePosition = getTooltipMiddle(lines, nbt, 1);
         var symbol = Screen.hasShiftDown() ? "✦" : "✧";
-        var color = rgbToHexa(Screen.hasShiftDown() ? ModConfig.me_enabled : ModConfig.me_disabled);
+        var color = rgbToHexa(Screen.hasShiftDown() ? ModConfig.missingEnchantsEnabled : ModConfig.missingEnchantsDisabled);
         if (Screen.hasShiftDown()) {
             List<Text> reversedLines = new ArrayList<>();
             for (int i = enchants.size() - 1; i >= 0; i -= 3) {

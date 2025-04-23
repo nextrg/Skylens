@@ -54,7 +54,7 @@ public class Button extends ClickableWidget {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         onClick(mouseX, mouseY, button);
-        if (button == 1) {
+        if (button == 1 || button == 2) {
             playDownSound(MinecraftClient.getInstance().getSoundManager());
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -190,7 +190,7 @@ public class Button extends ClickableWidget {
     private float button;
     private Boolean lastAnimatedValue = null;
     private void animateSwitch(boolean show) {
-        if (lastAnimatedValue == null && bool) { lastAnimatedValue = bool; }
+        if (lastAnimatedValue == null) { lastAnimatedValue = bool; }
         if (lastAnimatedValue == show) {
             return;
         }

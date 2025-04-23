@@ -387,7 +387,7 @@ public class PetOverlay {
             } else if (level == 1f) {
                 levelAnimProgress = showLevel ? 1f : 0f;
             }
-            var leveltextColor = leveledEver ? hexToHexa(color2, Math.max(10, (int) (levelAnimProgress * 255))) : textColor;
+            var textColorOnLevel = leveledEver ? hexToHexa(color2, Math.max(10, (int) (levelAnimProgress * 255))) : textColor;
             
             // Styles
             boolean isBar = Objects.equals(type, "style1");
@@ -417,7 +417,7 @@ public class PetOverlay {
                 RoundedRectShader.fill(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, color1, 0x00000000, 2.5f, 0);
                 drawItem(drawContext, currentPet, x + 2 + align, y - 17, 0.95F);
                 if (showLevel) {
-                    drawText(drawContext, displayLvl, x + 17 + textAlign, y - 16 + animtext, leveltextColor, 0.8F, true, true);
+                    drawText(drawContext, displayLvl, x + 17 + textAlign, y - 16 + animtext, textColorOnLevel, 0.8F, true, true);
                 }
                 drawText(drawContext, displayXP, x + 17 + textAlign, y - 13 + (int) (3 * levelAnimProgress) - padding, textColor, 1F, true, true);
             } else {
@@ -435,7 +435,7 @@ public class PetOverlay {
                 RoundedRectShader.fill(drawContext, x - 7, y - 6, 14, 14, color3, 0x00000000, 9, 0);
                 drawItem(drawContext, currentPet, x - 8, y - 7, 1F);
                 if (showLevel) {
-                    drawText(drawContext, displayLvl, x, y - 27 + animtext, leveltextColor, 0.75F, true, true);
+                    drawText(drawContext, displayLvl, x, y - 27 + animtext, textColorOnLevel, 0.75F, true, true);
                 }
                 drawText(drawContext, displayXP, x, y - 23 + (int) (2 * levelAnimProgress) - padding, textColor, 1F, true, true);
             }

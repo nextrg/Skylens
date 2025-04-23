@@ -2,7 +2,6 @@ package org.nextrg.skylens.client.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.client.MinecraftClient;
@@ -24,17 +23,14 @@ import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.tuple.Pair;
 import org.nextrg.skylens.client.ModConfig;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import static org.nextrg.skylens.client.utils.Errors.logErr;
+import static org.nextrg.skylens.client.utils.Files.readJSONFromNeu;
+import static org.nextrg.skylens.client.utils.Text.getRarity;
 
 public class Other {
     public static Pair<List<Text>, List<String>> getTabData(boolean getStyle) {
@@ -82,25 +78,6 @@ public class Other {
         }
         return scoreboardData;
     }
-    public static JsonObject readJSONFromNeu(String path) {
-        return readJSON("https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO" + path);
-    }
-    public static JsonObject readJSON(String path) {
-        JsonObject json = new JsonObject();
-        try {
-            URL url = new URI(path).toURL();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            int cp;
-            while ((cp = reader.read()) != -1) {
-                sb.append((char) cp);
-            }
-            json = JsonParser.parseString(sb.toString()).getAsJsonObject();
-        } catch (Exception e) {
-            logErr(e, "Caught an error getting JSON from NEU-repo");
-        }
-        return json;
-    }
     public static String getPetNameFromCustomName(Text customName) {
         var string = customName.getString();
         return string.substring(string.indexOf("]") + 2).replace(" ✦", "");
@@ -116,13 +93,22 @@ public class Other {
             } else {
                 fallback = "X"; // <- Not a pet
             }
+        } else {
+            var name = stack.getCustomName();
+            if (name != null && name.getSiblings() != null) {
+                var siblings = name.getSiblings();
+                if (siblings.size() > 1) {
+                    fallback = getRarity(siblings.get(siblings.size() - 1).getStyle().getColor().toString());
+                }
+            }
         }
         return fallback;
     }
     public static ItemStack getPetTextureFromNEU(String petName) {
         ItemStack itemStack = new ItemStack(Items.PLAYER_HEAD);
         try {
-            var petJson = readJSONFromNeu("/f75fb6876c1cc0179b47546e273389a21f8968a7/items/" + petName.toUpperCase().replace(" ", "_") + "%3B4.json");
+            var petJson = readJSONFromNeu("/f75fb6876c1cc0179b47546e273389a21f8968a7/items/" +
+                    petName.toUpperCase().replace(" ", "_") + "%3B4.json");
             var string = petJson.get("nbttag").getAsString()
                     .replaceAll("\\[\\d+:\\{", "[{")
                     .replaceAll("\\[\\d+:\"", "[\"")

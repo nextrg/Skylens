@@ -35,26 +35,30 @@ public class EnhancedNoteblockSounds {
     static boolean initialized = false;
     public static void initialize() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (MinecraftClient.getInstance() != null && MinecraftClient.getInstance().getSoundManager() != null && !initialized) {
-                MinecraftClient.getInstance().getSoundManager().registerListener(EnhancedNoteblockSounds::onSound);
-                initialized = true;
+            if (MinecraftClient.getInstance() != null) {
+                var clientInstance = MinecraftClient.getInstance();
+                if (clientInstance.getSoundManager() != null && !initialized) {
+                    clientInstance.getSoundManager().registerListener(EnhancedNoteblockSounds::onSound);
+                    initialized = true;
+                }
             }
         });
     }
     
     public static void playSound(SoundEvent sound, SoundInstance instance, float loudness) {
-        MinecraftClient.getInstance().getSoundManager().play(
+        var client = MinecraftClient.getInstance();
+        client.getSoundManager().play(
                 PositionedSoundInstance.master(
                         sound,
                         instance.getPitch(),
                         instance.getVolume() * 100 * loudness *
-                                MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.RECORDS)
+                                client.options.getSoundVolume(SoundCategory.RECORDS)
                 )
         );
     }
     
     private static void onSound(SoundInstance soundInstance, WeightedSoundSet weightedSoundSet, float v) {
-        if (onSkyblock() && ModConfig.enhancedSkyblockMusic) {
+        if (onSkyblock() && ModConfig.enhancedNoteblockSounds) {
             Identifier id = soundInstance.getId();
             if (id != null) {
                 var path = id.getPath();
