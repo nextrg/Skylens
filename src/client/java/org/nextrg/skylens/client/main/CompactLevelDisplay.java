@@ -16,13 +16,19 @@ public class CompactLevelDisplay {
                 var display = stack.getCustomName();
                 var petRarity = getColorCode(getPetRarity(stack));
                 int maxLevel = display.getString().contains("Golden Dragon") ? 200 : 100;
+                var hasSkin = "";
+                try {
+                    if (!display.getSiblings().isEmpty()) {
+                        hasSkin = display.getSiblings().getLast().getStyle().getColor().toString();
+                    }
+                } catch (Exception ignored) {}
                 lines.removeFirst();
                 lines.addFirst(Text.literal(display.getString()
                         .replaceAll("\\[(\\d+)(✦)]", "§8[" + petRarity + "$1§4$2§8]")
                         .replace("[Lvl " + maxLevel, "§8[" + petRarity + maxLevel)
                         .replace("[Lvl ", "§8[§7")
                         .replace("]", "§8]§r" + petRarity)
-                        .replaceAll(" ✦", getColorCode(display.getSiblings().getLast().getStyle().getColor().toString()) + " ✦")));
+                        .replaceAll(" ✦", getColorCode(hasSkin) + " ✦")));
             }
         }
     }

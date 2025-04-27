@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.nextrg.skylens.client.utils.Other.*;
-import static org.nextrg.skylens.client.utils.Renderer.*;
+import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
 import static org.nextrg.skylens.client.utils.Text.hexToHexa;
 

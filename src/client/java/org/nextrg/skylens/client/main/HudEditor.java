@@ -1,4 +1,4 @@
-package org.nextrg.skylens.client.hudeditor;
+package org.nextrg.skylens.client.main;
 
 import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -7,13 +7,14 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.nextrg.skylens.client.ModConfig;
+import org.nextrg.skylens.client.widgets.Button;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.nextrg.skylens.client.utils.Renderer.*;
+import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
 import static org.nextrg.skylens.client.utils.Text.hexToHexa;
 import static org.nextrg.skylens.client.main.PetOverlay.*;
@@ -29,10 +30,10 @@ public class HudEditor extends Screen {
     public static float transit = 0f;
     private int windowwidth;
     private int windowheight;
-    static boolean shouldanim = true;
+    public static boolean shouldanim = true;
     
-    static int currentPage = 1;
-    static int pages = 3;
+    public static int currentPage = 1;
+    public static int pages = 3;
     public static void setCurrentPage(int page) {
         currentPage = Math.clamp(page, 1, pages);
         openScreen(parent, false);

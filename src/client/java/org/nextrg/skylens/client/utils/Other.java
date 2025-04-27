@@ -98,7 +98,7 @@ public class Other {
             if (name != null && name.getSiblings() != null) {
                 var siblings = name.getSiblings();
                 if (siblings.size() > 1) {
-                    fallback = getRarity(siblings.get(siblings.size() - 1).getStyle().getColor().toString());
+                    fallback = getRarity(siblings.get(1).getStyle().getColor().toString());
                 }
             }
         }

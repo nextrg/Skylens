@@ -7,6 +7,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.Identifier;
 import org.nextrg.skylens.client.ModConfig;
+import org.nextrg.skylens.client.rendering.Renderer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

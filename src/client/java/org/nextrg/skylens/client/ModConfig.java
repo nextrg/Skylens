@@ -20,7 +20,7 @@ import java.awt.*;
 import java.time.LocalDate;
 
 import static org.nextrg.skylens.client.utils.Text.getColorCode;
-import static org.nextrg.skylens.client.hudeditor.HudEditor.openScreen;
+import static org.nextrg.skylens.client.main.HudEditor.openScreen;
 import static org.nextrg.skylens.client.utils.Text.rgbToHexa;
 
 public class ModConfig implements ModMenuApi {

@@ -1,6 +1,5 @@
 package org.nextrg.skylens.client.main;
 
-import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
@@ -29,7 +28,7 @@ import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static org.nextrg.skylens.client.utils.Errors.logErr;
 import static org.nextrg.skylens.client.utils.Other.*;
 import static org.nextrg.skylens.client.utils.Text.*;
-import static org.nextrg.skylens.client.utils.Renderer.*;
+import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Tooltips.getLore;
 
 public class PetOverlay {
@@ -37,7 +36,7 @@ public class PetOverlay {
     private static final Object lock = new Object();
     private static final Pattern XP_PATTERN = Pattern.compile("\\((\\d+(\\.\\d*)?)%\\)");
     private static final Pattern LEVEL_PETNAME_PATTERN = Pattern.compile("\\[Lvl (\\d+)]\\s+(.+)");
-    static Map<String, int[]> themeColors = Map.of(
+    public static Map<String, int[]> themeColors = Map.of(
             "special", new int[]{0xFFaa2121, 0xFFff3232, 0xFF771515},
             "divine", new int[]{0xFF085599, 0xFF11aadd, 0xFF053666},
             "mythic", new int[]{0xFF772269, 0xFFff55ff, 0xFF511141},
@@ -144,7 +143,7 @@ public class PetOverlay {
                         var lines = getLore(pet);
                         for (var line : lines) {
                             if (line.toString().contains("Progress to")) {
-                                String levelProgress = getLiteral(line.getSiblings().getFirst().getContent().toString()).replace("Progress to Level ", "").replace(":", "");
+                                String levelProgress = getLiteral(line.getSiblings().getFirst().getContent().toString()).replace("Progress to Level ", "").replace(":", "").trim();
                                 String xpProgress = getLiteral(line.getSiblings().getLast().getContent().toString().replace("%", ""));
                                 maxLevel = (lines.toString().contains("Golden Dragon")) ? 200 : 100;
                                 level = (Float.parseFloat(levelProgress) - 1) / maxLevel;
@@ -412,9 +411,9 @@ public class PetOverlay {
                 if (ModConfig.petOverlayAnimIdle) {
                     fillRoundRect(matrix, x + 2 - amount * 6, y + 2 - amount * 6, 46 + (amount * 12), 4 + (amount * 12), 12, hexToHexa(color2, (int) (255 - amount * 255)));
                 }
-                RoundedRectShader.fill(drawContext, x, y, 50, 8, color3, 0x00000000, 4.5f, 0);
-                RoundedRectShader.fill(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, color2, 0x00000000, 4.5f, 0);
-                RoundedRectShader.fill(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, color1, 0x00000000, 2.5f, 0);
+                roundRectangleBorderless(drawContext, x, y, 50, 8, color3, 4.5f);
+                roundRectangleBorderless(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, color2, 4.5f);
+                roundRectangleBorderless(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, color1,2.5f);
                 drawItem(drawContext, currentPet, x + 2 + align, y - 17, 0.95F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x + 17 + textAlign, y - 16 + animtext, textColorOnLevel, 0.8F, true, true);
@@ -424,15 +423,15 @@ public class PetOverlay {
                 if (ModConfig.petOverlayAnimIdle) {
                     drawCircle(matrix, x, y + 1, 10.5F + 5F * amount, 0, 360, hexToHexa(color2, (int) (255 - amount * 255)), 0);
                 }
-                RoundedRectShader.fill(drawContext, x - 12, y - 11, 24, 24, color2, 0x00000000, 13, 0);
+                roundRectangleBorderless(drawContext, x - 12, y - 11, 24, 24, color2, 13);
                 drawCircle(matrix, x, y + 1, 12.5F, 0, (int) (360 - (level * fadeProgressAnim * 360)), color3, 0);
                 int circleStyle = Objects.equals(type, "style3") ? 2 : 1;
                 if (circleStyle == 2) {
-                    RoundedRectShader.fill(drawContext, x - 10, y - 9, 20, 20, color3, 0x00000000, 11, 0);
+                    roundRectangleBorderless(drawContext, x - 10, y - 9, 20, 20, color3, 11);
                 }
-                RoundedRectShader.fill(drawContext, x - (10 - circleStyle + 1), y - (9 - circleStyle + 1), 22 - circleStyle * 2, 22 - circleStyle * 2, color1, 0x00000000, 11 - (circleStyle - 1), 0);
+                roundRectangleBorderless(drawContext, x - (10 - circleStyle + 1), y - (9 - circleStyle + 1), 22 - circleStyle * 2, 22 - circleStyle * 2, color1, 11 - (circleStyle - 1));
                 drawCircle(matrix, x, y + 1, 10.08F, 0, (int) (360 - (xp * fadeProgressAnim * 360)), color3, 0);
-                RoundedRectShader.fill(drawContext, x - 7, y - 6, 14, 14, color3, 0x00000000, 9, 0);
+                roundRectangleBorderless(drawContext, x - 7, y - 6, 14, 14, color3, 9);
                 drawItem(drawContext, currentPet, x - 8, y - 7, 1F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x, y - 27 + animtext, textColorOnLevel, 0.75F, true, true);

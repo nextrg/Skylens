@@ -1,5 +1,6 @@
-package org.nextrg.skylens.client.utils;
+package org.nextrg.skylens.client.rendering;
 
+import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
@@ -60,16 +61,31 @@ public class Renderer {
         drawBuffer(buf);
         finishRendering();
     }
-    public static void drawItem(DrawContext context, ItemStack item, int x, int y, float scale) {
+    public static void roundGradient(DrawContext graphics, int x, int y, int width, int height, int startColor, int endColor, int borderColor, float borderRadius, int borderWidth, int gradientDirection) {
+        RoundedGradientShader.fill(graphics, x, y, width, height, startColor, endColor, borderColor, borderRadius, borderWidth, gradientDirection);
+    }
+    public static void roundRectangle(DrawContext graphics, int x, int y, int width, int height, int backgroundColor, int borderColor, float borderRadius, int borderWidth) {
+        RoundedRectShader.fill(graphics, x, y, width, height, backgroundColor, borderColor, borderRadius, borderWidth);
+    }
+    public static void roundGradientBorderless(DrawContext graphics, int x, int y, int width, int height, int startColor, int endColor, float borderRadius, int gradientDirection) {
+        RoundedGradientShader.fill(graphics, x, y, width, height, startColor, endColor, 0x00000000, borderRadius, 1, gradientDirection);
+    }
+    public static void roundRectangleHiddenBorder(DrawContext graphics, int x, int y, int width, int height, int backgroundColor, float borderRadius) {
+        RoundedRectShader.fill(graphics, x, y, width, height, backgroundColor, 0x00000000, borderRadius, 1);
+    }
+    public static void roundRectangleBorderless(DrawContext graphics, int x, int y, int width, int height, int backgroundColor, float borderRadius) {
+        RoundedRectShader.fill(graphics, x, y, width, height, backgroundColor, 0x00000000, borderRadius, 0);
+    }
+    public static void drawItem(DrawContext context, ItemStack item, float x, float y, float scale) {
         context.getMatrices().push();
         context.getMatrices().translate(x, y, 0);
-        float offset = 8 * (scale - 1);
+        float offset = 8f * (scale - 1f);
         context.getMatrices().translate(-offset, -offset, 0);
-        context.getMatrices().scale(scale, scale, scale);
+        context.getMatrices().scale(scale, scale, 1f);
         context.drawItem(item, 0, 0);
         context.getMatrices().pop();
     }
-    public static void drawText(DrawContext context, String text, int x, int y, int color, float scale, boolean centered, boolean shadow) {
+    public static void drawText(DrawContext context, String text, float x, float y, int color, float scale, boolean centered, boolean shadow) {
         context.getMatrices().push();
         context.getMatrices().translate(x, y, 0);
         context.getMatrices().scale(scale, scale, scale);

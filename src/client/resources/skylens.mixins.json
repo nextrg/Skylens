@@ -3,8 +3,9 @@
   "package": "org.nextrg.skylens.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AbstractSoundInstanceMixin",
     "ClientPlayNetworkHandlerMixin",
-    "AbstractSoundInstanceMixin"
+    "HandledScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import org.nextrg.skylens.client.main.*;
 import org.nextrg.skylens.client.main.EnhancedNoteblockSounds;
 import static org.nextrg.skylens.client.ModConfig.openConfig;
-import static org.nextrg.skylens.client.hudeditor.HudEditor.openScreen;
+import static org.nextrg.skylens.client.main.HudEditor.openScreen;
 import static org.nextrg.skylens.client.utils.Errors.errorMessage;
 import static org.nextrg.skylens.client.utils.Tooltips.tooltipMiddleCache;
 
