@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Objects;
+
 import static org.nextrg.skylens.client.main.EnhancedNoteblockSounds.instrumentList;
 import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 
@@ -21,7 +23,22 @@ public class AbstractSoundInstanceMixin {
             var path = sound.getId().getPath();
             for (String instrument : instrumentList) {
                 if (path.contains("note_block." + instrument)) {
-                    cir.setReturnValue(ModConfig.enhancedNoteblockSounds && onSkyblock() ? cir.getReturnValue() * 0.01f : cir.getReturnValue());
+                    boolean replace = ModConfig.enhancedNoteblockSounds && onSkyblock();
+                    switch (instrument) {
+                        case "bass" -> {
+                            if (ModConfig.noteblockBassVolume <= 0f) replace = false;
+                        }
+                        case "basedrum" -> {
+                            if (ModConfig.noteblockBasedrumVolume <= 0f) replace = false;
+                        }
+                        case "hat" -> {
+                            if (ModConfig.noteblockHatVolume <= 0f) replace = false;
+                        }
+                        case "snare" -> {
+                            if (ModConfig.noteblockSnareVolume <= 0f) replace = false;
+                        }
+                    }
+                    cir.setReturnValue(replace ? cir.getReturnValue() * 0.01f : cir.getReturnValue());
                     break;
                 }
             }

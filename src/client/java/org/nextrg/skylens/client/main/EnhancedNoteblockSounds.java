@@ -33,7 +33,7 @@ public class EnhancedNoteblockSounds {
     }
     
     static boolean initialized = false;
-    public static void initialize() {
+    public static void init() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (MinecraftClient.getInstance() != null) {
                 var clientInstance = MinecraftClient.getInstance();

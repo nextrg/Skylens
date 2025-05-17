@@ -111,7 +111,7 @@ public class SidebarButton extends ClickableWidget {
         if (buttonType == 4) {
             bool = CustomPetScreen.showProgressBars;
         }
-        roundRectangleHiddenBorder(context, getX(), getY(), this.width, this.height, bool ? ColorHelper.lerp(transit, color1, color2) : ColorHelper.lerp(transit, color2, color1), 4);
+        roundRectangle(context, getX(), getY(), this.width, this.height, 4, bool ? ColorHelper.lerp(transit, color1, color2) : ColorHelper.lerp(transit, color2, color1), 1, 0);
         var textRenderer = MinecraftClient.getInstance().textRenderer;
         var text = switch(buttonType) {
             case 10 -> "✧";

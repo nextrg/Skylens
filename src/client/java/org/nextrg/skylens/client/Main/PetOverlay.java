@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static com.mojang.blaze3d.systems.RenderSystem.*;
+import static org.nextrg.skylens.client.rendering.ProgressChartShader.drawPie;
 import static org.nextrg.skylens.client.utils.Errors.logErr;
 import static org.nextrg.skylens.client.utils.Other.*;
 import static org.nextrg.skylens.client.utils.Text.*;
@@ -35,7 +36,7 @@ public class PetOverlay {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final Object lock = new Object();
     private static final Pattern XP_PATTERN = Pattern.compile("\\((\\d+(\\.\\d*)?)%\\)");
-    private static final Pattern LEVEL_PETNAME_PATTERN = Pattern.compile("\\[Lvl (\\d+)]\\s+(.+)");
+    public static final Pattern LEVEL_PETNAME_PATTERN = Pattern.compile("\\[Lvl (\\d+)]\\s+(.+)");
     public static Map<String, int[]> themeColors = Map.of(
             "special", new int[]{0xFFaa2121, 0xFFff3232, 0xFF771515},
             "divine", new int[]{0xFF085599, 0xFF11aadd, 0xFF053666},
@@ -137,16 +138,17 @@ public class PetOverlay {
             var foundPet = false;
             for (ItemStack pet : petCache) {
                 if (pet.getCustomName() != null) {
-                    String cachePetName = getPetNameFromCustomName(pet.getCustomName());
+                    var customName = pet.getCustomName();
+                    String cachePetName = getPetNameFromCustomName(customName);
                     if (cachePetName.equalsIgnoreCase(petName)) {
                         foundPet = true;
                         var lines = getLore(pet);
+                        var levelValue = String.valueOf(getPetLevelFromCustomName(customName));
                         for (var line : lines) {
                             if (line.toString().contains("Progress to")) {
-                                String levelProgress = getLiteral(line.getSiblings().getFirst().getContent().toString()).replace("Progress to Level ", "").replace(":", "").trim();
                                 String xpProgress = getLiteral(line.getSiblings().getLast().getContent().toString().replace("%", ""));
                                 maxLevel = (lines.toString().contains("Golden Dragon")) ? 200 : 100;
-                                level = (Float.parseFloat(levelProgress) - 1) / maxLevel;
+                                level = Float.parseFloat(levelValue) / maxLevel;
                                 xp = Float.parseFloat(xpProgress) / 100;
                             } else if (line.toString().contains("MAX LEVEL")) {
                                 level = 1f;
@@ -252,7 +254,7 @@ public class PetOverlay {
             } catch (Exception ignored) {}
         });
         ScreenEvents.BEFORE_INIT.register((client, screen, in1, in2) -> updateCache(screen));
-        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.CHAT, Identifier.of("skylens", "pet-overlay"), PetOverlay::uib));
+        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.HOTBAR_AND_BARS, Identifier.of("skylens", "pet-overlay"), PetOverlay::uib));
     }
     
     private static void uib(DrawContext drawContext, RenderTickCounter renderTickCounter) {
@@ -409,11 +411,11 @@ public class PetOverlay {
                 int align = !ModConfig.petOverlayIconAlign ? 29 : 0;
                 int textAlign = !ModConfig.petOverlayIconAlign ? 0 : 15;
                 if (ModConfig.petOverlayAnimIdle) {
-                    fillRoundRect(matrix, x + 2 - amount * 6, y + 2 - amount * 6, 46 + (amount * 12), 4 + (amount * 12), 12, hexToHexa(color2, (int) (255 - amount * 255)));
+                    legacyRoundRectangle(matrix, x + 2 - amount * 6, y + 2 - amount * 6, 46 + (amount * 12), 4 + (amount * 12), 12, hexToHexa(color2, (int) (255 - amount * 255)));
                 }
-                roundRectangleBorderless(drawContext, x, y, 50, 8, color3, 4.5f);
-                roundRectangleBorderless(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, color2, 4.5f);
-                roundRectangleBorderless(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, color1,2.5f);
+                roundRectangle(drawContext, x, y, 50, 8, 4.5f, color3, 0, 0);
+                roundRectangle(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, 4.5f, color2, 0, 0);
+                roundRectangle(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, 2.5f, color1, 0, 0);
                 drawItem(drawContext, currentPet, x + 2 + align, y - 17, 0.95F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x + 17 + textAlign, y - 16 + animtext, textColorOnLevel, 0.8F, true, true);
@@ -421,17 +423,23 @@ public class PetOverlay {
                 drawText(drawContext, displayXP, x + 17 + textAlign, y - 13 + (int) (3 * levelAnimProgress) - padding, textColor, 1F, true, true);
             } else {
                 if (ModConfig.petOverlayAnimIdle) {
-                    drawCircle(matrix, x, y + 1, 10.5F + 5F * amount, 0, 360, hexToHexa(color2, (int) (255 - amount * 255)), 0);
+                    var color = hexToHexa(color2, (int) (255 - amount * 255));
+                    drawPie(drawContext, x, y + 1, 1.01f, 11.5f + 4F * amount, color, color, 1.56f, 0f, false, 0, 0);
                 }
-                roundRectangleBorderless(drawContext, x - 12, y - 11, 24, 24, color2, 13);
-                drawCircle(matrix, x, y + 1, 12.5F, 0, (int) (360 - (level * fadeProgressAnim * 360)), color3, 0);
-                int circleStyle = Objects.equals(type, "style3") ? 2 : 1;
-                if (circleStyle == 2) {
-                    roundRectangleBorderless(drawContext, x - 10, y - 9, 20, 20, color3, 11);
+                roundRectangle(drawContext, x - 12, y - 11, 24, 24, 13, color2, 0, 0);
+                drawPie(drawContext, x, y + 1, 1f - level, 12.5f, color3, color3, 1.56f, 0f, false, 0, 0);
+                
+                boolean altStyle = Objects.equals(type, "style3");
+                if (altStyle) {
+                    roundRectangle(drawContext, x - 10, y - 9, 20, 20, 11, color3, 0, 0);
                 }
-                roundRectangleBorderless(drawContext, x - (10 - circleStyle + 1), y - (9 - circleStyle + 1), 22 - circleStyle * 2, 22 - circleStyle * 2, color1, 11 - (circleStyle - 1));
-                drawCircle(matrix, x, y + 1, 10.08F, 0, (int) (360 - (xp * fadeProgressAnim * 360)), color3, 0);
-                roundRectangleBorderless(drawContext, x - 7, y - 6, 14, 14, color3, 9);
+                
+                // xp
+                drawPie(drawContext, x, y + 1, 1.01f, 10.25f - (altStyle ? 1f : 0f), color1, color1, 1.56f, 0f, false, 0, 0);
+                drawPie(drawContext, x, y + 1, 1 - xp, 10.5f, color3, color3, 1.56f, 0f, false, 0, 0);
+                
+                // background
+                drawPie(drawContext, x, y + 1, 1.01f, 7f, color3, color3, 1.56f, 0f, false, 0, 0);
                 drawItem(drawContext, currentPet, x - 8, y - 7, 1F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x, y - 27 + animtext, textColorOnLevel, 0.75F, true, true);

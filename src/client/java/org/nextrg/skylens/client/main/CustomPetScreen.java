@@ -6,7 +6,6 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -28,7 +27,6 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
     public static boolean showProgressBars = true;
     public static boolean refresh = true;
     public static String displayTitle = "Pets";
-    public static ItemStack grayArea = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
     
     public CustomPetScreen(ScreenHandler handler, PlayerInventory inventory, String title) {
         super(handler, inventory, Text.empty());
@@ -63,11 +61,11 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
                 i++;
             }
             if (slot.id == 53) {
-                SidebarButton left = new SidebarButton(x + width - 30/2 + 3, y + height + 3,16,16,2);
+                SidebarButton left = new SidebarButton(x + width - 30/2 + 3, y + height + 4,16,16,2);
                 this.addDrawableChild(left);
             }
             if (slot.id == 45) {
-                SidebarButton right = new SidebarButton(x - 3, y + height + 3,16,16,3);
+                SidebarButton right = new SidebarButton(x - 3, y + height + 4,16,16,3);
                 this.addDrawableChild(right);
             }
         }
@@ -81,7 +79,7 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
         SidebarButton search = new SidebarButton(x + width - 30 / 2 - 1 - 16 - 2 - 16 - 2, y - 18,16,16,5);
         this.addDrawableChild(search);
         
-        SidebarButton petVisibility = new SidebarButton(x + width / 2 - 55, y + height + 3,22,22,9);
+        SidebarButton petVisibility = new SidebarButton(x + width / 2 - 55, y + height + 4,22,22,9);
         this.addDrawableChild(petVisibility);
         
         var marginX = 0;
@@ -89,16 +87,16 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
             marginX = 12;
         }
         
-        SidebarButton close = new SidebarButton(x + width / 2 - 11 + marginX, y + height + 3,22,22,6);
+        SidebarButton close = new SidebarButton(x + width / 2 - 11 + marginX, y + height + 4,22,22,6);
         this.addDrawableChild(close);
         
-        SidebarButton goBack = new SidebarButton(x + width / 2 - 33 + marginX, y + height + 3,22,22,7);
+        SidebarButton goBack = new SidebarButton(x + width / 2 - 33 + marginX, y + height + 4,22,22,7);
         this.addDrawableChild(goBack);
         
-        SidebarButton sort = new SidebarButton(x + width / 2 - 12 + 23, y + height + 3,22,22,8);
+        SidebarButton sort = new SidebarButton(x + width / 2 - 12 + 23, y + height + 4,22,22,8);
         this.addDrawableChild(sort);
         
-        SidebarButton xpShare = new SidebarButton(x + width / 2 - 12 + 45, y + height + 3,22,22,10);
+        SidebarButton xpShare = new SidebarButton(x + width / 2 - 12 + 45, y + height + 4,22,22,10);
         this.addDrawableChild(xpShare);
     }
     
@@ -125,7 +123,7 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
         var frameHeight = frameWidth / 7 * 4 + padding + 16;
         var x = screenWidth / 2 - frameWidth / 2;
         var y = screenHeight / 2 - frameHeight / 2;
-        roundGradientBorderless(context, x, y, frameWidth + 1, frameHeight, 0xFF232323, 0xFF191919, 6, 0);
+        roundRectangle(context, x, y, frameWidth + 1, frameHeight, 6.5f, 0xFF232323, 0, 0);
         drawText(context, displayTitle, x + 8, y + 9 - textRenderer.fontHeight / 2 / 1.5f, 0x55FFFFFF, 1.5F, false, false);
         
         try {

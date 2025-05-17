@@ -36,7 +36,7 @@ public class Renderer {
         drawBuffer(buf);
         finishRendering();
     }
-    public static void fillRoundRect(Matrix4f mat, float x, float y, float w, float h, float r, int color) {
+    public static void legacyRoundRectangle(Matrix4f mat, float x, float y, float w, float h, float r, int color) {
         r = Math.clamp(r, 1, Math.min(w, h) / 2);
         BufferBuilder buf = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
         buf.vertex(mat, x + w / 2F, y + h / 2F, 0).color(color);
@@ -61,20 +61,11 @@ public class Renderer {
         drawBuffer(buf);
         finishRendering();
     }
-    public static void roundGradient(DrawContext graphics, int x, int y, int width, int height, int startColor, int endColor, int borderColor, float borderRadius, int borderWidth, int gradientDirection) {
-        RoundedGradientShader.fill(graphics, x, y, width, height, startColor, endColor, borderColor, borderRadius, borderWidth, gradientDirection);
+    public static void roundGradient(DrawContext graphics, int x, int y, int width, int height, float borderRadius, int startColor, int endColor, int gradientDirection, float animTime, int borderWidth, int borderColor) {
+        RoundGradShader.fill(graphics, x, y, width, height, borderRadius, startColor, endColor, gradientDirection, animTime, borderWidth, borderColor);
     }
-    public static void roundRectangle(DrawContext graphics, int x, int y, int width, int height, int backgroundColor, int borderColor, float borderRadius, int borderWidth) {
+    public static void roundRectangle(DrawContext graphics, int x, int y, int width, int height, float borderRadius, int backgroundColor, int borderWidth, int borderColor) {
         RoundedRectShader.fill(graphics, x, y, width, height, backgroundColor, borderColor, borderRadius, borderWidth);
-    }
-    public static void roundGradientBorderless(DrawContext graphics, int x, int y, int width, int height, int startColor, int endColor, float borderRadius, int gradientDirection) {
-        RoundedGradientShader.fill(graphics, x, y, width, height, startColor, endColor, 0x00000000, borderRadius, 1, gradientDirection);
-    }
-    public static void roundRectangleHiddenBorder(DrawContext graphics, int x, int y, int width, int height, int backgroundColor, float borderRadius) {
-        RoundedRectShader.fill(graphics, x, y, width, height, backgroundColor, 0x00000000, borderRadius, 1);
-    }
-    public static void roundRectangleBorderless(DrawContext graphics, int x, int y, int width, int height, int backgroundColor, float borderRadius) {
-        RoundedRectShader.fill(graphics, x, y, width, height, backgroundColor, 0x00000000, borderRadius, 0);
     }
     public static void drawItem(DrawContext context, ItemStack item, float x, float y, float scale) {
         context.getMatrices().push();

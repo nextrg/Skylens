@@ -3,6 +3,7 @@ package org.nextrg.skylens.mixins;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import org.nextrg.skylens.client.ModConfig;
 import org.nextrg.skylens.client.main.CustomPetScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,7 +20,7 @@ public class HandledScreenMixin {
         var client = MinecraftClient.getInstance();
         HandledScreen<?> screen = (HandledScreen<?>) (Object) this;
         String title = screen.getTitle().getString();
-        if (title.equals("Pets") || title.contains("Pets (") || title.contains("Pets:") || title.contains("Choose Pet") || title.contains("Exp Sharing")) {
+        if ((title.equals("Pets") || title.contains("Pets (") || title.contains("Pets:") || title.contains("Choose Pet") || title.contains("Exp Sharing")) && ModConfig.customPetMenu) {
             ci.cancel();
             client.setScreen(new CustomPetScreen(screen.getScreenHandler(), client.player.getInventory(), title));
             CustomPetScreen.refresh = true;

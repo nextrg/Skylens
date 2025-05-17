@@ -51,7 +51,7 @@ public class ModConfig implements ModMenuApi {
     @SerialEntry
     public static float noteblockSnareVolume = 1.0F;
     @SerialEntry
-    public static float noteblockBassVolume = 1.0F;
+    public static float noteblockBassVolume = 0.333F;
     
     @SerialEntry
     public static boolean missingEnchants = true;
@@ -106,6 +106,8 @@ public class ModConfig implements ModMenuApi {
     public static boolean petOverlayIconAlign = true;
     @SerialEntry
     public static boolean petOverlayHideLvlFull = false;
+    @SerialEntry
+    public static boolean customPetMenu = true;
     
     private static Text volumeFormattedValue(Float val) {
         Color start = new Color(197, 242, 184);
@@ -114,11 +116,19 @@ public class ModConfig implements ModMenuApi {
                 .withColor(ColorHelper.lerp(val, rgbToHexa(start), rgbToHexa(end)));
     }
     
+    private static Text instrumentFormattedValue(Float val) {
+        if (val > 0f) {
+            return volumeFormattedValue(val);
+        } else {
+            return Text.literal("Vanilla");
+        }
+    }
+    
     private static ControllerBuilder<Float> volumeController(Option<Float> opt) {
         return FloatSliderControllerBuilder.create(opt)
                 .range(0F, 1F)
                 .step(0.005F)
-                .formatValue(ModConfig::volumeFormattedValue);
+                .formatValue(ModConfig::instrumentFormattedValue);
     }
     
     public enum PotatoBookStyles implements NameableEnum {
@@ -177,6 +187,18 @@ public class ModConfig implements ModMenuApi {
                                         true,
                                         () -> compactLevel,
                                         newValue -> compactLevel = newValue
+                                )
+                                .controller(opt -> BooleanControllerBuilder.create(opt)
+                                        .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
+                                        .coloured(true))
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Custom Pet Menu"))
+                                .description(OptionDescription.of(Text.literal("Modern style pet menu, that show pet's progress to next level and their rarity.")))
+                                .binding(
+                                        true,
+                                        () -> customPetMenu,
+                                        newValue -> customPetMenu = newValue
                                 )
                                 .controller(opt -> BooleanControllerBuilder.create(opt)
                                         .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
@@ -287,7 +309,7 @@ public class ModConfig implements ModMenuApi {
                                 .build())
                         .group(OptionGroup.createBuilder()
                                 .name(Text.literal("Enhanced Noteblock Sounds"))
-                                .description(OptionDescription.of(Text.literal("Replaces the instrument sounds to sound more refined.")))
+                                .description(OptionDescription.of(Text.literal("Replaces the instrument sounds to sound more refined. Setting an instrument volume to §e0%§f will §cdisable§f it and the vanilla counterpart will be played instead.")))
                                 .collapsed(true)
                                 .option(Option.<Boolean>createBuilder()
                                         .name(Text.literal("Enable"))
@@ -308,12 +330,15 @@ public class ModConfig implements ModMenuApi {
                                                 () -> noteblockGeneralVolume,
                                                 newValue -> noteblockGeneralVolume = newValue
                                         )
-                                        .controller(ModConfig::volumeController)
+                                        .controller((opt) -> FloatSliderControllerBuilder.create(opt)
+                                                .range(0F, 1F)
+                                                .step(0.005F)
+                                                .formatValue(ModConfig::volumeFormattedValue))
                                         .build())
                                 .option(Option.<Float>createBuilder()
                                         .name(Text.literal("Instrument: Bass"))
                                         .binding(
-                                                1F,
+                                                0.333F,
                                                 () -> noteblockBassVolume,
                                                 newValue -> noteblockBassVolume = newValue
                                         )

@@ -78,6 +78,20 @@ public class Other {
         }
         return scoreboardData;
     }
+    public static int getPetLevelFromCustomName(Text customName) {
+        var fallback = 1;
+        if (customName != null && customName.getSiblings() != null) {
+            var sibling = 0;
+            if (customName.getSiblings().getFirst().toString().contains("⭐") && customName.getSiblings().size() > 1) {
+                sibling = 1;
+            }
+            var level = customName.getSiblings().get(sibling).getString().replace("[Lvl ", "").replace("]", "");
+            try {
+                fallback = Integer.parseInt(level.trim());
+            } catch (Exception ignored) {}
+        }
+        return fallback;
+    }
     public static String getPetNameFromCustomName(Text customName) {
         var string = customName.getString();
         return string.substring(string.indexOf("]") + 2).replace(" ✦", "");

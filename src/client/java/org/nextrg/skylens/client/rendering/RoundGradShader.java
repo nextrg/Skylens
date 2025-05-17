@@ -11,7 +11,7 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 import java.util.function.Supplier;
 
-public class RoundedGradientShader {
+public class RoundGradShader {
     private static Supplier<String> VERTEX = () -> "#version 150\n\nin vec3 Position;\n\nuniform mat4 modelViewMat;\nuniform mat4 projMat;\n\nvoid main() {\n    gl_Position = projMat * modelViewMat * vec4(Position, 1.0);\n}\n";
     private static Supplier<String> FRAGMENT = () -> """
     #version 150
@@ -26,6 +26,7 @@ public class RoundedGradientShader {
     uniform vec2 center;
     uniform float scaleFactor;
     uniform int gradientDirection;
+    uniform float time;
     out vec4 fragColor;
     float sdRoundedBox(vec2 p, vec2 b, vec4 r){
         r.xy = (p.x > 0.0) ? r.xy : r.zw;
@@ -38,17 +39,26 @@ public class RoundedGradientShader {
         vec2 pos = gl_FragCoord.xy - center;
         float distance = sdRoundedBox(pos, halfSize, borderRadius * scaleFactor);
         float gradientFactor;
+        
+        float gradientOffset = fract(time);
         if (gradientDirection == 0) {
-            gradientFactor = (pos.y + halfSize.y) / size.y;
+            gradientFactor = (pos.y + halfSize.y) / size.y + gradientOffset;
         } else if (gradientDirection == 1) {
-            gradientFactor = (pos.x + halfSize.x) / size.x;
+            gradientFactor = (pos.x + halfSize.x) / size.x + gradientOffset;
         } else {
-            gradientFactor = ((pos.x + halfSize.x) + (pos.y + halfSize.y)) / (size.x + size.y);
+            gradientFactor = ((pos.x + halfSize.x) + (pos.y + halfSize.y)) / (size.x + size.y) + gradientOffset;
         }
-        gradientFactor = clamp(gradientFactor, 0.0, 1.0);
-        vec4 color = mix(startColor, endColor, gradientFactor);
-        if (color.a == 0.0) {
-            discard;
+        gradientFactor = fract(gradientFactor);
+        
+        vec4 color;
+        vec4 colorA = startColor;
+        vec4 colorB = endColor;
+        vec4 colorC = startColor;
+        
+        if (gradientFactor < 0.5) {
+            color = mix(colorA, colorB, gradientFactor * 2.0);
+        } else {
+            color = mix(colorB, colorC, (gradientFactor - 0.5) * 2.0);
         }
         float smoothed = min(1.0 - distance, color.a);
         float border = min(1.0 - smoothstep(borderWidth, borderWidth, abs(distance)), borderColor.a);
@@ -59,11 +69,12 @@ public class RoundedGradientShader {
         }
     }
     """;
-    public static Shader<RoundedGradientUniform> SHADER;
+    public static Shader<RoundGradUniform> SHADER;
     
-    public RoundedGradientShader() {}
+    public RoundGradShader() {}
     
-    public static void fill(DrawContext graphics, int x, int y, int width, int height, int startColor, int endColor, int borderColor, float borderRadius, int borderWidth, int gradientDirection) {
+    public static void fill(DrawContext graphics, int x, int y, int width, int height, float radius,
+                            int startColor, int endColor, int gradientDirection, float animationTime, int borderWidth, int borderColor) {
         Window window = MinecraftClient.getInstance().getWindow();
         float scale = (float)window.getScaleFactor();
         float scaledX = (float)x * scale;
@@ -71,18 +82,19 @@ public class RoundedGradientShader {
         float scaledWidth = (float)width * scale;
         float scaledHeight = (float)height * scale;
         float yOffset = (float)window.getFramebufferHeight() - scaledHeight - scaledY * 2.0F;
-        RoundedGradientUniform uniforms = (RoundedGradientUniform)SHADER.uniforms();
+        RoundGradUniform uniforms = (RoundGradUniform)SHADER.uniforms();
         uniforms.modelViewMat.set(new Matrix4f(RenderSystem.getModelViewMatrix()));
         uniforms.projMat.set(new Matrix4f(RenderSystem.getProjectionMatrix()));
         uniforms.startColor.set(colorToVec4f(startColor));
         uniforms.endColor.set(colorToVec4f(endColor));
         uniforms.gradientDirection.set(gradientDirection);
         uniforms.borderColor.set(new Vector4f((float)(borderColor >> 16 & 255) / 255.0F, (float)(borderColor >> 8 & 255) / 255.0F, (float)(borderColor & 255) / 255.0F, (float)(borderColor >> 24 & 255) / 255.0F));
-        uniforms.borderRadius.set(new Vector4f(borderRadius, borderRadius, borderRadius, borderRadius));
+        uniforms.borderRadius.set(new Vector4f(radius, radius, radius, radius));
         uniforms.borderWidth.set((float)borderWidth);
         uniforms.size.set(new Vector2f(scaledWidth - (float)borderWidth * 2.0F * scale, scaledHeight - (float)borderWidth * 2.0F * scale));
         uniforms.center.set(new Vector2f(scaledX + scaledWidth / 2.0F, scaledY + scaledHeight / 2.0F + yOffset));
         uniforms.scaleFactor.set(scale);
+        uniforms.time.set(animationTime);
         SHADER.use(() -> {
             RenderSystem.enableBlend();
             Matrix4f matrix = graphics.getMatrices().peek().getPositionMatrix();
@@ -106,6 +118,6 @@ public class RoundedGradientShader {
     }
     
     static {
-        SHADER = Shader.make(VERTEX, FRAGMENT, RoundedGradientUniform::new);
+        SHADER = Shader.make(VERTEX, FRAGMENT, RoundGradUniform::new);
     }
 }

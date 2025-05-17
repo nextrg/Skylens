@@ -8,7 +8,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
-public class RoundedGradientUniform extends Uniforms {
+public class RoundGradUniform extends Uniforms {
     public final Uniform<Matrix4f> modelViewMat;
     public final Uniform<Matrix4f> projMat;
     public final Uniform<Vector4f> startColor;
@@ -20,8 +20,9 @@ public class RoundedGradientUniform extends Uniforms {
     public final Uniform<Vector2f> size;
     public final Uniform<Vector2f> center;
     public final Uniform<Float> scaleFactor;
+    public final Uniform<Float> time;
     
-    public RoundedGradientUniform(Shader<RoundedGradientUniform> shader) {
+    public RoundGradUniform(Shader<RoundGradUniform> shader) {
         this.modelViewMat = this.create(shader, UniformTypes.MAT4, "modelViewMat");
         this.projMat = this.create(shader, UniformTypes.MAT4, "projMat");
         this.startColor = this.create(shader, UniformTypes.VEC4, "startColor");
@@ -33,5 +34,6 @@ public class RoundedGradientUniform extends Uniforms {
         this.size = this.create(shader, UniformTypes.VEC2, "size");
         this.center = this.create(shader, UniformTypes.VEC2, "center");
         this.scaleFactor = this.create(shader, UniformTypes.FLOAT, "scaleFactor");
+        this.time = this.create(shader, UniformTypes.FLOAT, "time");
     }
 }

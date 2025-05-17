@@ -276,11 +276,11 @@ public class HudEditor extends Screen {
             context.drawText(textRenderer, String.valueOf(marginY), (x + 8 + (marginY <= 9 ? 13 : 8)) - cstuff/2, center - 3, textColor, false);
         }
         
-        RoundedRectShader.fill(context, inventoryX + (!isBar && !flipSide ? 22 : 0), inventoryY - (isBar ? 0 : 15), 123 + 130 - (isBar ? 0 : 22), 95 + (isBar ? 0 : 15), hexToHexa(0xFFFFFFFF, (int)(40 * transit) + (int)(45 * anim)), 0x0000000, 4, 0);
+        roundRectangle(context, inventoryX + (!isBar && !flipSide ? 22 : 0), inventoryY - (isBar ? 0 : 15), 123 + 130 - (isBar ? 0 : 22), 95 + (isBar ? 0 : 15), 4, hexToHexa(0xFFFFFFFF, (int)(40 * transit) + (int)(45 * anim)), 0, 0);
         if (isBar) {
-            RoundedRectShader.fill(context, x, y, 58, 30, hexToHexa(0xFFFFFFFF, (int)(60 * transit) + (int)(40 * anim)), 0x0000000, 4, 0);
+            roundRectangle(context, x, y, 58, 30, 4, hexToHexa(0xFFFFFFFF, (int)(60 * transit) + (int)(40 * anim)), 0, 0);
         } else {
-            RoundedRectShader.fill(context, x + (flipSide ? 0 : 22), y - 15, 36, 45, hexToHexa(0xFFFFFFFF, (int)(60 * transit) + (int)(40 * anim)), 0x0000000, 4, 0);
+            roundRectangle(context, x + (flipSide ? 0 : 22), y - 15, 36, 45, 4, hexToHexa(0xFFFFFFFF, (int)(60 * transit) + (int)(40 * anim)), 0, 0);
         }
     }
     

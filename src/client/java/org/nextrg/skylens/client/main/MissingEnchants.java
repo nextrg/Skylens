@@ -1,6 +1,8 @@
 package org.nextrg.skylens.client.main;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
@@ -10,13 +12,12 @@ import net.minecraft.util.Formatting;
 import org.nextrg.skylens.client.ModConfig;
 
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.nextrg.skylens.client.utils.Files.readJSONFromNeu;
-import static org.nextrg.skylens.client.utils.Other.*;
+import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 import static org.nextrg.skylens.client.utils.Text.*;
 import static org.nextrg.skylens.client.utils.Tooltips.getItemType;
 import static org.nextrg.skylens.client.utils.Tooltips.getTooltipMiddle;
@@ -54,7 +55,9 @@ public class MissingEnchants {
             List<String> ultimateEnchants = new java.util.ArrayList<>(Collections.emptyList());
             
             String displayName = getLiteral(stack.getCustomName().withoutStyle().getFirst().getContent().toString().toLowerCase());
-            if (displayName.contains("Gemstone Gauntlet")) { category = "GAUNTLET"; }
+            if (displayName.contains("Gemstone Gauntlet")) {
+                category = "GAUNTLET";
+            }
             
             custom_data.copyNbt().getCompound("enchantments").getKeys().forEach(en -> itemEnchants.add(en.toLowerCase()));
             JsonObject neuEnchants = enchants.get("enchants").getAsJsonObject();
