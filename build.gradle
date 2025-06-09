@@ -46,9 +46,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricapi_version}+${minecraft_version}"
     include modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}+${project.minecraft_version}-fabric")
-    include modImplementation("com.teamresourceful.resourcefullib:resourcefullib-fabric-1.21.4:3.4.0")
+    include modImplementation("com.teamresourceful.resourcefullib:resourcefullib-fabric-${project.minecraft_version}:${project.rlib_version}")
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
-    include modImplementation("earth.terrarium.olympus:olympus-fabric-1.21.4:1.2.0")
+    include modImplementation("earth.terrarium.olympus:olympus-fabric-${project.minecraft_version}:${project.olympus_version}")
 }
 
 processResources {
