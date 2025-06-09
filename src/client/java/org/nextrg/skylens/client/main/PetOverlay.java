@@ -4,11 +4,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.Slot;
@@ -270,7 +270,6 @@ public class PetOverlay {
                         PetOverlay.getPetData();
                         lastUpdate = currentTime;
                     }
-                    setShader(ShaderProgramKeys.POSITION_COLOR);
                     String ModConfigTheme = ModConfig.petOverlayTheme.toLowerCase();
                     int[] colors = themeColors.getOrDefault(
                             ModConfig.petOverlayPetRarity ? theme : ModConfigTheme,
@@ -349,7 +348,6 @@ public class PetOverlay {
             globalY = -h + (int) (h * appearProgress);
         }
         if (globalY > -45 - marginY) {
-            enableBlend();
             var matrix = drawContext.getMatrices().peek().getPositionMatrix();
             var screenWidth = getScreenWidth(drawContext);
             var screenHeight = getScreenHeight(drawContext);
@@ -446,7 +444,6 @@ public class PetOverlay {
                 }
                 drawText(drawContext, displayXP, x, y - 23 + (int) (2 * levelAnimProgress) - padding, textColor, 1F, true, true);
             }
-            disableBlend();
         }
     }
 }

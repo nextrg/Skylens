@@ -9,6 +9,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -102,7 +103,7 @@ public class Other {
         if (nbt != null) {
             var petInfo = nbt.copyNbt().get("petInfo");
             if (petInfo != null && petInfo.getType() == NbtElement.STRING_TYPE) {
-                JsonObject workingPetInfo = new Gson().fromJson(petInfo.asString(), JsonObject.class);
+                JsonObject workingPetInfo = new Gson().fromJson(petInfo.asString().orElse("{}"), JsonObject.class);
                 fallback = workingPetInfo.get("tier").getAsString().toLowerCase();
             } else {
                 fallback = "X"; // <- Not a pet
@@ -131,9 +132,8 @@ public class Other {
                     .replaceAll("([{,])([A-Za-z_][A-Za-z0-9_]*)\\:", "$1\"$2\":");
             
             String profileInfoLegacy = string.substring(string.indexOf("SkullOwner") - 1, string.indexOf("display") - 2);
-            NbtCompound profileInfoLegacyNBT;
-            profileInfoLegacyNBT = StringNbtReader.parse("{" + profileInfoLegacy + "}").getCompound("SkullOwner");
-            var properties = profileInfoLegacyNBT.getCompound("Properties").asString();
+            NbtCompound profileInfoLegacyNBT = StringNbtReader.readCompound("{" + profileInfoLegacy + "}").getCompound("SkullOwner").orElse(null);
+            var properties = profileInfoLegacyNBT.getCompound("Properties").flatMap(NbtCompound::asString).orElse("");
             var texture = properties.substring(properties.indexOf("Value:") + 7, properties.lastIndexOf("\"}"));
             
             GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "CustomHead");

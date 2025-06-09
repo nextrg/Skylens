@@ -1,6 +1,6 @@
 package org.nextrg.skylens.client.widgets;
 
-import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
+import earth.terrarium.olympus.client.pipelines.RoundedRectangle;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -255,9 +255,9 @@ public class Button extends ClickableWidget {
         };
         boolean isSwitch = !part.contains(":") && part.length() > 1;
         var x = (int) (getX() - 150 + 150 * progress) + (int) ((btype == 4 || isPages ? 0 : 4) * transit);
-        RoundedRectShader.fill(context, x - 1, getY() - 1, this.width + 2, this.height + 2, hexToHexa(0xFF252525, (int)(192 * progress)), 0x00000000, 5, 1);
+        RoundedRectangle.draw(context, x - 1, getY() - 1, this.width + 2, this.height + 2, hexToHexa(0xFF252525, (int)(192 * progress)), 0x00000000, 5, 1);
         var center = getY() + this.height / 2 - MinecraftClient.getInstance().textRenderer.fontHeight / 2;
-        RoundedRectShader.fill(context, x + (this.width + 2) / 2 - (int) ((float) (this.width + 2) / 2 * transit) - 1, getY() - 1, (int) ((this.width + 2) * transit), this.height + 2, hexToHexa(ColorHelper.lerp(isSwitch ? 0f : press, 0xFF353535, 0xFF454545), (int)(255 * progress)), 0x00000000, 5, 1);
+        RoundedRectangle.draw(context, x + (this.width + 2) / 2 - (int) ((float) (this.width + 2) / 2 * transit) - 1, getY() - 1, (int) ((this.width + 2) * transit), this.height + 2, hexToHexa(ColorHelper.lerp(isSwitch ? 0f : press, 0xFF353535, 0xFF454545), (int)(255 * progress)), 0x00000000, 5, 1);
         var hasDesc = (isTheme ? 7 : !(Objects.equals(desc, "")) ? 5 : 0);
         context.drawText(MinecraftClient.getInstance().textRenderer, part + " " + displayText, x + (btype == 4 ? 7 : 0) + (isPages ? (btype == 7 ? 7 : 8) : 10), center - hasDesc + (int) (hasDesc - hasDesc * transit), hexToHexa(0xFFFFFFFF, (int) (progress * 245 + 10)), false);
         context.drawText(MinecraftClient.getInstance().textRenderer, isTheme ? "Custom can be changed" : desc, x + 10, center + (int) (hasDesc * transit) - (isTheme ? 4 : 0), hexToHexa(0xFF999999, (int) (transit * 245 + 10)), false);
@@ -267,8 +267,8 @@ public class Button extends ClickableWidget {
         if (isSwitch) {
             var buttonX = x + this.width - 28;
             var buttonY = getY() + this.height / 2 - 6;
-            RoundedRectShader.fill(context, buttonX + 1, buttonY + 1, 25 - 4, 14 - 4, hexToHexa(ColorHelper.lerp(button, color1, color2), (int) (255 * progress)), 0x00000000, 4, 1);
-            RoundedRectShader.fill(context, buttonX + (int) (11 * button), buttonY, 12, 12, hexToHexa(ColorHelper.lerp(button, color3, color4), (int) (255 * progress)), 0x00000000, 5, 1);
+            RoundedRectangle.draw(context, buttonX + 1, buttonY + 1, 25 - 4, 14 - 4, hexToHexa(ColorHelper.lerp(button, color1, color2), (int) (255 * progress)), 0x00000000, 4, 1);
+            RoundedRectangle.draw(context, buttonX + (int) (11 * button), buttonY, 12, 12, hexToHexa(ColorHelper.lerp(button, color3, color4), (int) (255 * progress)), 0x00000000, 5, 1);
         }
     }
     

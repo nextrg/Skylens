@@ -59,7 +59,7 @@ public class MissingEnchants {
                 category = "GAUNTLET";
             }
             
-            custom_data.copyNbt().getCompound("enchantments").getKeys().forEach(en -> itemEnchants.add(en.toLowerCase()));
+            custom_data.copyNbt().getCompound("enchantments").map(NbtCompound::getKeys).orElse(Collections.emptySet()).forEach(en -> itemEnchants.add(en.toLowerCase()));
             JsonObject neuEnchants = enchants.get("enchants").getAsJsonObject();
             JsonArray neuEnchantPools = enchants.get("enchant_pools").getAsJsonArray();
             if (neuEnchants.get(category) != null) {

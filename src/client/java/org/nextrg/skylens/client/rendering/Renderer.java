@@ -1,24 +1,17 @@
 package org.nextrg.skylens.client.rendering;
 
-import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import earth.terrarium.olympus.client.pipelines.RoundedRectangle;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.item.ItemStack;
 import org.joml.Matrix4f;
 import static com.mojang.blaze3d.systems.RenderSystem.*;
-import static com.mojang.blaze3d.systems.RenderSystem.disableBlend;
 
 public class Renderer {
     public static void beginRendering() {
-        disableCull();
-        enableBlend();
-        defaultBlendFunc();
         setShaderColor(1, 1, 1, 1);
-    }
-    public static void finishRendering() {
-        enableCull();
-        disableBlend();
     }
     public static void drawBuffer(BufferBuilder buf) {
         BufferRenderer.drawWithGlobalProgram(buf.end());
@@ -34,7 +27,6 @@ public class Renderer {
         }
         beginRendering();
         drawBuffer(buf);
-        finishRendering();
     }
     public static void legacyRoundRectangle(Matrix4f mat, float x, float y, float w, float h, float r, int color) {
         r = Math.clamp(r, 1, Math.min(w, h) / 2);
@@ -59,13 +51,12 @@ public class Renderer {
         buf.vertex(mat, corners[0][0], y, 0).color(color);
         beginRendering();
         drawBuffer(buf);
-        finishRendering();
     }
     public static void roundGradient(DrawContext graphics, int x, int y, int width, int height, float borderRadius, int startColor, int endColor, int gradientDirection, float animTime, int borderWidth, int borderColor) {
         RoundGradShader.fill(graphics, x, y, width, height, borderRadius, startColor, endColor, gradientDirection, animTime, borderWidth, borderColor);
     }
     public static void roundRectangle(DrawContext graphics, int x, int y, int width, int height, float borderRadius, int backgroundColor, int borderWidth, int borderColor) {
-        RoundedRectShader.fill(graphics, x, y, width, height, backgroundColor, borderColor, borderRadius, borderWidth);
+        RoundedRectangle.draw(graphics, x, y, width, height, backgroundColor, borderColor, borderRadius, borderWidth);
     }
     public static void drawItem(DrawContext context, ItemStack item, float x, float y, float scale) {
         context.getMatrices().push();

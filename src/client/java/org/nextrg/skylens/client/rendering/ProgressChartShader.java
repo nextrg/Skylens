@@ -1,7 +1,7 @@
 package org.nextrg.skylens.client.rendering;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import earth.terrarium.olympus.client.shader.Shader;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;

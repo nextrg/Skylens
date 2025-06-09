@@ -1,6 +1,6 @@
 package org.nextrg.skylens.client.main;
 
-import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
+import earth.terrarium.olympus.client.pipelines.RoundedRectangle;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -221,7 +221,7 @@ public class HudEditor extends Screen {
     public void renderHeader(DrawContext context) {
         float amount = (float) (Util.getMeasuringTimeMs() / 2600.0) % 1;
         var color = hexToHexa(0xFF131313, (int) (215 * transit));
-        RoundedRectShader.fill(context, -4, -4 - 30 + (int)(30 * transit), 158, 44, color, 0x00000000, 3, 1);
+        RoundedRectangle.draw(context, -4, -4 - 30 + (int)(30 * transit), 158, 44, color, 0x00000000, 3, 1);
         context.enableScissor(42, (int)(20 * transit), 144, (int)(50 * transit));
         drawText(context, "for Skylens", -90 + 42 + (int)(amount * 210), -21 + (int)(30 * transit) + 16, hexToHexa(0xFF9F9F9F, (int) (10 + transit * 245)), 1F, false, false);
         context.disableScissor();

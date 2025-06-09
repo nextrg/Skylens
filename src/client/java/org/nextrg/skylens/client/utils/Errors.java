@@ -1,6 +1,6 @@
 package org.nextrg.skylens.client.utils;
 
-import earth.terrarium.olympus.client.shader.builtin.RoundedRectShader;
+import earth.terrarium.olympus.client.pipelines.RoundedRectangle;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.minecraft.client.gui.DrawContext;
@@ -47,7 +47,7 @@ public class Errors {
                     table.addAll(Arrays.asList(text.replace("error", "exception").split(" ")));
                     var x = Renderer.getScreenWidth(drawContext) - 149 - errorY;
                     var y = Renderer.getScreenHeight(drawContext) - 45;
-                    RoundedRectShader.fill(drawContext, x, y, 144, 40, 0xd1271717, 0x00000000, 8, 0);
+                    RoundedRectangle.draw(drawContext, x, y, 144, 40, 0xd1271717, 0x00000000, 8, 0);
                     drawContext.fillGradient(x, y + 4, x + 144, y + 16, 0x00FF5555, 0x31FF5555);
                     Renderer.drawText(drawContext, "Error §7[Skylens]", x + 45, y + 5, 0xFFFF5555, 1F, true, true);
                     drawContext.drawHorizontalLine(x, x + 143, y + 16, 0x61FF5555);
