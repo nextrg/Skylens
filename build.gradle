@@ -30,6 +30,7 @@ repositories {
         name 'Xander Maven'
         url 'https://maven.isxander.dev/releases'
     }
+    maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
     maven {
         name = "Terraformers"
         url = "https://maven.terraformersmc.com/"
@@ -49,6 +50,8 @@ dependencies {
     include modImplementation("com.teamresourceful.resourcefullib:resourcefullib-fabric-${project.minecraft_version}:${project.rlib_version}")
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
     include modImplementation("earth.terrarium.olympus:olympus-fabric-${project.minecraft_version}:${project.olympus_version}")
+
+    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 }
 
 processResources {

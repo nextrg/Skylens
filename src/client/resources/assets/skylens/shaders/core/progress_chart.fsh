@@ -7,7 +7,7 @@ uniform float radius;
 uniform float progress;
 uniform float time;
 uniform float startAngle;
-uniform bool reverse;
+uniform int reverse;
 
 out vec4 fragColor;
 
@@ -33,8 +33,8 @@ void main() {
     if (finalAlpha <= 0.0) discard;
 
     float factor = fract(angleOffset / TAU + time);
-    if (reverse)
-    factor = 1.0 - factor;
+    if (reverse == 1)
+        factor = 1.0 - factor;
 
     vec4 color = mix(startColor, endColor, factor);
     fragColor = vec4(color.rgb, color.a * finalAlpha);

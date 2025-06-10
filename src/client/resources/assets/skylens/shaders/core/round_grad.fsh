@@ -6,12 +6,12 @@ uniform vec4 startColor;
 uniform vec4 endColor;
 uniform vec4 borderColor;
 uniform vec4 borderRadius;
-uniform float borderWidth;
 uniform vec2 size;
 uniform vec2 center;
+uniform float borderWidth;
 uniform float scaleFactor;
-uniform int gradientDirection;
 uniform float time;
+uniform int gradientDirection;
 
 out vec4 fragColor;
 

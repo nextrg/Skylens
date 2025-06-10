@@ -4,6 +4,7 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.platform.LogicOp;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import earth.terrarium.olympus.client.pipelines.PipelineRenderer;
 import net.minecraft.client.MinecraftClient;
@@ -27,10 +28,17 @@ public class ProgressChartShader {
                     .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                     .withColorLogic(LogicOp.NONE)
                     .withBlend(BlendFunction.TRANSLUCENT)
-                    .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
-                    .withSampler("Sampler0")
-                    .withUniform("Size", UniformType.INT)
-                    .withUniform("Vertical", UniformType.INT)
+                    .withVertexFormat(VertexFormats.POSITION, VertexFormat.DrawMode.QUADS)
+                    .withUniform("modelViewMat", UniformType.MATRIX4X4)
+                    .withUniform("projMat", UniformType.MATRIX4X4)
+                    .withUniform("startColor", UniformType.VEC4)
+                    .withUniform("endColor", UniformType.VEC4)
+                    .withUniform("center", UniformType.VEC2)
+                    .withUniform("radius", UniformType.FLOAT)
+                    .withUniform("progress", UniformType.FLOAT)
+                    .withUniform("time", UniformType.FLOAT)
+                    .withUniform("startAngle", UniformType.FLOAT)
+                    .withUniform("reverse", UniformType.INT)
                     .build()
     );
 
@@ -61,12 +69,21 @@ public class ProgressChartShader {
         Matrix4f matrix = graphics.getMatrices().peek().getPositionMatrix();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
 
-        buffer.vertex(matrix, x - radius, y - radius, 0.0F);
-        buffer.vertex(matrix, x - radius, y + radius, 0.0F);
-        buffer.vertex(matrix, x + radius, y + radius, 0.0F);
-        buffer.vertex(matrix, x + radius, y - radius, 0.0F);
+        /*
+        buffer.addVertex(matrix, (x).toFloat(), (y).toFloat(), 1.0f).setUv(0f, 0f).setColor(color)
+        buffer.addVertex(matrix, (x).toFloat(), (y + height).toFloat(), 1.0f).setUv(0f, 1f).setColor(color)
+        buffer.addVertex(matrix, (x + width).toFloat(), (y + height).toFloat(), 1.0f).setUv(1f, 1f).setColor(color)
+        buffer.addVertex(matrix, (x + width).toFloat(), (y).toFloat(), 1.0f).setUv(1f, 0f).setColor(color)
+
+         */
+        buffer.vertex(matrix, x - radius, y - radius, 1.0F);
+        buffer.vertex(matrix, x - radius, y + radius, 1.0F);
+        buffer.vertex(matrix, x + radius, y + radius, 1.0F);
+        buffer.vertex(matrix, x + radius, y - radius, 1.0F);
         PipelineRenderer.draw(
                 PROGRESS_CHART, buffer.end(), pass -> {
+                    pass.setUniform("modelViewMat", RenderSystem.getModelViewMatrix());
+                    pass.setUniform("projMat", RenderSystem.getProjectionMatrix());
                     pass.setUniform("startColor", colorToVec4f(startColor));
                     pass.setUniform("endColor", colorToVec4f(endColor));
                     pass.setUniform("center", scaledX, scaledY + yOffset);

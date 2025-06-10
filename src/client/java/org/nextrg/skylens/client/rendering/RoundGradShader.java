@@ -4,6 +4,7 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.platform.LogicOp;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import earth.terrarium.olympus.client.pipelines.PipelineRenderer;
 import net.minecraft.client.MinecraftClient;
@@ -27,10 +28,19 @@ public class RoundGradShader {
                     .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                     .withColorLogic(LogicOp.NONE)
                     .withBlend(BlendFunction.TRANSLUCENT)
-                    .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
-                    .withSampler("Sampler0")
-                    .withUniform("Size", UniformType.INT)
-                    .withUniform("Vertical", UniformType.INT)
+                    .withVertexFormat(VertexFormats.POSITION, VertexFormat.DrawMode.QUADS)
+                    .withUniform("modelViewMat", UniformType.MATRIX4X4)
+                    .withUniform("projMat", UniformType.MATRIX4X4)
+                    .withUniform("startColor", UniformType.VEC4)
+                    .withUniform("endColor", UniformType.VEC4)
+                    .withUniform("borderColor", UniformType.VEC4)
+                    .withUniform("borderRadius", UniformType.VEC4)
+                    .withUniform("size", UniformType.VEC2)
+                    .withUniform("center", UniformType.VEC2)
+                    .withUniform("borderWidth", UniformType.FLOAT)
+                    .withUniform("scaleFactor", UniformType.FLOAT)
+                    .withUniform("time", UniformType.FLOAT)
+                    .withUniform("gradientDirection", UniformType.INT)
                     .build()
     );
 
@@ -52,19 +62,21 @@ public class RoundGradShader {
         Matrix4f matrix = graphics.getMatrices().peek().getPositionMatrix();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
 
-        buffer.vertex(matrix, x, y, 0.0F);
-        buffer.vertex(matrix, x, (y + height), 0.0F);
-        buffer.vertex(matrix, (x + width), (y + height), 0.0F);
-        buffer.vertex(matrix, (x + width), y, 0.0F);
+        buffer.vertex(matrix, x, y, 1.0F);
+        buffer.vertex(matrix, x, (y + height), 1.0F);
+        buffer.vertex(matrix, (x + width), (y + height), 1.0F);
+        buffer.vertex(matrix, (x + width), y, 1.0F);
         PipelineRenderer.draw(
                 PROGRESS_CHART, buffer.end(), pass -> {
+                    pass.setUniform("modelViewMat", RenderSystem.getModelViewMatrix());
+                    pass.setUniform("projMat", RenderSystem.getProjectionMatrix());
                     pass.setUniform("startColor", colorToVec4f(startColor));
                     pass.setUniform("endColor", colorToVec4f(endColor));
                     pass.setUniform("center", scaledX, scaledY + yOffset);
                     pass.setUniform("gradientDirection", gradientDirection);
                     pass.setUniform("borderColor", (float) (borderColor >> 16 & 255) / 255.0F, (float) (borderColor >> 8 & 255) / 255.0F, (float) (borderColor & 255) / 255.0F, (float) (borderColor >> 24 & 255) / 255.0F);
                     pass.setUniform("borderRadius", radius, radius, radius, radius);
-                    pass.setUniform("borderWidth", borderWidth);
+                    pass.setUniform("borderWidth", (float) borderWidth);
                     pass.setUniform("size", scaledWidth - (float) borderWidth * 2.0F * scale, scaledHeight - (float) borderWidth * 2.0F * scale);
                     pass.setUniform("center", scaledX + scaledWidth / 2.0F, scaledY + scaledHeight / 2.0F + yOffset);
                     pass.setUniform("borderColor", colorToVec4f(borderColor));
