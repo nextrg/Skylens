@@ -35,7 +35,7 @@ public class Pet extends ClickableWidget {
     public int maxLevel = 100;
     public int tooltipWidth;
     public int tooltipHeight;
-    public boolean petExists = true;
+    public boolean petExists;
     public boolean isFavorited = false;
     public String rarity;
     public int[] colors = new int[]{0xFF191919, 0xFF202020, 0x0};
@@ -141,7 +141,9 @@ public class Pet extends ClickableWidget {
             actualTransitValue = transit;
         }
         
-        roundRectangle(context, getX(), getY(), this.width, this.height, 5, ColorHelper.lerp(actualTransitValue, colors[0], colors[1]), 1, 0);
+        if ((isNotAPane(pet) && isNotABarrier(pet)) || !petExists) {
+            roundRectangle(context, getX(), getY(), this.width, this.height, 5, ColorHelper.lerp(actualTransitValue, colors[0], colors[1]), 1, 0);
+        }
         
         if (hovered && petExists) {
             var client = MinecraftClient.getInstance();
@@ -154,8 +156,8 @@ public class Pet extends ClickableWidget {
             context.drawItemTooltip(client.textRenderer, pet, width / 2 + (facingLeft ? -tooltipWidth - CustomPetScreen.width * 3 / 5 + 11 : 99 + menuScale * 50), height / 2 - tooltipHeight / 2);
         }
         
-        var maxLevelled = petExists && level == maxLevel && isPane(pet);
-        var showBars = !maxLevelled && showProgressBars;
+        var maxLevelled = petExists && level == maxLevel && isNotAPane(pet);
+        var showBars = !(maxLevelled || displayTitle.contains("Choose Pet")) && showProgressBars;
         float animationTime = System.nanoTime() / 1_000_000_000_0f;
         if (maxLevelled) {
             roundGradient(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 150), hexToHexa(colors[2], 70), 0, animationTime * 4.5f, 1, 0);
@@ -169,10 +171,9 @@ public class Pet extends ClickableWidget {
         
         var itemScale = 1.25f + menuScale * 0.75f * 0.5f * (1f + actualTransitValue);
         var center = 6.5 + menuScale * 7;
-        drawItem(context, pet, (float) (getX() + center), (float) (getY() + center - (showBars || (!isPane(pet) && !displayTitle.contains("Choose Pet")) ? 2 : 0)), (float) Math.round(itemScale * 15) / 15);
-        
-        if (petExists && isPane(pet)) {
-            if (showBars && !displayTitle.contains("Choose Pet")) {
+        drawItem(context, pet, (float) (getX() + center), (float) (getY() + center - (showBars || (!isNotAPane(pet) && !displayTitle.contains("Choose Pet")) ? 2 : 0)), (float) Math.round(itemScale * 15) / 15);
+        if (petExists && isNotAPane(pet) && isNotABarrier(pet)) {
+            if (showBars) {
                 var progressBarHeight = 10 + 2 * menuScale;
                 roundRectangle(context, getX(), getY() + this.height - progressBarHeight, this.width, progressBarHeight, 2f + 0.6f * menuScale, ColorHelper.lerp(actualTransitValue, colors[2], colors[0]), 3, 0);
                 roundRectangle(context, getX(), getY() + this.height - progressBarHeight, (int) Math.max((this.width * xp), 8), progressBarHeight, 2f + 0.6f * menuScale, ColorHelper.lerp(actualTransitValue, colors[1], colors[2]), 3, 0);

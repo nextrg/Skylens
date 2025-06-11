@@ -194,7 +194,7 @@ public class ModConfig implements ModMenuApi {
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Text.literal("Custom Pet Menu"))
-                                .description(OptionDescription.of(Text.literal("Modern style pet menu, that show pet's progress to next level and their rarity.")))
+                                .description(OptionDescription.of(Text.literal("§cExperimental feature\n§fModern style pet menu, that show pet's progress to next level and their rarity.")))
                                 .binding(
                                         true,
                                         () -> customPetMenu,

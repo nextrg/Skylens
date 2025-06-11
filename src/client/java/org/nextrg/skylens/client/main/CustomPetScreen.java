@@ -17,7 +17,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.nextrg.skylens.client.rendering.Renderer.*;
+import static org.nextrg.skylens.client.rendering.Renderer.drawText;
+import static org.nextrg.skylens.client.rendering.Renderer.roundRectangle;
 
 public class CustomPetScreen extends HandledScreen<ScreenHandler> {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -33,7 +34,7 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
         publicHandler = handler;
         displayTitle = title;
     }
-
+    
     @Override
     protected void init() {
         super.init();
@@ -50,8 +51,8 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
         var petX = (miniMode ? 1 : 3) + x;
         for (Slot slot : publicHandler.slots) {
             if ((slot.id >= 10 && slot.id <= 16)
-            || (slot.id >= 19 && slot.id <= 25)
-            || (slot.id >= 28 && slot.id <= 34)
+                    || (slot.id >= 19 && slot.id <= 25)
+                    || (slot.id >= 28 && slot.id <= 34)
                     || (slot.id >= 37 && slot.id <= 43)) {
                 var size = width / 7;
                 var line = i / 7;
@@ -61,25 +62,25 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
                 i++;
             }
             if (slot.id == 53) {
-                SidebarButton left = new SidebarButton(x + width - 30/2 + 3, y + height + 4,16,16,2);
+                SidebarButton left = new SidebarButton(x + width - 30 / 2 + 3, y + height + 4, 16, 16, 2);
                 this.addDrawableChild(left);
             }
             if (slot.id == 45) {
-                SidebarButton right = new SidebarButton(x - 3, y + height + 4,16,16,3);
+                SidebarButton right = new SidebarButton(x - 3, y + height + 4, 16, 16, 3);
                 this.addDrawableChild(right);
             }
         }
         
-        SidebarButton miniMode = new SidebarButton(x + width - 30 / 2 - 1, y - 18,16,16,1);
+        SidebarButton miniMode = new SidebarButton(x + width - 30 / 2 - 1, y - 18, 16, 16, 1);
         this.addDrawableChild(miniMode);
         
-        SidebarButton showLevel = new SidebarButton(x + width - 30 / 2 - 1 - 16 - 2, y - 18,16,16,4);
+        SidebarButton showLevel = new SidebarButton(x + width - 30 / 2 - 1 - 16 - 2, y - 18, 16, 16, 4);
         this.addDrawableChild(showLevel);
         
-        SidebarButton search = new SidebarButton(x + width - 30 / 2 - 1 - 16 - 2 - 16 - 2, y - 18,16,16,5);
+        SidebarButton search = new SidebarButton(x + width - 30 / 2 - 1 - 16 - 2 - 16 - 2, y - 18, 16, 16, 5);
         this.addDrawableChild(search);
         
-        SidebarButton petVisibility = new SidebarButton(x + width / 2 - 55, y + height + 4,22,22,9);
+        SidebarButton petVisibility = new SidebarButton(x + width / 2 - 55, y + height + 4, 22, 22, 9);
         this.addDrawableChild(petVisibility);
         
         var marginX = 0;
@@ -87,21 +88,25 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
             marginX = 12;
         }
         
-        SidebarButton close = new SidebarButton(x + width / 2 - 11 + marginX, y + height + 4,22,22,6);
+        SidebarButton close = new SidebarButton(x + width / 2 - 11 + marginX, y + height + 4, 22, 22, 6);
         this.addDrawableChild(close);
         
-        SidebarButton goBack = new SidebarButton(x + width / 2 - 33 + marginX, y + height + 4,22,22,7);
+        SidebarButton goBack = new SidebarButton(x + width / 2 - 33 + marginX, y + height + 4, 22, 22, 7);
         this.addDrawableChild(goBack);
         
-        SidebarButton sort = new SidebarButton(x + width / 2 - 12 + 23, y + height + 4,22,22,8);
+        SidebarButton sort = new SidebarButton(x + width / 2 - 12 + 23, y + height + 4, 22, 22, 8);
         this.addDrawableChild(sort);
         
-        SidebarButton xpShare = new SidebarButton(x + width / 2 - 12 + 45, y + height + 4,22,22,10);
+        SidebarButton xpShare = new SidebarButton(x + width / 2 - 12 + 45, y + height + 4, 22, 22, 10);
         this.addDrawableChild(xpShare);
     }
     
-    public static boolean isPane(ItemStack item) {
+    public static boolean isNotAPane(ItemStack item) {
         return !item.getItemName().toString().contains("glass_pane");
+    }
+    
+    public static boolean isNotABarrier(ItemStack item) {
+        return !item.getItemName().toString().contains("barrier");
     }
     
     public static void interactWithSlot(int id, int type) {
@@ -134,8 +139,8 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
                         if (type != 2 && type != 3 && type <= 7) {
                             drawable.render(context, mouseX, mouseY, delta);
                         } else {
-                            if ((type == 2 && isPane(publicHandler.slots.get(53).getStack())) ||
-                                    (type == 3 && isPane(publicHandler.slots.get(45).getStack()))) {
+                            if ((type == 2 && isNotAPane(publicHandler.slots.get(53).getStack())) ||
+                                    (type == 3 && isNotAPane(publicHandler.slots.get(45).getStack()))) {
                                 drawable.render(context, mouseX, mouseY, delta);
                             }
                             if ((type == 8 || type == 9 || type == 10) && (!displayTitle.contains("Exp Sharing") && !displayTitle.contains("Choose Pet"))) {
@@ -147,7 +152,8 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         
         if (refresh) {
             scheduler.schedule(() -> this.init(), 25L, TimeUnit.MILLISECONDS);
@@ -156,5 +162,6 @@ public class CustomPetScreen extends HandledScreen<ScreenHandler> {
     }
     
     @Override
-    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {}
+    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+    }
 }
