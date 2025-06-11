@@ -69,13 +69,6 @@ public class ProgressChartShader {
         Matrix4f matrix = graphics.getMatrices().peek().getPositionMatrix();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
 
-        /*
-        buffer.addVertex(matrix, (x).toFloat(), (y).toFloat(), 1.0f).setUv(0f, 0f).setColor(color)
-        buffer.addVertex(matrix, (x).toFloat(), (y + height).toFloat(), 1.0f).setUv(0f, 1f).setColor(color)
-        buffer.addVertex(matrix, (x + width).toFloat(), (y + height).toFloat(), 1.0f).setUv(1f, 1f).setColor(color)
-        buffer.addVertex(matrix, (x + width).toFloat(), (y).toFloat(), 1.0f).setUv(1f, 0f).setColor(color)
-
-         */
         buffer.vertex(matrix, x - radius, y - radius, 1.0F);
         buffer.vertex(matrix, x - radius, y + radius, 1.0F);
         buffer.vertex(matrix, x + radius, y + radius, 1.0F);
