@@ -15,16 +15,15 @@ import static org.nextrg.skylens.client.utils.Errors.errorMessage;
 import static org.nextrg.skylens.client.utils.Tooltips.tooltipMiddleCache;
 
 public class SkylensClient implements ClientModInitializer {
-
+    
     private static ModContainer mod;
-
+    
     @Override
     public void onInitializeClient() {
         mod = FabricLoader.getInstance().getModContainer("skylens").get();
         new ModConfig().init();
         MissingEnchants.init();
         PetOverlay.init();
-        SlayerBossIntros.init();
         LowHpIndicator.init();
         EnhancedNoteblockSounds.init();
         errorMessage();
@@ -49,7 +48,7 @@ public class SkylensClient implements ClientModInitializer {
             );
         });
     }
-
+    
     public static Identifier id(String path) {
         return Identifier.of(mod.getMetadata().getId(), path);
     }
