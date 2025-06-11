@@ -16,7 +16,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static org.nextrg.skylens.client.utils.Text.*;
 
-public class Tooltips {
+public class
+Tooltips {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final Pattern ENCHANT_PATTERN = Pattern.compile("\\b[IVXLCDM]+\\b");
     public static final Map<String, Integer> cache = new HashMap<>();
@@ -45,7 +46,7 @@ public class Tooltips {
         int targetIndex = 15;
         List<String> st = new java.util.ArrayList<>(Collections.emptyList());
         final boolean[] hasUlt = {false};
-        nbt.getCompound("enchantments").getKeys().forEach(en -> {
+        nbt.getCompound("enchantments").map(NbtCompound::getKeys).orElse(Collections.emptySet()).forEach(en -> {
             if (!en.toLowerCase().contains("ultimate")) {
                 st.add(capitalize(en.replace("_", " ")));
             } else {

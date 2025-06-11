@@ -19,8 +19,8 @@ import net.minecraft.util.math.ColorHelper;
 import java.awt.*;
 import java.time.LocalDate;
 
-import static org.nextrg.skylens.client.utils.Text.getColorCode;
 import static org.nextrg.skylens.client.main.HudEditor.openScreen;
+import static org.nextrg.skylens.client.utils.Text.getColorCode;
 import static org.nextrg.skylens.client.utils.Text.rgbToHexa;
 
 public class ModConfig implements ModMenuApi {
@@ -142,7 +142,7 @@ public class ModConfig implements ModMenuApi {
             var a = style <= 2 ? "§7+" : "";
             var b = style != 1 ? "⊰" : "";
             var c = style != 1 ? "⊱" : "";
-            return Text.literal("§5" + b + (char)('\u2793' - 5) + a + "§e\u2793" + c);
+            return Text.literal("§5" + b + (char) ('\u2793' - 5) + a + "§e\u2793" + c);
         }
     }
     
@@ -435,31 +435,6 @@ public class ModConfig implements ModMenuApi {
                                         .controller(ColorControllerBuilder::create)
                                         .build())
                                 .build())
-                        .group(OptionGroup.createBuilder()
-                                .name(Text.literal("Slayer Boss Intros"))
-                                .description(OptionDescription.of(Text.literal("Shows a cutscene-style intro for a boss.")))
-                                .collapsed(true)
-                                .option(Option.<Boolean>createBuilder()
-                                        .name(Text.literal("Enable"))
-                                        .binding(
-                                                true,
-                                                () -> slayerIntros,
-                                                newValue -> slayerIntros = newValue
-                                        )
-                                        .controller(opt -> BooleanControllerBuilder.create(opt)
-                                                .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
-                                                .coloured(true))
-                                        .build())
-                                .option(LabelOption.create(Text.literal("Appearance")))
-                                .option(Option.<BackgroundStyle>createBuilder()
-                                        .name(Text.literal("Background"))
-                                        .binding(BackgroundStyle.Opaque,
-                                                () -> BackgroundStyle.valueOf(slayerIntrosBackground),
-                                                newValue -> slayerIntrosBackground = String.valueOf(newValue))
-                                        .controller(opt -> EnumControllerBuilder.create(opt)
-                                                .enumClass(BackgroundStyle.class))
-                                        .build())
-                                .build())
                         .build())
                 .save(this::update)
                 .build()
@@ -469,6 +444,7 @@ public class ModConfig implements ModMenuApi {
     public void update() {
         ModConfig.HANDLER.save();
     }
+    
     public static ModConfig get() {
         return HANDLER.instance();
     }
@@ -487,7 +463,7 @@ public class ModConfig implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return this::config;
     }
-
+    
     public void init() {
         ModConfig.HANDLER.load();
     }

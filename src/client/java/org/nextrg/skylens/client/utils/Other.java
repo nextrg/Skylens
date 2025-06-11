@@ -55,6 +55,7 @@ public class Other {
         }
         return Pair.of(text, string);
     }
+    
     public static List<String> getScoreboardData() {
         List<String> scoreboardData = new ArrayList<>();
         ClientPlayerEntity playerEntity = MinecraftClient.getInstance().player;
@@ -78,6 +79,7 @@ public class Other {
         }
         return scoreboardData;
     }
+    
     public static int getPetLevelFromCustomName(Text customName) {
         var fallback = 1;
         if (customName != null && customName.getSiblings() != null) {
@@ -88,21 +90,24 @@ public class Other {
             var level = customName.getSiblings().get(sibling).getString().replace("[Lvl ", "").replace("]", "");
             try {
                 fallback = Integer.parseInt(level.trim());
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return fallback;
     }
+    
     public static String getPetNameFromCustomName(Text customName) {
         var string = customName.getString();
         return string.substring(string.indexOf("]") + 2).replace(" ✦", "");
     }
+    
     public static String getPetRarity(ItemStack stack) {
         var fallback = "common";
         var nbt = stack.getComponents().get(DataComponentTypes.CUSTOM_DATA);
         if (nbt != null) {
             var petInfo = nbt.copyNbt().get("petInfo");
             if (petInfo != null && petInfo.getType() == NbtElement.STRING_TYPE) {
-                JsonObject workingPetInfo = new Gson().fromJson(petInfo.asString(), JsonObject.class);
+                JsonObject workingPetInfo = new Gson().fromJson(petInfo.asString().orElse("{}"), JsonObject.class);
                 fallback = workingPetInfo.get("tier").getAsString().toLowerCase();
             } else {
                 fallback = "X"; // <- Not a pet
@@ -118,6 +123,7 @@ public class Other {
         }
         return fallback;
     }
+    
     public static ItemStack getPetTextureFromNEU(String petName) {
         ItemStack itemStack = new ItemStack(Items.PLAYER_HEAD);
         try {
@@ -129,11 +135,9 @@ public class Other {
                     .replaceAll(",\\d+:\"", ",\"")
                     .replaceAll("\\\\\"", "\"")
                     .replaceAll("([{,])([A-Za-z_][A-Za-z0-9_]*)\\:", "$1\"$2\":");
-            
             String profileInfoLegacy = string.substring(string.indexOf("SkullOwner") - 1, string.indexOf("display") - 2);
-            NbtCompound profileInfoLegacyNBT;
-            profileInfoLegacyNBT = StringNbtReader.parse("{" + profileInfoLegacy + "}").getCompound("SkullOwner");
-            var properties = profileInfoLegacyNBT.getCompound("Properties").asString();
+            NbtCompound profileInfoLegacyNBT = StringNbtReader.readCompound("{" + profileInfoLegacy + "}").getCompound("SkullOwner").orElse(null);
+            var properties = profileInfoLegacyNBT.get("Properties").toString();
             var texture = properties.substring(properties.indexOf("Value:") + 7, properties.lastIndexOf("\"}"));
             
             GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "CustomHead");
@@ -146,6 +150,7 @@ public class Other {
         }
         return itemStack;
     }
+    
     public static boolean onSkyblock() {
         if (ModConfig.onlySkyblock) {
             return MinecraftClient.getInstance().world != null || !MinecraftClient.getInstance().isInSingleplayer();

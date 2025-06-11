@@ -1,10 +1,9 @@
 package org.nextrg.skylens.client.main;
 
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
@@ -24,12 +23,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static com.mojang.blaze3d.systems.RenderSystem.*;
+
 import static org.nextrg.skylens.client.rendering.ProgressChartShader.drawPie;
+import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Errors.logErr;
 import static org.nextrg.skylens.client.utils.Other.*;
 import static org.nextrg.skylens.client.utils.Text.*;
-import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Tooltips.getLore;
 
 public class PetOverlay {
@@ -68,6 +67,7 @@ public class PetOverlay {
     public static void forceAnim(boolean state) {
         forceShow = state;
     }
+    
     public static void setHudEditor(boolean state) {
         isHudEditorEnabled = state;
         if (!show) {
@@ -172,6 +172,7 @@ public class PetOverlay {
     
     // Updating cache when opening pet's menu
     static int petMenuTicks = 0;
+    
     public static void updateCache(Screen screen) {
         if (onSkyblock() && screen instanceof GenericContainerScreen genericContainerScreen) {
             if (genericContainerScreen.getTitle().getString().startsWith("Pets")) {
@@ -244,14 +245,15 @@ public class PetOverlay {
                     var petName = currentPet.getCustomName();
                     var st = Integer.parseInt(message.withoutStyle().get(message.withoutStyle().size() - 2).getString());
                     maxLevel = petName != null && petName.toString().contains("Golden Dragon") ? 200 : 100;
-                    level = Math.clamp((float)(st / maxLevel), level, 1f);
+                    level = Math.clamp((float) (st / maxLevel), level, 1f);
                     currentLevelUp = true;
                     leveledEver = true;
                     levelAnimProgress = 1f;
                     xpBeforeLevel = xp;
                     pulse();
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
         ScreenEvents.BEFORE_INIT.register((client, screen, in1, in2) -> updateCache(screen));
         HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.HOTBAR_AND_BARS, Identifier.of("skylens", "pet-overlay"), PetOverlay::uib));
@@ -260,7 +262,7 @@ public class PetOverlay {
     private static void uib(DrawContext drawContext, RenderTickCounter renderTickCounter) {
         prepare(drawContext, true);
     }
-
+    
     public static void prepare(DrawContext drawContext, boolean isHud) {
         if (ModConfig.petOverlay || isHudEditorEnabled && onSkyblock()) {
             if ((isHud && !isHudEditorEnabled) || (!isHud && isHudEditorEnabled)) {
@@ -270,7 +272,6 @@ public class PetOverlay {
                         PetOverlay.getPetData();
                         lastUpdate = currentTime;
                     }
-                    setShader(ShaderProgramKeys.POSITION_COLOR);
                     String ModConfigTheme = ModConfig.petOverlayTheme.toLowerCase();
                     int[] colors = themeColors.getOrDefault(
                             ModConfig.petOverlayPetRarity ? theme : ModConfigTheme,
@@ -349,7 +350,6 @@ public class PetOverlay {
             globalY = -h + (int) (h * appearProgress);
         }
         if (globalY > -45 - marginY) {
-            enableBlend();
             var matrix = drawContext.getMatrices().peek().getPositionMatrix();
             var screenWidth = getScreenWidth(drawContext);
             var screenHeight = getScreenHeight(drawContext);
@@ -392,7 +392,11 @@ public class PetOverlay {
             
             // Styles
             boolean isBar = Objects.equals(type, "style1");
-            if (ModConfig.petOverlayInvert) {var temp = color2; color2 = color1; color1 = temp;}
+            if (ModConfig.petOverlayInvert) {
+                var temp = color2;
+                color2 = color1;
+                color1 = temp;
+            }
             
             // Position
             int marginX = ModConfig.petOverlayX;
@@ -411,8 +415,12 @@ public class PetOverlay {
                 int align = !ModConfig.petOverlayIconAlign ? 29 : 0;
                 int textAlign = !ModConfig.petOverlayIconAlign ? 0 : 15;
                 if (ModConfig.petOverlayAnimIdle) {
-                    legacyRoundRectangle(matrix, x + 2 - amount * 6, y + 2 - amount * 6, 46 + (amount * 12), 4 + (amount * 12), 12, hexToHexa(color2, (int) (255 - amount * 255)));
+                    legacyRoundRectangle(drawContext,
+                            x + 2 - amount * 6, y + 2 - amount * 6,
+                            46 + (amount * 12), 4 + (amount * 12),
+                            12, hexToHexa(color2, (int) (255 - amount * 255)));
                 }
+                roundRectangle(drawContext, x, y, 50, 8, 4.5f, color3, 0, 0);
                 roundRectangle(drawContext, x, y, 50, 8, 4.5f, color3, 0, 0);
                 roundRectangle(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, 4.5f, color2, 0, 0);
                 roundRectangle(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, 2.5f, color1, 0, 0);
@@ -446,7 +454,6 @@ public class PetOverlay {
                 }
                 drawText(drawContext, displayXP, x, y - 23 + (int) (2 * levelAnimProgress) - padding, textColor, 1F, true, true);
             }
-            disableBlend();
         }
     }
 }

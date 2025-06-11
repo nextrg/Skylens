@@ -20,7 +20,9 @@ public class HandledScreenMixin {
         var client = MinecraftClient.getInstance();
         HandledScreen<?> screen = (HandledScreen<?>) (Object) this;
         String title = screen.getTitle().getString();
-        if ((title.equals("Pets") || title.contains("Pets (") || title.contains("Pets:") || title.contains("Choose Pet") || title.contains("Exp Sharing")) && ModConfig.customPetMenu) {
+        
+        boolean petScreenTitle = title.equals("Pets") || title.contains("Pets (") || title.contains("Pets:") || title.contains("Choose Pet") || title.contains("Exp Sharing");
+        if (petScreenTitle && ModConfig.customPetMenu && client.player != null) {
             ci.cancel();
             client.setScreen(new CustomPetScreen(screen.getScreenHandler(), client.player.getInventory(), title));
             CustomPetScreen.refresh = true;

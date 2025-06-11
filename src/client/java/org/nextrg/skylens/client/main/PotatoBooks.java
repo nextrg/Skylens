@@ -21,7 +21,7 @@ public class PotatoBooks {
                 boolean isLegibleForPotatoBooks = Stream.of("sword", "bow", "helmet", "chestplate", "leggings", "boots", "fishing rod", "fishing weapon")
                         .anyMatch(type -> type.equalsIgnoreCase(getItemType(lines)));
                 if (!getItemType(lines).equalsIgnoreCase("other") && isLegibleForPotatoBooks) {
-                    var hotPotatoCount = custom_data.copyNbt().getInt("hot_potato_count");
+                    var hotPotatoCount = custom_data.copyNbt().getInt("hot_potato_count").orElse(0);
                     missingPotato = 15 - hotPotatoCount;
                 }
                 if (missingPotato != 0) {
