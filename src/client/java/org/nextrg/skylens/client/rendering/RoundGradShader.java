@@ -43,10 +43,10 @@ public class RoundGradShader {
                     .withUniform("gradientDirection", UniformType.INT)
                     .build()
     );
-
+    
     public RoundGradShader() {
     }
-
+    
     public static void fill(
             DrawContext graphics, int x, int y, int width, int height, float radius,
             int startColor, int endColor, int gradientDirection, float animationTime, int borderWidth, int borderColor
@@ -58,10 +58,10 @@ public class RoundGradShader {
         float scaledWidth = (float) width * scale;
         float scaledHeight = (float) height * scale;
         float yOffset = (float) window.getFramebufferHeight() - scaledHeight - scaledY * 2.0F;
-
+        
         Matrix4f matrix = graphics.getMatrices().peek().getPositionMatrix();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
-
+        
         buffer.vertex(matrix, x, y, 1.0F);
         buffer.vertex(matrix, x, (y + height), 1.0F);
         buffer.vertex(matrix, (x + width), (y + height), 1.0F);
@@ -72,18 +72,17 @@ public class RoundGradShader {
                     pass.setUniform("projMat", RenderSystem.getProjectionMatrix());
                     pass.setUniform("startColor", colorToVec4f(startColor));
                     pass.setUniform("endColor", colorToVec4f(endColor));
-                    pass.setUniform("center", scaledX, scaledY + yOffset);
                     pass.setUniform("gradientDirection", gradientDirection);
-                    pass.setUniform("borderColor", (float) (borderColor >> 16 & 255) / 255.0F, (float) (borderColor >> 8 & 255) / 255.0F, (float) (borderColor & 255) / 255.0F, (float) (borderColor >> 24 & 255) / 255.0F);
                     pass.setUniform("borderRadius", radius, radius, radius, radius);
                     pass.setUniform("borderWidth", (float) borderWidth);
+                    pass.setUniform("scaleFactor", scale);
                     pass.setUniform("size", scaledWidth - (float) borderWidth * 2.0F * scale, scaledHeight - (float) borderWidth * 2.0F * scale);
                     pass.setUniform("center", scaledX + scaledWidth / 2.0F, scaledY + scaledHeight / 2.0F + yOffset);
                     pass.setUniform("borderColor", colorToVec4f(borderColor));
                     pass.setUniform("time", animationTime);
                 });
     }
-
+    
     private static float[] colorToVec4f(int color) {
         return new float[]{
                 (color >> 16 & 0xFF) / 255f,

@@ -421,7 +421,6 @@ public class PetOverlay {
                             12, hexToHexa(color2, (int) (255 - amount * 255)));
                 }
                 roundRectangle(drawContext, x, y, 50, 8, 4.5f, color3, 0, 0);
-                roundRectangle(drawContext, x, y, 50, 8, 4.5f, color3, 0, 0);
                 roundRectangle(drawContext, x, y, Math.max(8, (int) (50 * level * fadeProgressAnim)), 8, 4.5f, color2, 0, 0);
                 roundRectangle(drawContext, x + 2, y + 2, Math.max(2, (int) (46 * xp * fadeProgressAnim)), 4, 2.5f, color1, 0, 0);
                 drawItem(drawContext, currentPet, x + 2 + align, y - 17, 0.95F);

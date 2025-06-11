@@ -10,7 +10,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.nextrg.skylens.client.main.CustomPetScreen;
-import org.nextrg.skylens.client.rendering.ProgressChartShader;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,10 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 import static org.nextrg.skylens.client.main.CustomPetScreen.*;
 import static org.nextrg.skylens.client.main.PetOverlay.themeColors;
+import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Errors.logErr;
 import static org.nextrg.skylens.client.utils.Other.getPetLevelFromCustomName;
 import static org.nextrg.skylens.client.utils.Other.getPetRarity;
-import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Text.getLiteral;
 import static org.nextrg.skylens.client.utils.Text.hexToHexa;
 import static org.nextrg.skylens.client.utils.Tooltips.getLore;
@@ -39,7 +38,7 @@ public class Pet extends ClickableWidget {
     public boolean petExists = true;
     public boolean isFavorited = false;
     public String rarity;
-    public int[] colors = new int[]{0xFF191919,0xFF202020,0x0};
+    public int[] colors = new int[]{0xFF191919, 0xFF202020, 0x0};
     
     public Pet(int x, int y, int width, int height, ItemStack petStack, Integer petId) {
         super(x, y, width, height, Text.empty());
@@ -93,6 +92,7 @@ public class Pet extends ClickableWidget {
     private boolean hoveredLastFrame = false;
     private boolean animationRunning = false;
     private boolean animatingToVisible = false;
+    
     private void animateHover(boolean show) {
         if (animationRunning && show == animatingToVisible) return;
         animationRunning = true;
@@ -117,14 +117,15 @@ public class Pet extends ClickableWidget {
     }
     
     Identifier favoritedIcon = Identifier.of("skylens", "textures/gui/star.png");
+    
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         var deadZone = 1;
         boolean isHovered =
                 mouseX >= getX() + deadZone &&
-                mouseX <= getX() - deadZone + this.width &&
-                mouseY >= getY() + deadZone &&
-                mouseY <= getY() - deadZone + this.height;
+                        mouseX <= getX() - deadZone + this.width &&
+                        mouseY >= getY() + deadZone &&
+                        mouseY <= getY() - deadZone + this.height;
         this.hovered = isHovered;
         if (isHovered != hoveredLastFrame) {
             animateHover(isHovered);
@@ -140,9 +141,7 @@ public class Pet extends ClickableWidget {
             actualTransitValue = transit;
         }
         
-        if (isPane(pet)) {
-            roundRectangle(context, getX(), getY(), this.width, this.height, 5, ColorHelper.lerp(actualTransitValue, colors[0], colors[1]), 1, 0);
-        }
+        roundRectangle(context, getX(), getY(), this.width, this.height, 5, ColorHelper.lerp(actualTransitValue, colors[0], colors[1]), 1, 0);
         
         if (hovered && petExists) {
             var client = MinecraftClient.getInstance();
@@ -152,16 +151,16 @@ public class Pet extends ClickableWidget {
             boolean facingLeft = width / 2 + 100 + 12 + tooltipWidth > width;
             
             tooltipHeight = getLore(pet).size() * MinecraftClient.getInstance().textRenderer.fontHeight;
-            context.drawItemTooltip(client.textRenderer, pet, width / 2 + (facingLeft ? -tooltipWidth - CustomPetScreen.width * 3/5 + 11 : 99 + menuScale * 50), height / 2 - tooltipHeight / 2);
+            context.drawItemTooltip(client.textRenderer, pet, width / 2 + (facingLeft ? -tooltipWidth - CustomPetScreen.width * 3 / 5 + 11 : 99 + menuScale * 50), height / 2 - tooltipHeight / 2);
         }
         
         var maxLevelled = petExists && level == maxLevel && isPane(pet);
         var showBars = !maxLevelled && showProgressBars;
         float animationTime = System.nanoTime() / 1_000_000_000_0f;
         if (maxLevelled) {
-            roundGradient(context, getX(), getY(), this.width, this.height, 5, hexToHexa(colors[2], 150), hexToHexa(colors[2], 70), 0, animationTime * 4.5f, 1, 0);
-            roundGradient(context, getX(), getY(), this.width, this.height, 5, hexToHexa(colors[2], 170), hexToHexa(colors[2], 90), 2, animationTime * 2.5f, 1, 0);
-            roundGradient(context, getX(), getY(), this.width, this.height, 5, hexToHexa(colors[2], 160), hexToHexa(colors[2], 80), 1, -animationTime * 3.5f, 1, 0);
+            roundGradient(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 150), hexToHexa(colors[2], 70), 0, animationTime * 4.5f, 1, 0);
+            roundGradient(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 170), hexToHexa(colors[2], 90), 2, animationTime * 2.5f, 1, 0);
+            roundGradient(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 160), hexToHexa(colors[2], 80), 1, -animationTime * 3.5f, 1, 0);
         }
         
         if (equipped) {
@@ -181,7 +180,9 @@ public class Pet extends ClickableWidget {
             var text = String.valueOf(level == maxLevel ? "MAX" : level);
             drawText(context, text, getX() + 2.8f, getY() + 2.8f, ColorHelper.lerp(actualTransitValue, colors[1], 0xFF000000), 0.5F + 0.5F * menuScale, false, false);
             if (isFavorited) {
-                context.drawTexture(RenderLayer::getGuiTextured, favoritedIcon, getX() + this.width - 11 - 2, getY() + 2, 0, 0, 11, 11, 11, 11);
+                var textureSize = menuScale == 1 ? 11 : 6;
+                var margin = menuScale == 1 ? 0 : 5;
+                context.drawTexture(RenderLayer::getGuiTextured, favoritedIcon, getX() + this.width - 11 - 2 + margin, getY() + 2, 0, 0, textureSize, textureSize, textureSize, textureSize);
             }
         }
     }
