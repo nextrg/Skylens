@@ -18,6 +18,8 @@ import net.minecraft.client.util.Window;
 import org.joml.Matrix4f;
 import org.nextrg.skylens.client.SkylensClient;
 
+import static org.nextrg.skylens.client.rendering.Renderer.colorToVec4f;
+
 public class ProgressChartShader {
     private static final RenderPipeline PROGRESS_CHART = RenderPipelines.register(
             RenderPipeline.builder()
@@ -41,11 +43,11 @@ public class ProgressChartShader {
                     .withUniform("reverse", UniformType.INT)
                     .build()
     );
-
+    
     public ProgressChartShader() {
     }
-
-    public static void drawPie(
+    
+    public static void draw(
             DrawContext graphics,
             int x,
             int y,
@@ -64,15 +66,16 @@ public class ProgressChartShader {
         float scaledX = x * scale;
         float scaledY = y * scale;
         float scaledRadius = radius * scale;
-
+        
         float yOffset = window.getFramebufferHeight() - scaledY * 2.0F;
         Matrix4f matrix = graphics.getMatrices().peek().getPositionMatrix();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
-
+        
         buffer.vertex(matrix, x - radius, y - radius, 1.0F);
         buffer.vertex(matrix, x - radius, y + radius, 1.0F);
         buffer.vertex(matrix, x + radius, y + radius, 1.0F);
         buffer.vertex(matrix, x + radius, y - radius, 1.0F);
+        
         PipelineRenderer.draw(
                 PROGRESS_CHART, buffer.end(), pass -> {
                     pass.setUniform("modelViewMat", RenderSystem.getModelViewMatrix());
@@ -88,14 +91,5 @@ public class ProgressChartShader {
                     pass.setUniform("borderColor", colorToVec4f(borderColor));
                     pass.setUniform("reverse", invert ? 1 : 0);
                 });
-    }
-
-    private static float[] colorToVec4f(int color) {
-        return new float[]{
-                (color >> 16 & 0xFF) / 255f,
-                (color >> 8 & 0xFF) / 255f,
-                (color & 0xFF) / 255f,
-                (color >> 24 & 0xFF) / 255f
-        };
     }
 }

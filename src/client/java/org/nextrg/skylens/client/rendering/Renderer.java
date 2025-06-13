@@ -56,7 +56,7 @@ public class Renderer {
             int borderWidth,
             int borderColor
     ) {
-        RoundGradShader.fill(
+        RoundGradShader.draw(
                 graphics,
                 x,
                 y,
@@ -141,4 +141,12 @@ public class Renderer {
         return context.getScaledWindowHeight();
     }
     
+    public static float[] colorToVec4f(int color) {
+        return new float[]{
+                (color >> 16 & 0xFF) / 255f,
+                (color >> 8 & 0xFF) / 255f,
+                (color & 0xFF) / 255f,
+                (color >> 24 & 0xFF) / 255f
+        };
+    }
 }

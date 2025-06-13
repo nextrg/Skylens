@@ -61,11 +61,6 @@ public class ModConfig implements ModMenuApi {
     public static Color missingEnchantsDisabled = new Color(0, 170, 170);
     
     @SerialEntry
-    public static boolean slayerIntros = true;
-    @SerialEntry
-    public static String slayerIntrosBackground = "Opaque";
-    
-    @SerialEntry
     public static boolean missingPotatoBooks = true;
     @SerialEntry
     public static Color missingPotatoBooksColor = new Color(252, 168, 0);
@@ -106,8 +101,11 @@ public class ModConfig implements ModMenuApi {
     public static boolean petOverlayIconAlign = true;
     @SerialEntry
     public static boolean petOverlayHideLvlFull = false;
+    
     @SerialEntry
     public static boolean customPetMenu = true;
+    @SerialEntry
+    public static boolean lowHpIndicator = true;
     
     private static Text volumeFormattedValue(Float val) {
         Color start = new Color(197, 242, 184);
@@ -199,6 +197,17 @@ public class ModConfig implements ModMenuApi {
                                         true,
                                         () -> customPetMenu,
                                         newValue -> customPetMenu = newValue
+                                )
+                                .controller(opt -> BooleanControllerBuilder.create(opt)
+                                        .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))
+                                        .coloured(true))
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Low HP Indicator"))
+                                .binding(
+                                        true,
+                                        () -> lowHpIndicator,
+                                        newValue -> lowHpIndicator = newValue
                                 )
                                 .controller(opt -> BooleanControllerBuilder.create(opt)
                                         .formatValue(val -> val ? Text.literal("Yes") : Text.literal("No"))

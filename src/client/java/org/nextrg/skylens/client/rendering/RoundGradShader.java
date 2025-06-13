@@ -18,11 +18,13 @@ import net.minecraft.client.util.Window;
 import org.joml.Matrix4f;
 import org.nextrg.skylens.client.SkylensClient;
 
+import static org.nextrg.skylens.client.rendering.Renderer.colorToVec4f;
+
 public class RoundGradShader {
-    private static final RenderPipeline PROGRESS_CHART = RenderPipelines.register(
+    private static final RenderPipeline ROUND_GRAD = RenderPipelines.register(
             RenderPipeline.builder()
                     .withLocation(SkylensClient.id("round_grad"))
-                    .withVertexShader(SkylensClient.id("core/round_grad"))
+                    .withVertexShader(SkylensClient.id("core/basic_transform"))
                     .withFragmentShader(SkylensClient.id("core/round_grad"))
                     .withCull(false)
                     .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
@@ -47,7 +49,7 @@ public class RoundGradShader {
     public RoundGradShader() {
     }
     
-    public static void fill(
+    public static void draw(
             DrawContext graphics, int x, int y, int width, int height, float radius,
             int startColor, int endColor, int gradientDirection, float animationTime, int borderWidth, int borderColor
     ) {
@@ -66,8 +68,9 @@ public class RoundGradShader {
         buffer.vertex(matrix, x, (y + height), 1.0F);
         buffer.vertex(matrix, (x + width), (y + height), 1.0F);
         buffer.vertex(matrix, (x + width), y, 1.0F);
+        
         PipelineRenderer.draw(
-                PROGRESS_CHART, buffer.end(), pass -> {
+                ROUND_GRAD, buffer.end(), pass -> {
                     pass.setUniform("modelViewMat", RenderSystem.getModelViewMatrix());
                     pass.setUniform("projMat", RenderSystem.getProjectionMatrix());
                     pass.setUniform("startColor", colorToVec4f(startColor));
@@ -81,14 +84,5 @@ public class RoundGradShader {
                     pass.setUniform("borderColor", colorToVec4f(borderColor));
                     pass.setUniform("time", animationTime);
                 });
-    }
-    
-    private static float[] colorToVec4f(int color) {
-        return new float[]{
-                (color >> 16 & 0xFF) / 255f,
-                (color >> 8 & 0xFF) / 255f,
-                (color & 0xFF) / 255f,
-                (color >> 24 & 0xFF) / 255f
-        };
     }
 }

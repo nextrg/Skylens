@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import org.nextrg.skylens.client.ModConfig;
 import org.nextrg.skylens.client.rendering.RoundGradShader;
 
 import static org.nextrg.skylens.client.rendering.Renderer.getScreenHeight;
@@ -26,7 +27,7 @@ public class LowHpIndicator {
     
     public static void render(DrawContext drawContext) {
         var player = MinecraftClient.getInstance().player;
-        if (player != null && onSkyblock()) {
+        if (player != null && onSkyblock() && ModConfig.lowHpIndicator) {
             float health = player.getHealth() / player.getMaxHealth();
             var transparency = Math.clamp(1.0f - health * 2, 0f, 1f);
             if (health <= 0.5f) {
@@ -40,10 +41,10 @@ public class LowHpIndicator {
                 int colorMain = hexToHexa(0xFFAA0000, (int) effect);
                 int colorFade = hexToHexa(0xFFAA0000, (int) (effect / 3f));
                 
-                RoundGradShader.fill(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
+                RoundGradShader.draw(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
                         colorMain, colorFade, 0, 0f, 0, 0);
                 
-                RoundGradShader.fill(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
+                RoundGradShader.draw(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
                         colorMain, colorFade, 1, 0f, 0, 0);
             }
         }
