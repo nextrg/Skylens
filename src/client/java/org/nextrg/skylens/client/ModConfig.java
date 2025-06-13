@@ -103,7 +103,7 @@ public class ModConfig implements ModMenuApi {
     public static boolean petOverlayHideLvlFull = false;
     
     @SerialEntry
-    public static boolean customPetMenu = true;
+    public static boolean customPetMenu = false;
     @SerialEntry
     public static boolean lowHpIndicator = true;
     
@@ -161,17 +161,6 @@ public class ModConfig implements ModMenuApi {
         }
     }
     
-    public enum BackgroundStyle implements NameableEnum {
-        Opaque,
-        Half_Opaque,
-        Transparent;
-        
-        @Override
-        public Text getDisplayName() {
-            return Text.literal(name().replace("_", " "));
-        }
-    }
-    
     public Screen config(Screen parent) {
         var randomLevel = Math.round(15 + Math.random() * 75);
         return YetAnotherConfigLib.createBuilder()
@@ -194,7 +183,7 @@ public class ModConfig implements ModMenuApi {
                                 .name(Text.literal("Custom Pet Menu"))
                                 .description(OptionDescription.of(Text.literal("§cExperimental feature\n§fModern style pet menu, that show pet's progress to next level and their rarity.")))
                                 .binding(
-                                        true,
+                                        false,
                                         () -> customPetMenu,
                                         newValue -> customPetMenu = newValue
                                 )
