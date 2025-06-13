@@ -63,7 +63,7 @@ public class PetOverlay {
     static int globalY = -45;
     static boolean initiallyChecked = false;
     
-    // For HUD editor
+    // For HUD editor.
     public static void forceAnim(boolean state) {
         forceShow = state;
     }
@@ -75,7 +75,7 @@ public class PetOverlay {
         }
     }
     
-    // Animate variable changes
+    // Animate variable changes.
     public static void animatePetData(int type, float updatedVar) {
         boolean isXp = type == 0;
         if (!ModConfig.petOverlayAnimXP) {
@@ -144,10 +144,10 @@ public class PetOverlay {
                         foundPet = true;
                         var lines = getLore(pet);
                         var levelValue = String.valueOf(getPetLevelFromCustomName(customName));
+                        maxLevel = customName.withoutStyle().get(1).toString().contains("Golden Dragon") ? 200 : 100;
                         for (var line : lines) {
                             if (line.toString().contains("Progress to")) {
                                 String xpProgress = getLiteral(line.getSiblings().getLast().getContent().toString().replace("%", ""));
-                                maxLevel = (lines.toString().contains("Golden Dragon")) ? 200 : 100;
                                 level = Float.parseFloat(levelValue) / maxLevel;
                                 xp = Float.parseFloat(xpProgress) / 100;
                             } else if (line.toString().contains("MAX LEVEL")) {
@@ -170,7 +170,7 @@ public class PetOverlay {
         }
     }
     
-    // Updating cache when opening pet's menu
+    // Updating cache when opening pet's menu.
     static int petMenuTicks = 0;
     
     public static void updateCache(Screen screen) {
@@ -244,7 +244,7 @@ public class PetOverlay {
                 if (messageContent.contains("leveled up to level") && messageContent.contains(getLiteral(currentPet.getName().getSiblings().getLast().getContent().toString()))) {
                     var petName = currentPet.getCustomName();
                     var st = Integer.parseInt(message.withoutStyle().get(message.withoutStyle().size() - 2).getString());
-                    maxLevel = petName != null && petName.toString().contains("Golden Dragon") ? 200 : 100;
+                    maxLevel = (petName != null && petName.withoutStyle().get(1).toString().contains("Golden Dragon")) ? 200 : 100;
                     level = Math.clamp((float) (st / maxLevel), level, 1f);
                     currentLevelUp = true;
                     leveledEver = true;
@@ -256,10 +256,10 @@ public class PetOverlay {
             }
         });
         ScreenEvents.BEFORE_INIT.register((client, screen, in1, in2) -> updateCache(screen));
-        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.HOTBAR_AND_BARS, Identifier.of("skylens", "pet-overlay"), PetOverlay::uib));
+        HudLayerRegistrationCallback.EVENT.register((wrap) -> wrap.attachLayerAfter(IdentifiedLayer.HOTBAR_AND_BARS, Identifier.of("skylens", "pet-overlay"), PetOverlay::renderAfterLayer));
     }
     
-    private static void uib(DrawContext drawContext, RenderTickCounter renderTickCounter) {
+    private static void renderAfterLayer(DrawContext drawContext, RenderTickCounter renderTickCounter) {
         prepare(drawContext, true);
     }
     
@@ -284,7 +284,7 @@ public class PetOverlay {
                                 rgbToHexa(ModConfig.petOverlayColor3)
                         };
                     }
-                    progress(String.valueOf(ModConfig.petOverlayStyle).toLowerCase(), drawContext, colors[0], colors[1], colors[2]);
+                    render(String.valueOf(ModConfig.petOverlayStyle).toLowerCase(), drawContext, colors[0], colors[1], colors[2]);
                 } catch (Exception e) {
                     logErr(e, "Caught an error while processing pet overlay data");
                 }
@@ -341,7 +341,7 @@ public class PetOverlay {
         }
     }
     
-    public static void progress(String type, DrawContext drawContext, int color1, int color2, int color3) {
+    public static void render(String type, DrawContext drawContext, int color1, int color2, int color3) {
         int marginY = ModConfig.petOverlayY;
         if (!ModConfig.petOverlayAnimFade) {
             globalY = show || isHudEditorEnabled ? 0 : -45 - marginY;
@@ -350,7 +350,6 @@ public class PetOverlay {
             globalY = -h + (int) (h * appearProgress);
         }
         if (globalY > -45 - marginY) {
-            var matrix = drawContext.getMatrices().peek().getPositionMatrix();
             var screenWidth = getScreenWidth(drawContext);
             var screenHeight = getScreenHeight(drawContext);
             float amount = (float) (Util.getMeasuringTimeMs() / 1700.0) % 1;
