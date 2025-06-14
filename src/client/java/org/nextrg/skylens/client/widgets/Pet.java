@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.nextrg.skylens.client.main.CustomPetScreen;
+import org.nextrg.skylens.client.rendering.RoundGradient;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -160,9 +161,9 @@ public class Pet extends ClickableWidget {
         var showBars = !(maxLevelled || displayTitle.contains("Choose Pet")) && showProgressBars;
         float animationTime = System.nanoTime() / 1_000_000_000_0f;
         if (maxLevelled) {
-            roundGradient(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 150), hexToHexa(colors[2], 70), 0, animationTime * 4.5f, 1, 0);
-            roundGradient(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 170), hexToHexa(colors[2], 90), 2, animationTime * 2.5f, 1, 0);
-            roundGradient(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 160), hexToHexa(colors[2], 80), 1, -animationTime * 3.5f, 1, 0);
+            RoundGradient.draw(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 150), hexToHexa(colors[2], 70), 0, animationTime * 4.5f, 1, 0);
+            RoundGradient.draw(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 170), hexToHexa(colors[2], 90), 2, animationTime * 2.5f, 1, 0);
+            RoundGradient.draw(context, getX(), getY(), this.width, this.height, 5.5f, hexToHexa(colors[2], 160), hexToHexa(colors[2], 80), 1, -animationTime * 3.5f, 1, 0);
         }
         
         if (equipped) {

@@ -16,6 +16,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.apache.commons.lang3.tuple.Pair;
 import org.nextrg.skylens.client.ModConfig;
+import org.nextrg.skylens.client.rendering.CircleChart;
 
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -24,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.nextrg.skylens.client.rendering.ProgressChartShader.draw;
 import static org.nextrg.skylens.client.rendering.Renderer.*;
 import static org.nextrg.skylens.client.utils.Errors.logErr;
 import static org.nextrg.skylens.client.utils.Other.*;
@@ -430,10 +430,10 @@ public class PetOverlay {
             } else {
                 if (ModConfig.petOverlayAnimIdle) {
                     var color = hexToHexa(color2, (int) (255 - amount * 255));
-                    draw(drawContext, x, y + 1, 1.01f, 11.5f + 4F * amount, color, color, 1.56f, 0f, false, 0, 0);
+                    CircleChart.draw(drawContext, x, y + 1, 1.01f, 11.5f + 4F * amount, color, color, 1.56f, 0f, false, 0, 0);
                 }
                 roundRectangle(drawContext, x - 12, y - 11, 24, 24, 13, color2, 0, 0);
-                draw(drawContext, x, y + 1, 1f - level, 12.5f, color3, color3, 1.56f, 0f, false, 0, 0);
+                CircleChart.draw(drawContext, x, y + 1, 1f - level, 12.5f, color3, color3, 1.56f, 0f, false, 0, 0);
                 
                 boolean altStyle = Objects.equals(type, "style3");
                 if (altStyle) {
@@ -441,11 +441,11 @@ public class PetOverlay {
                 }
                 
                 // xp
-                draw(drawContext, x, y + 1, 1.01f, 10.25f - (altStyle ? 1f : 0f), color1, color1, 1.56f, 0f, false, 0, 0);
-                draw(drawContext, x, y + 1, 1 - xp, 10.5f, color3, color3, 1.56f, 0f, false, 0, 0);
+                CircleChart.draw(drawContext, x, y + 1, 1.01f, 10.25f - (altStyle ? 1f : 0f), color1, color1, 1.56f, 0f, false, 0, 0);
+                CircleChart.draw(drawContext, x, y + 1, 1 - xp, 10.5f, color3, color3, 1.56f, 0f, false, 0, 0);
                 
                 // background
-                draw(drawContext, x, y + 1, 1.01f, 7f, color3, color3, 1.56f, 0f, false, 0, 0);
+                CircleChart.draw(drawContext, x, y + 1, 1.01f, 7f, color3, color3, 1.56f, 0f, false, 0, 0);
                 drawItem(drawContext, currentPet, x - 8, y - 7, 1F);
                 if (showLevel) {
                     drawText(drawContext, displayLvl, x, y - 27 + animtext, textColorOnLevel, 0.75F, true, true);

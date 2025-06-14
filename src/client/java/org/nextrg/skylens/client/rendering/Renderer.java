@@ -42,35 +42,6 @@ public class Renderer {
         });
     }
     
-    public static void roundGradient(
-            DrawContext graphics,
-            int x,
-            int y,
-            int width,
-            int height,
-            float borderRadius,
-            int startColor,
-            int endColor,
-            int gradientDirection,
-            float animTime,
-            int borderWidth,
-            int borderColor
-    ) {
-        RoundGradShader.draw(
-                graphics,
-                x,
-                y,
-                width,
-                height,
-                borderRadius,
-                startColor,
-                endColor,
-                gradientDirection,
-                animTime,
-                borderWidth,
-                borderColor);
-    }
-    
     public static void roundRectangle(
             DrawContext graphics,
             int x,

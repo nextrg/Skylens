@@ -20,12 +20,12 @@ import org.nextrg.skylens.client.SkylensClient;
 
 import static org.nextrg.skylens.client.rendering.Renderer.colorToVec4f;
 
-public class ProgressChartShader {
+public class CircleChart {
     private static final RenderPipeline PROGRESS_CHART = RenderPipelines.register(
             RenderPipeline.builder()
-                    .withLocation(SkylensClient.id("progress_chart"))
-                    .withVertexShader(SkylensClient.id("core/progress_chart"))
-                    .withFragmentShader(SkylensClient.id("core/progress_chart"))
+                    .withLocation(SkylensClient.id("circle_chart"))
+                    .withVertexShader(SkylensClient.id("core/basic_transform"))
+                    .withFragmentShader(SkylensClient.id("core/circle_chart"))
                     .withCull(false)
                     .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                     .withColorLogic(LogicOp.NONE)
@@ -44,7 +44,7 @@ public class ProgressChartShader {
                     .build()
     );
     
-    public ProgressChartShader() {
+    public CircleChart() {
     }
     
     public static void draw(

@@ -23,6 +23,7 @@ public class SidebarButton extends ClickableWidget {
     public int buttonType;
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final Object lock = new Object();
+    
     public SidebarButton(int x, int y, int width, int height, int type) {
         super(x, y, width, height, Text.empty());
         buttonType = type;
@@ -32,6 +33,7 @@ public class SidebarButton extends ClickableWidget {
     private boolean hoveredLastFrame = false;
     private boolean animationRunning = false;
     private boolean animatingToVisible = false;
+    
     private void animateHover(boolean show) {
         if (animationRunning && show == animatingToVisible) return;
         animationRunning = true;
@@ -113,7 +115,7 @@ public class SidebarButton extends ClickableWidget {
         }
         roundRectangle(context, getX(), getY(), this.width, this.height, 4, bool ? ColorHelper.lerp(transit, color1, color2) : ColorHelper.lerp(transit, color2, color1), 1, 0);
         var textRenderer = MinecraftClient.getInstance().textRenderer;
-        var text = switch(buttonType) {
+        var text = switch (buttonType) {
             case 10 -> "✧";
             case 9 -> "\uD83E\uDEE5";
             case 8 -> "\uD83E\uDDF9";

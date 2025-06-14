@@ -20,12 +20,12 @@ import org.nextrg.skylens.client.SkylensClient;
 
 import static org.nextrg.skylens.client.rendering.Renderer.colorToVec4f;
 
-public class RoundGradShader {
+public class RoundGradient {
     private static final RenderPipeline ROUND_GRAD = RenderPipelines.register(
             RenderPipeline.builder()
-                    .withLocation(SkylensClient.id("round_grad"))
+                    .withLocation(SkylensClient.id("round_gradient"))
                     .withVertexShader(SkylensClient.id("core/basic_transform"))
-                    .withFragmentShader(SkylensClient.id("core/round_grad"))
+                    .withFragmentShader(SkylensClient.id("core/round_gradient"))
                     .withCull(false)
                     .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                     .withColorLogic(LogicOp.NONE)
@@ -46,12 +46,22 @@ public class RoundGradShader {
                     .build()
     );
     
-    public RoundGradShader() {
+    public RoundGradient() {
     }
     
     public static void draw(
-            DrawContext graphics, int x, int y, int width, int height, float radius,
-            int startColor, int endColor, int gradientDirection, float animationTime, int borderWidth, int borderColor
+            DrawContext graphics,
+            int x,
+            int y,
+            int width,
+            int height,
+            float radius,
+            int startColor,
+            int endColor,
+            int gradientDirection,
+            float time,
+            int borderWidth,
+            int borderColor
     ) {
         Window window = MinecraftClient.getInstance().getWindow();
         float scale = (float) window.getScaleFactor();
@@ -82,7 +92,7 @@ public class RoundGradShader {
                     pass.setUniform("size", scaledWidth - (float) borderWidth * 2.0F * scale, scaledHeight - (float) borderWidth * 2.0F * scale);
                     pass.setUniform("center", scaledX + scaledWidth / 2.0F, scaledY + scaledHeight / 2.0F + yOffset);
                     pass.setUniform("borderColor", colorToVec4f(borderColor));
-                    pass.setUniform("time", animationTime);
+                    pass.setUniform("time", time);
                 });
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.nextrg.skylens.client.ModConfig;
-import org.nextrg.skylens.client.rendering.RoundGradShader;
+import org.nextrg.skylens.client.rendering.RoundGradient;
 
 import static org.nextrg.skylens.client.rendering.Renderer.getScreenHeight;
 import static org.nextrg.skylens.client.rendering.Renderer.getScreenWidth;
@@ -41,10 +41,10 @@ public class LowHpIndicator {
                 int colorMain = hexToHexa(0xFFAA0000, (int) effect);
                 int colorFade = hexToHexa(0xFFAA0000, (int) (effect / 3f));
                 
-                RoundGradShader.draw(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
+                RoundGradient.draw(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
                         colorMain, colorFade, 0, 0f, 0, 0);
                 
-                RoundGradShader.draw(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
+                RoundGradient.draw(drawContext, 0, 0, getScreenWidth(drawContext), getScreenHeight(drawContext), 0f,
                         colorMain, colorFade, 1, 0f, 0, 0);
             }
         }

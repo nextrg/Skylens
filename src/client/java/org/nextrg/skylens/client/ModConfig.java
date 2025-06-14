@@ -193,6 +193,7 @@ public class ModConfig implements ModMenuApi {
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Text.literal("Low HP Indicator"))
+                                .description(OptionDescription.of(Text.literal("Gradually§c reddens§f the screen as the player's health decreases.")))
                                 .binding(
                                         true,
                                         () -> lowHpIndicator,
