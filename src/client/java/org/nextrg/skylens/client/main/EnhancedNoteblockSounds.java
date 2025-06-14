@@ -22,6 +22,7 @@ public class EnhancedNoteblockSounds {
     public static List<String> instrumentList = new ArrayList<>();
     
     public static final SoundEvent harp = registerSound("harp");
+    public static final SoundEvent pling = registerSound("pling");
     public static final SoundEvent bass = registerSound("bass");
     public static final SoundEvent snare = registerSound("snare");
     public static final SoundEvent basedrum = registerSound("basedrum");
@@ -88,7 +89,9 @@ public class EnhancedNoteblockSounds {
                     if (path.contains("note_block." + instrument)) {
                         SoundEvent event = instruments.get(instrument);
                         float volume = getVolume(instrument);
-                        playSound(event, sound, ModConfig.noteblockGeneralVolume * volume);
+                        if (event != null) {
+                            playSound(event, sound, ModConfig.noteblockGeneralVolume * volume);
+                        }
                         break;
                     }
                 }
@@ -98,7 +101,7 @@ public class EnhancedNoteblockSounds {
     
     public static float getVolume(String instrument) {
         Map<String, Float> volumes = Map.of(
-                "harp", ModConfig.noteblockHarpVolume * 0.5F,
+                "harp", ModConfig.noteblockHarpVolume * 0.25F,
                 "bass", ModConfig.noteblockBassVolume * 0.4F,
                 "basedrum", ModConfig.noteblockBasedrumVolume * 1.6F,
                 "hat", ModConfig.noteblockHatVolume * 0.25F,
