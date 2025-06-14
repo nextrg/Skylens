@@ -14,16 +14,28 @@ import org.nextrg.skylens.client.ModConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 
 public class EnhancedNoteblockSounds {
     public static List<String> instrumentList = new ArrayList<>();
+    
     public static final SoundEvent harp = registerSound("harp");
     public static final SoundEvent bass = registerSound("bass");
     public static final SoundEvent snare = registerSound("snare");
     public static final SoundEvent basedrum = registerSound("basedrum");
     public static final SoundEvent hat = registerSound("hat");
+    
+    public static Map<String, SoundEvent> instruments = Map.of(
+            "harp", harp,
+            "bass", bass,
+            "basedrum", basedrum,
+            "hat", hat,
+            "snare", snare
+    );
+    
+    public static boolean initialized = false;
     
     private static SoundEvent registerSound(String id) {
         Identifier identifier = Identifier.of("skylens", id);
@@ -33,8 +45,6 @@ public class EnhancedNoteblockSounds {
         instrumentList.add(id);
         return Registry.register(Registries.SOUND_EVENT, identifier, SoundEvent.of(identifier));
     }
-    
-    static boolean initialized = false;
     
     public static void init() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -76,31 +86,24 @@ public class EnhancedNoteblockSounds {
                 var path = id.getPath();
                 for (String instrument : instrumentList) {
                     if (path.contains("note_block." + instrument)) {
-                        SoundEvent event = bass;
-                        float loudness = ModConfig.noteblockBassVolume * 0.4F;
-                        switch (instrument) {
-                            case "harp" -> {
-                                event = harp;
-                                loudness = ModConfig.noteblockHarpVolume * 0.33F;
-                            }
-                            case "basedrum" -> {
-                                event = basedrum;
-                                loudness = ModConfig.noteblockBasedrumVolume * 1.75F;
-                            }
-                            case "hat" -> {
-                                event = hat;
-                                loudness = ModConfig.noteblockHatVolume * 0.25F;
-                            }
-                            case "snare" -> {
-                                event = snare;
-                                loudness = ModConfig.noteblockSnareVolume * 10F;
-                            }
-                        }
-                        playSound(event, sound, ModConfig.noteblockGeneralVolume * loudness);
+                        SoundEvent event = instruments.get(instrument);
+                        float volume = getVolume(instrument);
+                        playSound(event, sound, ModConfig.noteblockGeneralVolume * volume);
                         break;
                     }
                 }
             }
         }
+    }
+    
+    public static float getVolume(String instrument) {
+        Map<String, Float> volumes = Map.of(
+                "harp", ModConfig.noteblockHarpVolume * 0.5F,
+                "bass", ModConfig.noteblockBassVolume * 0.4F,
+                "basedrum", ModConfig.noteblockBasedrumVolume * 1.6F,
+                "hat", ModConfig.noteblockHatVolume * 0.25F,
+                "snare", ModConfig.noteblockSnareVolume * 10F
+        );
+        return volumes.get(instrument);
     }
 }
