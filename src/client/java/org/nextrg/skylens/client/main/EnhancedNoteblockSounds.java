@@ -11,6 +11,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.nextrg.skylens.client.ModConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class EnhancedNoteblockSounds {
     }
     
     static boolean initialized = false;
+    
     public static void init() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (MinecraftClient.getInstance() != null) {
@@ -77,9 +79,9 @@ public class EnhancedNoteblockSounds {
                             }
                             case "snare" -> {
                                 sound = snare;
-                                loudness = 10F * ModConfig.noteblockBassVolume;
+                                loudness = 10F * ModConfig.noteblockSnareVolume;
                             }
-                        };
+                        }
                         playSound(sound, soundInstance, ModConfig.noteblockGeneralVolume * loudness);
                         break;
                     }

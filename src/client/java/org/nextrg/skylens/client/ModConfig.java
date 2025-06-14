@@ -181,7 +181,7 @@ public class ModConfig implements ModMenuApi {
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Text.literal("Custom Pet Menu"))
-                                .description(OptionDescription.of(Text.literal("§cExperimental feature\n§fModern style pet menu, that show pet's progress to next level and their rarity.")))
+                                .description(OptionDescription.of(Text.literal("§4§kd§r§c Experimental feature §4§kd§r\nModern style pet menu, that show pet's progress to next level and their rarity.")))
                                 .binding(
                                         false,
                                         () -> customPetMenu,
@@ -193,7 +193,7 @@ public class ModConfig implements ModMenuApi {
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Text.literal("Low HP Indicator"))
-                                .description(OptionDescription.of(Text.literal("Gradually§c reddens§f the screen as the player's health decreases.")))
+                                .description(OptionDescription.of(Text.literal("Gradually reddens the screen as the player's health decreases.")))
                                 .binding(
                                         true,
                                         () -> lowHpIndicator,
@@ -308,7 +308,7 @@ public class ModConfig implements ModMenuApi {
                                 .build())
                         .group(OptionGroup.createBuilder()
                                 .name(Text.literal("Enhanced Noteblock Sounds"))
-                                .description(OptionDescription.of(Text.literal("Replaces the instrument sounds to sound more refined. Setting an instrument volume to §e0%§f will §cdisable§f it and the vanilla counterpart will be played instead.")))
+                                .description(OptionDescription.of(Text.literal("Replaces the instrument sounds to sound more refined. Setting an instrument volume to 0% will §ldisable§r it and the vanilla counterpart will be played instead.")))
                                 .collapsed(true)
                                 .option(Option.<Boolean>createBuilder()
                                         .name(Text.literal("Enable"))
