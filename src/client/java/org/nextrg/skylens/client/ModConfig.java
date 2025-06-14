@@ -43,15 +43,17 @@ public class ModConfig implements ModMenuApi {
     @SerialEntry
     public static boolean enhancedNoteblockSounds = true;
     @SerialEntry
-    public static float noteblockGeneralVolume = 1.0F;
+    public static float noteblockGeneralVolume = 1F;
     @SerialEntry
-    public static float noteblockBasedrumVolume = 1.0F;
+    public static float noteblockHarpVolume = 1F;
     @SerialEntry
-    public static float noteblockHatVolume = 1.0F;
+    public static float noteblockBassVolume = 1F;
     @SerialEntry
-    public static float noteblockSnareVolume = 1.0F;
+    public static float noteblockBasedrumVolume = 1F;
     @SerialEntry
-    public static float noteblockBassVolume = 0.333F;
+    public static float noteblockHatVolume = 1F;
+    @SerialEntry
+    public static float noteblockSnareVolume = 1F;
     
     @SerialEntry
     public static boolean missingEnchants = true;
@@ -335,9 +337,18 @@ public class ModConfig implements ModMenuApi {
                                                 .formatValue(ModConfig::volumeFormattedValue))
                                         .build())
                                 .option(Option.<Float>createBuilder()
+                                        .name(Text.literal("Instrument: Harp"))
+                                        .binding(
+                                                1F,
+                                                () -> noteblockHarpVolume,
+                                                newValue -> noteblockHarpVolume = newValue
+                                        )
+                                        .controller(ModConfig::volumeController)
+                                        .build())
+                                .option(Option.<Float>createBuilder()
                                         .name(Text.literal("Instrument: Bass"))
                                         .binding(
-                                                0.333F,
+                                                1F,
                                                 () -> noteblockBassVolume,
                                                 newValue -> noteblockBassVolume = newValue
                                         )

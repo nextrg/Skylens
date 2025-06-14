@@ -19,6 +19,7 @@ import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 
 public class EnhancedNoteblockSounds {
     public static List<String> instrumentList = new ArrayList<>();
+    public static final SoundEvent harp = registerSound("harp");
     public static final SoundEvent bass = registerSound("bass");
     public static final SoundEvent snare = registerSound("snare");
     public static final SoundEvent basedrum = registerSound("basedrum");
@@ -26,7 +27,7 @@ public class EnhancedNoteblockSounds {
     
     private static SoundEvent registerSound(String id) {
         Identifier identifier = Identifier.of("skylens", id);
-        if (instrumentList == null) { // in case something pulls a dirty trick
+        if (instrumentList == null) {
             instrumentList = new ArrayList<>();
         }
         instrumentList.add(id);
@@ -59,30 +60,43 @@ public class EnhancedNoteblockSounds {
         );
     }
     
-    private static void onSound(SoundInstance soundInstance, WeightedSoundSet weightedSoundSet, float v) {
-        if (onSkyblock() && ModConfig.enhancedNoteblockSounds) {
-            Identifier id = soundInstance.getId();
+    public static boolean isSkyblockMusic(SoundInstance sound) {
+        var player = MinecraftClient.getInstance().player;
+        if (player == null || sound == null) return false;
+        
+        return Math.abs(sound.getX() - player.getX()) <= 5 &&
+                Math.abs(sound.getY() - player.getY()) <= 5 &&
+                Math.abs(sound.getZ() - player.getZ()) <= 5;
+    }
+    
+    private static void onSound(SoundInstance sound, WeightedSoundSet weightedSoundSet, float v) {
+        if (onSkyblock() && ModConfig.enhancedNoteblockSounds && isSkyblockMusic(sound)) {
+            Identifier id = sound.getId();
             if (id != null) {
                 var path = id.getPath();
                 for (String instrument : instrumentList) {
                     if (path.contains("note_block." + instrument)) {
-                        SoundEvent sound = bass;
-                        float loudness = ModConfig.noteblockBassVolume;
+                        SoundEvent event = bass;
+                        float loudness = ModConfig.noteblockBassVolume * 0.4F;
                         switch (instrument) {
+                            case "harp" -> {
+                                event = harp;
+                                loudness = ModConfig.noteblockHarpVolume * 0.33F;
+                            }
                             case "basedrum" -> {
-                                sound = basedrum;
-                                loudness = ModConfig.noteblockBasedrumVolume;
+                                event = basedrum;
+                                loudness = ModConfig.noteblockBasedrumVolume * 1.75F;
                             }
                             case "hat" -> {
-                                sound = hat;
-                                loudness = ModConfig.noteblockHatVolume;
+                                event = hat;
+                                loudness = ModConfig.noteblockHatVolume * 0.25F;
                             }
                             case "snare" -> {
-                                sound = snare;
-                                loudness = 10F * ModConfig.noteblockSnareVolume;
+                                event = snare;
+                                loudness = ModConfig.noteblockSnareVolume * 10F;
                             }
                         }
-                        playSound(sound, soundInstance, ModConfig.noteblockGeneralVolume * loudness);
+                        playSound(event, sound, ModConfig.noteblockGeneralVolume * loudness);
                         break;
                     }
                 }

@@ -9,9 +9,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Objects;
+import java.util.Map;
 
 import static org.nextrg.skylens.client.main.EnhancedNoteblockSounds.instrumentList;
+import static org.nextrg.skylens.client.main.EnhancedNoteblockSounds.isSkyblockMusic;
 import static org.nextrg.skylens.client.utils.Other.onSkyblock;
 
 @Mixin(AbstractSoundInstance.class)
@@ -19,29 +20,34 @@ public class AbstractSoundInstanceMixin {
     @Inject(method = "getVolume", at = @At("RETURN"), cancellable = true)
     private void modifyVolume(CallbackInfoReturnable<Float> cir) {
         try {
-            SoundInstance sound = (SoundInstance) (Object) this;
-            var path = sound.getId().getPath();
-            for (String instrument : instrumentList) {
-                if (path.contains("note_block." + instrument)) {
-                    boolean replace = ModConfig.enhancedNoteblockSounds && onSkyblock();
-                    switch (instrument) {
-                        case "bass" -> {
-                            if (ModConfig.noteblockBassVolume <= 0f) replace = false;
-                        }
-                        case "basedrum" -> {
-                            if (ModConfig.noteblockBasedrumVolume <= 0f) replace = false;
-                        }
-                        case "hat" -> {
-                            if (ModConfig.noteblockHatVolume <= 0f) replace = false;
-                        }
-                        case "snare" -> {
-                            if (ModConfig.noteblockSnareVolume <= 0f) replace = false;
-                        }
+            SoundInstance sound = (SoundInstance) this;
+            if (ModConfig.enhancedNoteblockSounds && onSkyblock() && isSkyblockMusic(sound)) {
+                var path = sound.getId().getPath();
+                for (String instrument : instrumentList) {
+                    if (path.contains("note_block." + instrument)) {
+                        cir.setReturnValue(shouldReplace(instrument) ? cir.getReturnValue() * 0.01f : cir.getReturnValue());
+                        break;
                     }
-                    cir.setReturnValue(replace ? cir.getReturnValue() * 0.01f : cir.getReturnValue());
-                    break;
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
+    }
+    
+    @Unique
+    private static boolean shouldReplace(String instrument) {
+        Map<String, Float> volumes = Map.of(
+                "harp", ModConfig.noteblockHarpVolume,
+                "bass", ModConfig.noteblockBassVolume,
+                "basedrum", ModConfig.noteblockBasedrumVolume,
+                "hat", ModConfig.noteblockHatVolume,
+                "snare", ModConfig.noteblockSnareVolume
+        );
+        boolean replace = true;
+        Float volume = volumes.get(instrument);
+        if (volume == null || volume <= 0f) {
+            replace = false;
+        }
+        return replace;
     }
 }
