@@ -5,6 +5,7 @@ import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,24 +15,31 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import static org.nextrg.skylens.client.utils.Text.*;
+
+import static org.nextrg.skylens.client.utils.Text.capitalize;
+import static org.nextrg.skylens.client.utils.Text.getLiteral;
 
 public class
 Tooltips {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final Pattern ENCHANT_PATTERN = Pattern.compile("\\b[IVXLCDM]+\\b");
     public static final Map<String, Integer> cache = new HashMap<>();
+    
     public static List<Text> getLore(ItemStack stack) {
         return stack.getOrDefault(DataComponentTypes.LORE, LoreComponent.DEFAULT).styledLines();
     }
+    
     public static String getEnchantFromLine(Text line) {
         List<Text> siblings = line.getSiblings();
+        if (siblings.isEmpty()) return getLiteral("");
         int index = siblings.size() > 1 ? 1 : 0;
         return getLiteral(siblings.get(index).getContent().toString());
     }
+    
     public static void tooltipMiddleCache() {
         scheduler.scheduleAtFixedRate(cache::clear, 1, 1, TimeUnit.MINUTES);
     }
+    
     public static int getTooltipMiddle(List<Text> lines, NbtCompound nbt, int type) {
         if (cache.size() > 50) {
             cache.clear();
@@ -65,7 +73,7 @@ Tooltips {
                     break;
                 }
             }
-            if (!lines.get(targetIndex - 1).getSiblings().isEmpty()) {
+            if (targetIndex - 1 >= 0 && targetIndex - 1 < lines.size() && !lines.get(targetIndex - 1).getSiblings().isEmpty()) {
                 int foundEnchant = 0;
                 // Find last enchant
                 for (int i = 1; i < lines.size(); i++) {
@@ -81,7 +89,7 @@ Tooltips {
                 if (foundEnchant != 0) {
                     var lastEnchant = targetIndex + foundEnchant;
                     var lastEnchantDescription = lastEnchant;
-                    for (var i = lastEnchant; i < lastEnchant + 5; i++) {
+                    for (var i = lastEnchant; i < Math.min(lines.size(), lastEnchant + 5); i++) {
                         if (lines.get(i).getSiblings().isEmpty()) {
                             lastEnchantDescription = i;
                             break;
@@ -101,6 +109,7 @@ Tooltips {
         cache.put(cacheKey, result);
         return result;
     }
+    
     public static String getItemType(List<Text> lines) {
         var category = "OTHER";
         for (var line : lines) {

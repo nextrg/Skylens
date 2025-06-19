@@ -1,9 +1,4 @@
 {
-  "harp": {
-    "sounds": [
-      "skylens:harp"
-    ]
-  },
   "bass": {
     "sounds": [
       "skylens:bass"

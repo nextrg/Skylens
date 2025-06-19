@@ -21,6 +21,7 @@ public class Files {
     public static JsonObject readJSONFromNeu(String path) {
         return readJSON("https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO" + path);
     }
+    
     public static JsonObject readJSON(String path) {
         JsonObject json = new JsonObject();
         try {
@@ -37,6 +38,7 @@ public class Files {
         }
         return json;
     }
+    
     // Might be useful in the future, keeping it for later
     public static List<Path> readFolderFiles(String relativePath) {
         Path basePath = FabricLoader.getInstance().getGameDir().resolve(relativePath); // Make sure it's only in .minecraft folder, not anywhere else for safety

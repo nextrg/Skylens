@@ -37,7 +37,6 @@ public class AbstractSoundInstanceMixin {
     @Unique
     private static boolean shouldReplace(String instrument) {
         Map<String, Float> volumes = Map.of(
-                "harp", ModConfig.noteblockHarpVolume,
                 "bass", ModConfig.noteblockBassVolume,
                 "basedrum", ModConfig.noteblockBasedrumVolume,
                 "hat", ModConfig.noteblockHatVolume,

@@ -337,15 +337,6 @@ public class ModConfig implements ModMenuApi {
                                                 .formatValue(ModConfig::volumeFormattedValue))
                                         .build())
                                 .option(Option.<Float>createBuilder()
-                                        .name(Text.literal("Instrument: Harp"))
-                                        .binding(
-                                                1F,
-                                                () -> noteblockHarpVolume,
-                                                newValue -> noteblockHarpVolume = newValue
-                                        )
-                                        .controller(ModConfig::volumeController)
-                                        .build())
-                                .option(Option.<Float>createBuilder()
                                         .name(Text.literal("Instrument: Bass"))
                                         .binding(
                                                 1F,
