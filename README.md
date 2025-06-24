@@ -6,3 +6,14 @@
 # Announcement
 **Skylens** is currently being rewritten (as part of **2.0** update) with the goal of improving performance and the mod's features itself.
 There won't be any updates until **2.0** is finished.
+### Progress:
+- [ ] Pet Overlay
+  - [X] Pet API
+- [X] Missing Enchantments
+- [ ] Enhanced Noteblock Sounds
+- [ ] Compact Level Display
+- [ ] Low HP Indicator
+- [ ] HUD Editor
+- [ ] Custom Shaders
+
+Custom Pet Screen and Potato Books won't come to 2.0 release and instead be replaced with other features.
