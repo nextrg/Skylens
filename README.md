@@ -13,7 +13,7 @@ There will be no updates until **2.0** is complete.
 - [ ] Enhanced Noteblock Sounds
 - [X] Compact Level Display
 - [ ] Low HP Indicator
-- [ ] HUD Editor
+- [X] HUD Editor
 - [X] Custom Shaders
 
 Note: **Custom Pet Screen** and **Potato Books** will not be included in the 2.0 release. They will be replaced with other features.
